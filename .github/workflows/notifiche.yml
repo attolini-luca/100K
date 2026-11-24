@@ -1,0 +1,44 @@
+name: Notifiche
+on:
+  schedule:
+    - cron: '0 4,5 * * *'      # 06:00 a Roma: buongiorno
+    - cron: '20 4,5 * * *'     # 06:20: misurazioni (lun, mer, ven)
+    - cron: '30 16,17 * * *'   # 18:30: carburante (sera prima di qualità, test, lungo)
+    - cron: '0 17,18 * * *'    # 19:00: report settimanale (domenica)
+    - cron: '30 19,20 * * *'   # 21:30: compila la scheda (giorni di allenamento)
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Quale notifica: test, mattina, misure, carburante, scheda, report'
+        default: 'test'
+      date:
+        description: 'Data AAAA-MM-GG (vuoto = oggi)'
+        required: false
+permissions:
+  contents: write
+jobs:
+  invia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install web-push@3.6.7 --no-save --no-audit --no-fund
+      - run: node scripts/send.mjs
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
+          SCHEDULE: ${{ github.event.schedule }}
+          SLOT: ${{ github.event.inputs.slot }}
+          DATE: ${{ github.event.inputs.date }}
+      # GitHub spegne gli orari programmati dopo 60 giorni senza modifiche: una volta al mese lo teniamo sveglio
+      - name: Tieni attivo il repository
+        if: github.event.schedule == '0 4,5 * * *'
+        run: |
+          if [ "$(TZ=Europe/Rome date +%d)" = "01" ] && [ "$(TZ=Europe/Rome date +%H)" = "06" ]; then
+            date -u > ultimo-avvio.txt
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add ultimo-avvio.txt && git commit -m "Tieni attive le notifiche" && git push
+          fi

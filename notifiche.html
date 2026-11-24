@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifiche 100K</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#e2ecfa">
+<style>
+  body{margin:0;min-height:100vh;font:16px/1.45 -apple-system,system-ui,sans-serif;color:#101318;background:radial-gradient(120% 70% at 50% 20%,#fafcff 0%,#e2ecfa 50%,#b8d0f0 100%)}
+  main{max-width:520px;margin:0 auto;padding:28px 20px 40px;text-align:center}
+  img{width:110px;height:110px;border-radius:26px;box-shadow:0 14px 30px rgba(40,70,120,.2)}
+  h1{font-size:26px;margin:16px 0 6px}
+  p{color:#5b6472;margin:6px 0}
+  .card{background:rgba(255,255,255,.88);border-radius:24px;padding:18px;margin-top:18px;text-align:left;box-shadow:0 10px 30px rgba(40,70,120,.10)}
+  .card b{display:block;margin-bottom:6px}
+  button{width:100%;height:54px;border:0;border-radius:16px;background:#101318;color:#fff;font:700 16px system-ui;margin-top:12px}
+  button.sec{background:#e9eef6;color:#101318}
+  textarea{width:100%;min-height:120px;border:0;border-radius:14px;background:#f1f4f9;padding:12px;font:12px ui-monospace,monospace;box-sizing:border-box}
+  #ok{display:none}
+  a{color:#2563eb}
+</style>
+</head>
+<body>
+<main>
+  <img src="icon-512.png" alt="">
+  <h1>Notifiche 100K</h1>
+  <p>Attivale una volta sola, da questo telefono.</p>
+  <div class="card">
+    <b>1. Attiva</b>
+    <p>Tocca il pulsante e consenti le notifiche quando Chrome te lo chiede.</p>
+    <button id="on">Attiva notifiche</button>
+    <p id="st"></p>
+  </div>
+  <div class="card" id="ok">
+    <b>2. Copia il codice e mandalo a GitHub</b>
+    <p>Copia il codice, poi incollalo come segreto <b style="display:inline">PUSH_SUBSCRIPTION</b> nel repository.</p>
+    <textarea id="code" readonly></textarea>
+    <button id="copy">Copia il codice</button>
+    <p><a href="https://github.com/attolini-luca/100k/settings/secrets/actions/new">Apri la pagina dei segreti su GitHub</a></p>
+    <button class="sec" id="prova">Prova una notifica qui</button>
+  </div>
+</main>
+<script>
+{
+  const KEY = 'BEmX_RHaPOMpPT2WoDBsLhasaYmW-7AWiwcUfRH2XCE8GFwH9Z7OCfQo8FfZVxswyxbVin9-1fZwCB7nguaY3ew';
+  const st = document.getElementById('st');
+  const b64 = s => { const p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...r].map(c => c.charCodeAt(0))); };
+  async function attiva() {
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) { st.textContent = 'Questo browser non supporta le notifiche: aprila con Chrome.'; return; }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { st.textContent = 'Permesso negato: abilitalo dalle impostazioni del sito in Chrome e riprova.'; return; }
+      await navigator.serviceWorker.register('sw.js');
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64(KEY)});
+      document.getElementById('code').value = JSON.stringify(sub);
+      document.getElementById('ok').style.display = 'block';
+      st.textContent = 'Notifiche attive su questo telefono ✅';
+    } catch (e) { st.textContent = 'Errore: ' + (e && e.message ? e.message : e); }
+  }
+  document.getElementById('on').addEventListener('click', attiva);
+  document.getElementById('copy').addEventListener('click', async () => {
+    const t = document.getElementById('code');
+    try { await navigator.clipboard.writeText(t.value); st.textContent = 'Codice copiato ✅'; } catch (e) { t.select(); document.execCommand('copy'); st.textContent = 'Codice copiato ✅'; }
+  });
+  document.getElementById('prova').addEventListener('click', async () => {
+    const reg = await navigator.serviceWorker.ready;
+    reg.showNotification('Buongiorno Luca ☀️', {body: 'Così ti arriveranno le notifiche della scheda.', icon: 'icon-192.png', badge: 'badge-96.png'});
+  });
+}
+</script>
+</body>
+</html>
