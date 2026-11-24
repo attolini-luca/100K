@@ -1,0 +1,254 @@
+{
+ "name": "Gabriele",
+ "plan": {
+  "start": null,
+  "days": [
+   [
+    {
+     "id": "gA",
+     "type": "str",
+     "sess": "gA",
+     "slot": "Sera"
+    }
+   ],
+   [
+    {
+     "id": "gB",
+     "type": "str",
+     "sess": "gB",
+     "slot": "Sera"
+    }
+   ],
+   [],
+   [
+    {
+     "id": "gC",
+     "type": "str",
+     "sess": "gC",
+     "slot": "Sera"
+    }
+   ],
+   [
+    {
+     "id": "gD",
+     "type": "str",
+     "sess": "gD",
+     "slot": "Sera"
+    }
+   ],
+   [],
+   []
+  ],
+  "tpl": {
+   "gA": {
+    "t": "Scheda A",
+    "d": "petto alto, dorso, spalle, braccia",
+    "min": 60
+   },
+   "gB": {
+    "t": "Scheda B",
+    "d": "squat, tricipiti, gambe",
+    "min": 60
+   },
+   "gC": {
+    "t": "Scheda C",
+    "d": "squat macchina, trazioni, femorali",
+    "min": 60
+   },
+   "gD": {
+    "t": "Scheda D",
+    "d": "panca, spalle, braccia",
+    "min": 60
+   }
+  }
+ },
+ "sess": {
+  "gA": [
+   {
+    "k": "inclMan",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "gRemCavo",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "xLentoAvantiAlMultipower",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "gAlzCavo1",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "curlCavo",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "xPushDownConCorda",
+    "s": 3,
+    "r": "10-12"
+   }
+  ],
+  "gB": [
+   {
+    "k": "squat",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'30\""
+   },
+   {
+    "k": "xDipAlleParalleleZavorrati",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "legExt",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "xLegCurlSedutoMacchina",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "polpUna",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "legRaise",
+    "s": 3,
+    "r": "10-15"
+   },
+   {
+    "k": "overheadExt",
+    "s": 3,
+    "r": "10-12"
+   }
+  ],
+  "gC": [
+   {
+    "k": "gSquatMacc",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'30\""
+   },
+   {
+    "k": "xTrazioniZavorrate",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "rdl",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "xLegCurlSdraiatoMacchina",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "polpUna",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "legRaise",
+    "s": 3,
+    "r": "10-15"
+   },
+   {
+    "k": "curlCavo",
+    "s": 3,
+    "r": "10-12"
+   }
+  ],
+  "gD": [
+   {
+    "k": "panca",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'30\""
+   },
+   {
+    "k": "xMuscleUp",
+    "s": 4,
+    "r": "3-5",
+    "rest": "2'"
+   },
+   {
+    "k": "military",
+    "s": 4,
+    "r": "6-8",
+    "rest": "2'"
+   },
+   {
+    "k": "gAlzCavo1",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "xPushDownConCorda",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "curlMan",
+    "s": 3,
+    "r": "10-12"
+   },
+   {
+    "k": "xAlzatePosterioriAlCavoRevers",
+    "s": 3,
+    "r": "10-12"
+   }
+  ]
+ },
+ "ex": {
+  "gRemCavo": {
+   "n": "Rematore al cavo da seduto",
+   "g": "dorso",
+   "t": "kg",
+   "s": 3,
+   "r": "10-12",
+   "rest": "1'30\"",
+   "tip": "Petto alto, tira i gomiti indietro vicino ai fianchi e stringi le scapole un secondo."
+  },
+  "gAlzCavo1": {
+   "n": "Alzate laterali a braccio singolo al cavo",
+   "g": "spalle",
+   "t": "kg",
+   "s": 3,
+   "r": "10-12",
+   "rest": "1'",
+   "tip": "Cavo dal basso, braccio leggermente piegato, sali fino all'altezza della spalla senza slanci."
+  },
+  "gSquatMacc": {
+   "n": "Squat alla macchina",
+   "g": "gambe",
+   "t": "kg",
+   "s": 4,
+   "r": "6-8",
+   "rest": "2'30\"",
+   "tip": "Scendi controllato fino a cosce parallele o sotto, spingi con tutto il piede."
+  }
+ },
+ "profile": {
+  "kg": "83",
+  "goal": "forza",
+  "race": "Diventare Goku"
+ }
+}
