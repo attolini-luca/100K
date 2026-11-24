@@ -12,8 +12,16 @@ async function propo() {
   try { const c = await caches.open('100k-cfg'); const r = await c.match('proposito.json'); return r ? await r.json() : {}; } catch (e) { return {}; }
 }
 const oggi = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+async function piano() {
+  try { const c = await caches.open('100k-cfg'); const r = await c.match('piano.json'); return r ? await r.json() : null; } catch (e) { return null; }
+}
 async function show(d) {
   let body = d.body || '';
+  if (/\{(oggi|segna)\}/.test(body)) {
+    const p = await piano(), t = p ? p[oggi()] : null;
+    body = body.replace('{oggi}', p ? (t ? `Oggi: ${t}.` : 'Oggi riposo: una camminata e un po\' di mobilità.') : 'Apri l\'app per vedere cosa ti aspetta oggi.')
+      .replace('{segna}', t ? 'Segna carichi, km e note di oggi. ' : '');
+  }
   if (body.includes('{proposito}')) { const p = (await propo())[oggi()]; body = body.replace('{proposito}', p ? `Il tuo proposito: “${p}”.` : '').trim(); }
   const actions = [];
   if (/\{\w+\}/.test(body)) {

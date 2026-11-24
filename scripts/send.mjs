@@ -98,6 +98,33 @@ function message(slot, iso) {
   return null;
 }
 
+// messaggi per gli invitati: il service worker sul loro telefono completa {oggi}, {segna}, {proposito} e gli integratori
+function guestMessage(slot, iso, u) {
+  const d = dayIdx(iso), mod = u.mod || {}, days = u.days || {}, nome = u.name || '';
+  const propo = ` ✍️ Scrivi il proposito di domani e ricarichi il Rompighiaccio. «${frase(iso)}»`;
+  if (slot === 'test') return {title: 'Notifiche attive ✅', body: `Ciao ${nome}, da domani ti scrivo io. Si parte!`};
+  if (slot === 'mattina') return {title: `Buongiorno ${nome} ☀️`, body: '{proposito} {oggi}'};
+  if (slot === 'misure') return [0, 2, 4].includes(d) ? {title: 'Misurazioni 📏', body: 'Pesati e segna FC a riposo e sonno nell\'app.'} : null;
+  if (slot === 'carburante') return mod.run !== false && (days.q || []).includes((d + 1) % 7) ? {title: 'Carburante per domani 🍝', body: 'Domani allenamento intenso: cena con carboidrati e a letto presto.'} : null;
+  if (slot === 'scheda') return mod.supp !== false ? {title: 'Prima di dormire 🌙', body: 'Integratori: {sera}. {segna}' + propo.trim(), sup: 'sera', alt: '{segna}' + propo.trim()} : {title: 'Prima di dormire 🌙', body: '{segna}' + propo.trim()};
+  if (mod.supp === false) return null;
+  if (slot === 'integColazione' || slot === 'testInteg') return {title: 'Integratori della colazione 💊', body: '{colazione}', sup: 'colazione'};
+  if (slot === 'integPranzo') return {title: 'Integratori del pranzo 💊', body: '{pranzo}', sup: 'pranzo'};
+  if (slot === 'integPre') return (days.str || []).includes(d) ? {title: 'Tra poco si allena 💪', body: 'Ora: {pre}. Dopo i pesi: {post}.', sup: 'pre'} : null;
+  return null;
+}
+
+// iscrizioni salvate dall'app in Firestore (serve il segreto FIREBASE_SA, la chiave dell'account di servizio)
+async function firestoreSubs() {
+  const raw = (process.env.FIREBASE_SA || '').trim();
+  if (!raw) return {list: [], del: async () => {}};
+  const admin = (await import('firebase-admin')).default;
+  admin.initializeApp({credential: admin.credential.cert(JSON.parse(raw))});
+  const db = admin.firestore(), snap = await db.collection('push').get();
+  const list = snap.docs.map(d => ({id: d.id, ...d.data()})).filter(u => u.sub).map(u => { try { return {...u, sub: JSON.parse(u.sub)}; } catch (e) { return null; } }).filter(Boolean);
+  return {list, del: id => db.collection('push').doc(id).delete()};
+}
+
 async function main() {
   const now = rome();
   let slot = process.env.SLOT || '';
@@ -108,16 +135,24 @@ async function main() {
     const late = now.min - toMin(SLOTS[slot].at);
     if (late < 0 || late >= 45) { console.log(`Ora di Roma non corrisponde a ${slot} (${late} min): salto`); return; }
   }
-  const msg = message(slot, iso);
-  if (!msg) { console.log('Niente da mandare oggi per', slot); return; }
-  const raw = (process.env.PUSH_SUBSCRIPTION || '').trim();
-  if (!raw || !process.env.VAPID_PRIVATE_KEY) throw new Error('Mancano i segreti PUSH_SUBSCRIPTION o VAPID_PRIVATE_KEY');
-  const subs = [].concat(JSON.parse(raw));
+  if (!process.env.VAPID_PRIVATE_KEY) throw new Error('Manca il segreto VAPID_PRIVATE_KEY');
   webpush.setVapidDetails('https://attolini-luca.github.io/100k/', VAPID_PUBLIC, process.env.VAPID_PRIVATE_KEY.trim());
-  const payload = JSON.stringify({...msg, url: SCHEDA + (msg.sup ? '#cibo' : ''), tag: `100k-${slot}`});
-  for (const s of subs) {
-    const r = await webpush.sendNotification(s, payload, {TTL: 6 * 3600, urgency: 'high'});
-    console.log('Inviata', slot, iso, r.statusCode, msg.title);
+  const fs = await firestoreSubs(), seen = new Set(), targets = [];
+  for (const u of fs.list) { if (seen.has(u.sub.endpoint)) continue; seen.add(u.sub.endpoint); targets.push(u); }
+  const raw = (process.env.PUSH_SUBSCRIPTION || '').trim();
+  if (raw) for (const s of [].concat(JSON.parse(raw))) if (!seen.has(s.endpoint)) { seen.add(s.endpoint); targets.push({id: null, owner: true, name: 'Luca', sub: s}); }
+  if (!targets.length) throw new Error('Nessun iscritto: manca PUSH_SUBSCRIPTION e Firestore è vuoto');
+  let sent = 0;
+  for (const u of targets) {
+    const msg = u.owner ? message(slot, iso) : guestMessage(slot, iso, u);
+    if (!msg) { console.log('Niente oggi per', u.name, slot); continue; }
+    const payload = JSON.stringify({...msg, url: SCHEDA + (msg.sup ? '#cibo' : ''), tag: `100k-${slot}`});
+    try { const r = await webpush.sendNotification(u.sub, payload, {TTL: 6 * 3600, urgency: 'high'}); sent++; console.log('Inviata', slot, iso, u.name, r.statusCode); }
+    catch (e) {
+      if ((e.statusCode === 404 || e.statusCode === 410) && u.id) { await fs.del(u.id); console.log('Iscrizione scaduta, tolta:', u.name); }
+      else console.error('Errore per', u.name, e.statusCode || '', e.body || e.message);
+    }
   }
+  console.log(`Fatto: ${sent} su ${targets.length}`);
 }
 main().catch(e => { console.error(e.body || e.message || e); process.exit(1); });

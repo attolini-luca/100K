@@ -519,7 +519,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124p';
+const AV = '20261124q';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1545,7 +1545,7 @@ function vPiano() {
   ${isOwner ? '' : '<!--'}<h2 class="sec">Le 4 fasi</h2><div class="list glass">${ph.map(p => `<div class="lrow" style="${tv(p[1])}"><span class="bub">${ico(p[0])}</span><span><b>${p[2]}</b><small><em>${p[3]}</em></small><small>${p[4]}</small></span><span></span></div>`).join('')}</div>
   ${isOwner ? '' : '-->'}<h2 class="sec">Regole d'oro</h2><div class="list glass">${rules.map(r => `<div class="lrow" style="${tv(r[1])}"><span class="bub">${ico(r[0])}</span><span><b>${r[2]}</b><small>${r[3]}</small></span><span></span></div>`).join('')}</div>
   ${isOwner && mode === 'db' ? invitesHtml() : ''}
-  <h2 class="sec">App</h2><div class="list glass"><button class="lrow" style="${tv('long')}" data-act="profilo"><span class="bub">${ico('avatar')}</span><span><b>Il mio profilo</b><small>Obiettivo, giorni, zone cardio e moduli</small></span><span class="chev">›</span></button><a class="lrow" style="${tv('q')};text-decoration:none;color:inherit" href="notifiche.html"><span class="bub">${ico('bolt')}</span><span><b>Notifiche</b><small>Attiva o controlla le notifiche</small></span><span class="chev">›</span></a><button class="lrow" style="${tv('heart')}" data-act="logout"><span class="bub">${ico('avatar')}</span><span><b>Esci</b><small>lucaattolini27@gmail.com</small></span><span class="chev">›</span></button></div>
+  <h2 class="sec">App</h2><div class="list glass"><button class="lrow" style="${tv('long')}" data-act="profilo"><span class="bub">${ico('avatar')}</span><span><b>Il mio profilo</b><small>Obiettivo, giorni, zone cardio e moduli</small></span><span class="chev">›</span></button><button class="lrow" style="${tv('q')}" data-act="${pushOn() ? 'pushoff' : 'push'}"><span class="bub">${ico('bolt')}</span><span><b>Notifiche</b><small>${pushOn() ? 'Attive su questo telefono · tocca per spegnerle' : 'Promemoria di allenamento, integratori e proposito'}</small></span><span class="chev">${pushOn() ? '✓' : '›'}</span></button><button class="lrow" style="${tv('heart')}" data-act="logout"><span class="bub">${ico('avatar')}</span><span><b>Esci</b><small>lucaattolini27@gmail.com</small></span><span class="chev">›</span></button></div>
   <p class="credit">Illustrazioni 3D e avatar generati su misura. Avatar alternativi: <a href="https://github.com/microsoft/fluentui-emoji">Fluent Emoji</a> di Microsoft, licenza MIT. Sagome dei muscoli: <a href="https://github.com/soroojshehryar/react-muscle-highlighter">react-muscle-highlighter</a>, licenza MIT. Ispirazione grafica: Riccardo Breccia.</p>`;
 }
 
@@ -2671,6 +2671,45 @@ async function coachPlan() {
   } catch (e) {}
 }
 
+/* ================= notifiche per tutti: iscrizione salvata in push/{uid}, testi personali risolti dal service worker ================= */
+const VAPID_PUB = 'BEmX_RHaPOMpPT2WoDBsLhasaYmW-7AWiwcUfRH2XCE8GFwH9Z7OCfQo8FfZVxswyxbVin9-1fZwCB7nguaY3ew';
+const b64u = s => { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+const pushOn = () => { try { return localStorage.getItem('scheda100k-push') === '1'; } catch (e) { return false; } };
+function pushMeta() {
+  const str = [], q = [];
+  for (let d = 0; d < 7; d++) { const iso = addDays(weekStart(Math.max(0, weekOf(localToday()))), d), s = plan(iso).s; if (s.some(x => x.kind === 'strength' || x.kind === 'circuit')) str.push(d); if (s.some(x => x.cat === 'q' || x.id === 'long' || x.kind === 'test')) q.push(d); }
+  return {name: profile.name || userName || 'Atleta', owner: !!isOwner, mod: {run: modOn('run'), str: modOn('str'), diet: modOn('diet'), supp: modOn('supp')}, days: {str, q}};
+}
+let pushMetaLast = '';
+function syncPushMeta() {
+  if (mode !== 'db' || !pushOn()) return; const m = pushMeta(), j = JSON.stringify(m); if (j === pushMetaLast) return; pushMetaLast = j;
+  db.collection('push').doc(myUid).set(Object.assign(m, {at: Date.now()}), {merge: true}).catch(() => {});
+}
+async function enablePush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { toast(/iPhone|iPad/.test(navigator.userAgent) ? "Su iPhone prima aggiungi l'app alla schermata Home" : 'Questo browser non supporta le notifiche', true); return false; }
+  const perm = await Notification.requestPermission(); if (perm !== 'granted') { toast('Notifiche non consentite: attivale dalle impostazioni del telefono', true); return false; }
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription(); if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(VAPID_PUB)});
+  try { localStorage.setItem('scheda100k-push', '1'); } catch (e) {}
+  if (mode === 'db') { try { await db.collection('push').doc(myUid).set(Object.assign(pushMeta(), {sub: JSON.stringify(sub), at: Date.now()}), {merge: true}); } catch (e) { toast(e && e.code === 'permission-denied' ? 'Aggiorna le regole di Firestore' : 'Iscrizione non salvata: riprova', true); return false; } }
+  syncPlanCache(); reg.showNotification('Notifiche attive ✅', {body: `Ciao ${profile.name || userName || ''}, da domani ti scrivo io.`.replace(' ,', ','), icon: 'icon-192.png', badge: 'badge-96.png'});
+  render(); return true;
+}
+async function disablePush() {
+  try { const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch (e) {}
+  try { localStorage.removeItem('scheda100k-push'); } catch (e) {}
+  if (mode === 'db') { try { await db.collection('push').doc(myUid).delete(); } catch (e) {} }
+  toast('Notifiche spente'); render();
+}
+// i prossimi 7 giorni del piano, per i testi delle notifiche (restano sul telefono)
+let planCacheLast = '';
+function syncPlanCache() {
+  if (!('caches' in self)) return; const t = localToday(), m = {};
+  for (let i = 0; i < 8; i++) { const iso = addDays(t, i), s = plan(iso).s.filter(x => x.kind !== 'mobility'); m[iso] = s.map(x => x.kind === 'strength' ? x.title.split(':')[0] : x.title).join(' · '); }
+  const j = JSON.stringify(m); if (j === planCacheLast) return; planCacheLast = j;
+  caches.open('100k-cfg').then(c => c.put('piano.json', new Response(j, {headers: {'Content-Type': 'application/json'}}))).catch(() => {});
+}
+
 /* ================= render e navigazione ================= */
 function render() {
   renderTick++;
@@ -2680,7 +2719,7 @@ function render() {
   viewEl.innerHTML = ({home: vHome, oggi: vOggi, cibo: vCibo, settimana: vSettimana, slancio: vSlancio, progressi: vProgressi, piano: vPiano}[view])();
   if (view === 'progressi') drawCharts();
   if (view === 'slancio') requestAnimationFrame(focusMap);
-  syncSuppCache(); syncPropoCache(); pushPlayer(); checkNews();
+  syncSuppCache(); syncPropoCache(); syncPlanCache(); syncPushMeta(); pushPlayer(); checkNews();
 }
 let deferred = false;
 const typing = () => { const a = document.activeElement; return a && viewEl.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName); };
@@ -2710,6 +2749,8 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
   else if (b.dataset.act === 'profilo') startOnboarding(true);
+  else if (b.dataset.act === 'push') enablePush().catch(() => toast('Notifiche non disponibili', true));
+  else if (b.dataset.act === 'pushoff') { if (confirm('Spengo le notifiche su questo telefono?')) disablePush(); }
   else if (b.dataset.stage) { const keep = document.getElementById('mapwrap'), sx = keep && keep.scrollLeft, sy = keep && keep.scrollTop; mapOpen = b.dataset.stage === 'x' || +b.dataset.stage === mapOpen ? null : +b.dataset.stage; render(); const w = document.getElementById('mapwrap'); if (w && keep) { w.scrollLeft = sx; w.scrollTop = sy; } }
   else if (b.dataset.setck !== undefined) {
     const s = editSess(cur, b.dataset.s), k = b.dataset.ex, i = +b.dataset.setck, row = b.closest('.srow');

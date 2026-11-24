@@ -27,11 +27,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install web-push@3.6.7 --no-save --no-audit --no-fund
+      - run: npm install web-push@3.6.7 firebase-admin@12.7.0 --no-save --no-audit --no-fund
       - run: node scripts/send.mjs
         env:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
           SCHEDULE: ${{ github.event.schedule }}
           SLOT: ${{ github.event.inputs.slot }}
           DATE: ${{ github.event.inputs.date }}
