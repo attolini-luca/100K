@@ -1,0 +1,41 @@
+rules_version = '2';
+// Regole del database di 100K. Da incollare in Firebase > Firestore Database > Regole > Pubblica.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function isOwner() { return signedIn() && request.auth.token.email == 'lucaattolini27@gmail.com'; }
+    function invited() {
+      return signedIn() && exists(/databases/$(database)/documents/config/invites)
+        && request.auth.token.email.lower() in get(/databases/$(database)/documents/config/invites).data.emails;
+    }
+    function member() { return isOwner() || invited(); }
+
+    // la cartella di ognuno: la legge e la scrive solo il proprietario
+    match /users/{uid}/{document=**} {
+      allow read, write: if member() && request.auth.uid == uid;
+    }
+    // classifica della lega: tutti i membri la vedono, ognuno scrive solo la sua riga
+    match /players/{uid} {
+      allow read: if member();
+      allow write: if member() && request.auth.uid == uid;
+    }
+    // lista degli invitati: la legge chi ha fatto l'accesso, la modifica solo Luca
+    match /config/invites {
+      allow read: if signedIn();
+      allow write: if isOwner();
+    }
+    // iscrizioni alle notifiche: ognuno la sua
+    match /push/{uid} {
+      allow read, write: if member() && request.auth.uid == uid;
+    }
+    // segnalazioni: ognuno può inviarne, solo Luca le legge
+    match /feedback/{id} {
+      allow create: if member();
+      allow read, delete: if isOwner();
+    }
+    // dati della prima versione (prima della migrazione): solo Luca
+    match /logs/{doc} { allow read, write: if isOwner(); }
+    match /body/{doc} { allow read, write: if isOwner(); }
+    match /prefs/{doc} { allow read, write: if isOwner(); }
+  }
+}
