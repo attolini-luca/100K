@@ -338,6 +338,29 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .tleg{display:grid;gap:8px}.tleg span{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:15px;font-weight:700}
 .tleg i{width:12px;height:12px;border-radius:50%;background:var(--c)}.tleg b{color:var(--c)}
 .pillbtn.wide{display:block;width:100%;margin:14px 0 6px;min-height:48px;font-size:15px}
+
+.topbar{display:flex;align-items:center;gap:6px;margin:-4px 0 0;position:relative;z-index:2}
+.tbsp{flex:1}
+.tb{display:inline-flex;align-items:center;gap:4px;padding:6px 10px 6px 6px;border-radius:99px;background:none;color:inherit}
+.tb img{width:34px;height:34px;object-fit:contain}.tb b{font-size:19px;font-weight:800}
+.tbf{color:#ff8a00}.tbi{color:#3aa0e6}.tbt{color:#e0a100}
+
+.map{position:relative;border-radius:26px;overflow:hidden;box-shadow:0 10px 30px rgba(40,70,120,.18);aspect-ratio:9/16;background:#a9dcf8}
+.map>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.map polyline{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tall{stroke:rgba(255,255,255,.0);stroke-width:0}
+.tglow{stroke:rgba(255,255,255,.85);stroke-width:30}.tdone{stroke:#ff8a00;stroke-width:16}
+.mpin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px}
+.mpin.l{flex-direction:row-reverse}
+.mdot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;background:rgba(255,255,255,.92);color:#5b6576;box-shadow:0 3px 0 rgba(0,0,0,.15),0 4px 10px rgba(0,0,0,.18)}
+.mpin.done .mdot{background:linear-gradient(180deg,#ffc964,#ff9f0a);color:#fff;box-shadow:0 3px 0 #d97a00,0 4px 10px rgba(255,140,0,.35)}
+.mlab{font-size:11.5px;font-weight:800;background:rgba(255,255,255,.9);color:#1f2633;padding:3px 8px;border-radius:99px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.mpin.locked .mlab{color:#6b7484}
+.mme{position:absolute;transform:translate(-50%,-78%);width:58px;height:58px;border-radius:50%;background:#fff;border:3px solid #ff8a00;box-shadow:0 8px 18px rgba(0,0,0,.25);display:grid;place-items:center;animation:bob 2.4s ease-in-out infinite;z-index:2}
+.mme img{width:48px;height:48px;object-fit:contain}
+.mhud{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:18px;margin-bottom:10px;font-size:13.5px;font-weight:700;color:var(--soft)}
+.mhud img{width:26px;height:26px}.mhud b{font-size:18px;color:var(--ink);margin-right:4px}
 </style>
 </head>
 <body>
@@ -611,11 +634,8 @@ function vHome() {
   const kg = lastBody('kg'), hr = lastBody('hr'), sl = lastBody('sleep'), df = dayFood(t), gs = gameState(), ms = Object.values(muscleSets(weekStart(w), t).sets).reduce((a, b) => a + b, 0);
   const tile = (k, ic, lab, rng, val, unit, ok, act) => `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
-  return `<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button></div><h1>${title}</h1>${streakRow(gameState())}
+  return `${topBar(gs)}<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button></div><h1>${title}</h1>
     <div class="herorow"><button class="rbtn glass" data-act="faces" aria-label="Cambia avatar">${ico('sparkles')}</button><div class="status glass">Sedute fatte: <b>${st.nDone} di ${st.n}</b></div><button class="rbtn glass" data-act="sheet" aria-label="Misurazioni">•••</button></div></section>
-    <h2 class="sec">Oggi, ${nice(t)}</h2>
-    ${p.s.length ? `<div class="list glass">${p.s.map(ss => `<button class="lrow" style="${tv(ss.cat)}" data-goday="${t}"><span class="bub">${ico(ss.ic)}</span><span><b>${esc(ss.title)}</b><small><span class="tgt"></span>${esc(ss.slot)} · ${esc(ss.planMin)}' <em>${isDone(t, ss) ? '· Fatto' : ''}</em></small></span><span class="okc${isDone(t, ss) ? ' on' : ''}">✓</span></button>`).join('')}</div>`
-      : `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma oggi.')}</p></div>`}
     <h2 class="sec">Questa settimana</h2>
     <div class="tiles">
       ${tile('run', 'shoe', 'Corsa', `${fmt(st.kmPlan)} km`, fmt(st.kmDone), 'km', kmOk, 'settimana')}
@@ -631,6 +651,9 @@ function vHome() {
       ${tile('str', 'dumbbell', 'Muscoli', 'settimana', ms, 'serie', ms > 0, 'progressi')}
       ${tile('stair', 'stairs', 'StairMaster', st.stairPlan ? `${st.stairPlan} min` : 'riposo', st.stair ? fmt(st.stair, 0) : '–', 'min', !!st.stair, 'progressi')}
     </div>
+    <h2 class="sec">Oggi, ${nice(t)}</h2>
+    ${p.s.length ? `<div class="list glass">${p.s.map(ss => `<button class="lrow" style="${tv(ss.cat)}" data-goday="${t}"><span class="bub">${ico(ss.ic)}</span><span><b>${esc(ss.title)}</b><small><span class="tgt"></span>${esc(ss.slot)} · ${esc(ss.planMin)}' <em>${isDone(t, ss) ? '· Fatto' : ''}</em></small></span><span class="okc${isDone(t, ss) ? ' on' : ''}">✓</span></button>`).join('')}</div>`
+      : `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma oggi.')}</p></div>`}
     <h2 class="sec">Slancio di oggi</h2>${todayCard(t)}${goalCard()}${bossCard()}
     <button class="pillbtn wide" data-act="slancio">Percorso, badge e lega ›</button>`;
 }
@@ -1260,7 +1283,10 @@ const FRASI = [
   'Domani conta di più del giorno perfetto che aspetti.'
 ];
 const frase = iso => FRASI[Math.abs(offs(iso)) % FRASI.length];
-const STAGES = [[0, 'Partenza', 'shoe'], [3, 'Il bosco', 'leaf'], [7, 'Il torrente', 'feet'], [14, 'Il rifugio', 'bed'], [21, 'Il lago alpino', 'moon'], [30, 'Il passo', 'mountain'], [45, 'Il ghiacciaio', 'f_ghiaccio'], [60, 'La cresta', 'stairs'], [90, 'La vetta', 'trophy'], [120, 'Oltre le nuvole', 'sparkles'], [180, 'Il secondo massiccio', 'mountain'], [270, 'Il grande giro', 'shoe'], [365, 'Leggenda', 'f_fuoco']];
+const TRAIL = [[500,1640],[525,1560],[535,1490],[590,1430],[700,1380],[790,1320],[800,1255],[710,1205],[570,1175],[430,1150],[385,1110],[430,1062],[530,1015],[575,965],[545,925],[560,870],[660,830],[725,785],[690,740],[590,715],[470,680],[415,632],[440,592],[520,565],[585,490],[605,405],[622,325],[605,255],[575,190],[612,135],[662,88]];
+// tappe: fuochi necessari, nome, punto della mappa
+const STAGES = [[0, 'Partenza', 0], [3, 'Il bosco', 2], [7, 'La radura', 5], [14, 'Il lago', 8], [21, 'Il rifugio', 13], [30, 'Il pascolo', 17], [45, 'Le rocce', 21], [60, 'Il canalone', 24], [90, 'Il ghiacciaio', 26], [120, 'La cresta', 28], [180, 'La vetta', 30]];
+const LAP = 180;
 const TIERS = [['Bronzo', 'b'], ['Argento', 's'], ['Oro', 'g'], ['Diamante', 'd']];
 const BADGES = [
   {id: 'fuoco', n: 'Fiamma viva', d: 'giorni di fila con il fuoco acceso', ic: 'f_fuoco', t: [7, 30, 100, 365], v: s => s.best},
@@ -1344,7 +1370,6 @@ function gameState() {
   gsTick = renderTick; GS = s;
   return s;
 }
-function stageOf(steps) { let i = 0; STAGES.forEach((s, j) => { if (steps >= s[0]) i = j; }); return i; }
 /* ---- anelli intorno all'avatar ---- */
 function ringSvg(r) {
   const arc = (rad, v, col) => { const C = 2 * Math.PI * rad; return `<circle cx="100" cy="100" r="${rad}" fill="none" stroke="${col}" stroke-opacity=".16" stroke-width="13"/><circle cx="100" cy="100" r="${rad}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${Math.max(0.001, C * Math.min(1, v))} ${C}" transform="rotate(-90 100 100)"/>`; };
@@ -1357,6 +1382,9 @@ function todayCard(iso) {
 function ringLegend(r) {
   const it = (k, n, v, sub) => `<div class="rl" style="--c:${RCOL[k]}"><i></i><span><b>${n}</b><small>${sub}</small></span><em>${Math.round(Math.min(1, v) * 100)}%</em></div>`;
   return `<div class="rlegend glass">${it('train', 'Allenamento', r.train, r.rest ? 'Riposo: vale come fatto' : 'Sedute di oggi')}${it('fuel', 'Carburante', r.fuel, 'Proteine mangiate')}${it('rec', 'Recupero', r.rec, 'Integratori presi')}</div>`;
+}
+function topBar(s) {
+  return `<div class="topbar"><button class="tb" data-act="slancio" aria-label="Giorni di fila">${ico('f_fuoco')}<b class="tbf">${s.streak}</b></button><span class="tbsp"></span><button class="tb" data-act="slancio" aria-label="Rompighiaccio">${ico('f_bicipite')}<b class="tbi">${s.freezes}</b></button><button class="tb" data-act="slancio" aria-label="Punti della settimana">${ico('trophy')}<b class="tbt">${s.weekPts}</b></button></div>`;
 }
 function streakRow(s) {
   return `<button class="srow" data-act="slancio" aria-label="Apri lo slancio"><span class="sp">${ico('f_fuoco')}<b>${s.streak}</b><small>${s.streak === 1 ? 'giorno' : 'giorni'}</small></span><span class="sp">${ico('f_bicipite')}<b>${s.freezes}/2</b></span><span class="sp">${ico('trophy')}<b>${s.weekPts}</b><small>pt</small></span></button>`;
@@ -1382,24 +1410,24 @@ function bossCard() {
   const t = localToday(), b = weekBoss(Math.max(weekOf(t), 0));
   if (!b) return '';
   const when = b.done ? 'vinta' : b.iso === t ? 'oggi' : b.iso < t ? 'saltata' : `${DAYS[dayIdx(b.iso)].toLowerCase()} ${dnum(b.iso)}`;
-  return `<button class="boss glass${b.done ? ' won' : ''}" data-goday="${b.iso}">${ico('f_vetta', 'bimg')}<span><span class="lbl">Sfida della settimana · ${esc(when)}</span><b>${esc(b.ss.title)}</b><small>${b.done ? 'Vinta: +15 punti.' : 'La seduta più impegnativa: completala per 15 punti extra.'}</small></span>${b.done ? '<span class="okm">✓</span>' : '<span class="chev">›</span>'}</button>`;
+  return `<button class="boss glass${b.done ? ' won' : ''}" data-goday="${b.iso}">${ico(b.ss.kind === 'strength' ? 'f_bodybuilder' : b.ss.id === 'long' ? 'f_vetta' : 'f_runner', 'bimg')}<span><span class="lbl">Sfida della settimana · ${esc(when)}</span><b>${esc(b.ss.title)}</b><small>${b.done ? 'Vinta: +15 punti.' : 'La seduta più impegnativa: completala per 15 punti extra.'}</small></span>${b.done ? '<span class="okm">✓</span>' : '<span class="chev">›</span>'}</button>`;
 }
 /* ---- vista Slancio ---- */
 function medal(b, big) {
   const tr = b.tier >= 0 ? TIERS[b.tier][1] : 'x';
   return `<span class="medal m${tr}${big ? ' big' : ''}"><span class="mi">${ico(b.ic)}</span>${b.tier < 0 ? '<span class="lock">🔒</span>' : ''}</span>`;
 }
+function trailLen() { const L = [0]; for (let i = 1; i < TRAIL.length; i++) L.push(L[i - 1] + Math.hypot(TRAIL[i][0] - TRAIL[i - 1][0], TRAIL[i][1] - TRAIL[i - 1][1])); return L; }
+function trailAt(d, L) { for (let i = 1; i < TRAIL.length; i++) if (d <= L[i]) { const f = (d - L[i - 1]) / ((L[i] - L[i - 1]) || 1); return {i, x: TRAIL[i - 1][0] + f * (TRAIL[i][0] - TRAIL[i - 1][0]), y: TRAIL[i - 1][1] + f * (TRAIL[i][1] - TRAIL[i - 1][1])}; } const e = TRAIL[TRAIL.length - 1]; return {i: TRAIL.length, x: e[0], y: e[1]}; }
 function pathHtml(s) {
-  const cur = stageOf(s.steps), from = Math.max(0, cur - 2), to = Math.min(STAGES.length - 1, cur + 3), nodes = [];
-  for (let i = to; i >= from; i--) nodes.push(i);
-  const H = 150, xs = i => [50, 72, 50, 28][i % 4];
-  let svg = '', html = '';
-  nodes.forEach((i, j) => { if (j < nodes.length - 1) { const a = {x: xs(i), y: j * H + 44}, b = {x: xs(nodes[j + 1]), y: (j + 1) * H + 44}; svg += `<path d="M${a.x} ${a.y} C${a.x} ${a.y + 60} ${b.x} ${b.y - 60} ${b.x} ${b.y}" class="${nodes[j + 1] < cur || (nodes[j + 1] === cur && i <= cur) ? 'pd' : 'pl'}" vector-effect="non-scaling-stroke"/>`; } });
-  nodes.forEach((i, j) => {
-    const st = STAGES[i], state = i < cur ? 'done' : i === cur ? 'cur' : 'locked', nx = STAGES[i + 1];
-    html += `<div class="pn ${state}" style="left:${xs(i)}%;top:${j * H}px"><span class="pc">${state === 'cur' ? ico('avatar', 'pav') : ico(st[2])}</span><span class="pt"><b>${esc(st[1])}</b><small>${state === 'locked' ? `a ${st[0]} fuochi` : state === 'cur' ? (nx ? `ancora ${nx[0] - s.steps} al prossimo` : 'sei in cima') : 'raggiunto'}</small></span></div>`;
-  });
-  return `<div class="path" style="height:${nodes.length * H - 20}px"><svg viewBox="0 0 100 ${nodes.length * H}" preserveAspectRatio="none">${svg}</svg>${html}</div>`;
+  const lap = Math.floor(s.steps / LAP), st = lap && s.steps % LAP === 0 ? LAP : s.steps % LAP, L = trailLen();
+  let k = 0; STAGES.forEach((x, j) => { if (st >= x[0]) k = j; });
+  const a = STAGES[k], b = STAGES[k + 1], da = L[a[2]], d = b ? da + (L[b[2]] - da) * (st - a[0]) / (b[0] - a[0]) : da, me = trailAt(d, L);
+  const walked = TRAIL.slice(0, me.i).concat([[me.x, me.y]]).map(p => p.join(',')).join(' '), all = TRAIL.map(p => p.join(',')).join(' ');
+  const pc = (x, y) => `left:${x / 10.8}%;top:${y / 19.2}%`;
+  const pins = STAGES.map(([n, name, idx], j) => { const [x, y] = TRAIL[idx], done = st >= n, side = x < 540 ? 'r' : 'l'; return `<div class="mpin ${done ? 'done' : 'locked'} ${side}" style="${pc(x, y)}"><span class="mdot">${done ? '✓' : n}</span><span class="mlab">${esc(name)}</span></div>`; }).join('');
+  const nx = b ? `prossima tappa: ${b[1].toLowerCase()} tra ${b[0] - st}` : 'sei in vetta';
+  return `<div class="mhud glass">${ico('f_fuoco')}<b>${s.steps}</b><span>${lap ? `giro ${lap + 1} · ` : ''}${nx}</span></div><div class="map"><img src="em/mappa.jpg" alt="" draggable="false"><svg viewBox="0 0 1080 1920" preserveAspectRatio="none"><polyline class="tall" points="${all}"/><polyline class="tglow" points="${walked}"/><polyline class="tdone" points="${walked}"/></svg>${pins}<div class="mme" style="${pc(me.x, me.y)}">${ico('avatar')}</div></div>`;
 }
 function leagueHtml(s) {
   const me = {name: 'Luca', av: avatar, pts: s.weekPts, me: true};
@@ -1415,7 +1443,7 @@ function vSlancio() {
   <h2 class="sec">Oggi</h2>${todayCard(s.today)}
   <p class="eyebrow" style="margin:8px 6px 0">Il fuoco si accende quando chiudi l'anello rosso. Nei giorni di riposo è già chiuso. Se salti un giorno, un Rompighiaccio salva la serie; li ricarichi scrivendo il proposito per domani.</p>
   <h2 class="sec">Lega della settimana</h2>${leagueHtml(s)}
-  <h2 class="sec">Percorso dello slancio · ${s.steps} passi</h2><div class="glass pathbox">${pathHtml(s)}</div>
+  <h2 class="sec">Percorso dello slancio</h2>${pathHtml(s)}<p class="eyebrow" style="margin:8px 6px 0">Ogni giorno con il fuoco acceso è un passo: corsa, pesi o riposo. Arrivato in vetta riparti per un nuovo giro.</p>
   <h2 class="sec">Badge · ${earned} di ${s.badges.length}</h2><div class="badges">${s.badges.map(b => `<button class="bdg" data-badge="${b.id}">${medal(b)}<b>${esc(b.n)}</b><small>${b.tier >= 0 ? TIERS[b.tier][0] : 'Da sbloccare'}</small><span class="bprog"><i style="width:${b.next ? Math.min(100, b.val / b.next * 100) : 100}%"></i></span></button>`).join('')}</div>`;
   h += `<h2 class="sec">Ultimi record</h2>` + (s.prs.length ? `<div class="list glass">${s.prs.slice(0, 8).map(p => `<div class="lrow" style="${tv('str')}"><span class="bub">${ico('dumbbell')}</span><span><b>${esc(EXD(p.k).n)}</b><small>${short(p.d)} · ${EXD(p.k).m === 'e1rm' ? 'massimale stimato' : 'miglior serie'} ${fmt(p.v, 1)} (prima ${fmt(p.prev, 1)})</small></span><span class="okm">🏆</span></div>`).join('')}</div>` : `<div class="glass" style="padding:16px;border-radius:22px"><p class="eyebrow" style="margin:0">Registra carichi e ripetizioni: appena superi una tua serie migliore compare qui.</p></div>`);
   return h;
