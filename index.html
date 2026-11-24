@@ -239,7 +239,6 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .suprow{grid-template-columns:36px minmax(0,1fr)!important}
 
 .ringsvg{position:absolute;inset:0;width:100%;height:100%}
-.rings img.av{width:52%!important;height:52%!important}
 .srow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 2px;background:none;padding:0}
 .sp{display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 8px;border-radius:99px;background:var(--cardSolid);box-shadow:0 4px 14px rgba(40,70,120,.10)}
 .sp img{width:28px;height:28px;object-fit:contain}.sp b{font-size:17px;font-weight:800}.sp small{font-size:12px;color:var(--soft);font-weight:700}
@@ -256,7 +255,7 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .gform .btn{padding:0 18px;min-height:52px}
 .boss{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;text-align:left;padding:12px 16px;border-radius:24px;margin-top:14px;color:inherit}
 .bimg{width:64px;height:64px;object-fit:contain}.boss b{display:block;font-size:17px;margin-top:2px}.boss small{font-size:13px;color:var(--soft)}
-.boss.won .bimg{filter:grayscale(1) opacity(.5);transform:rotate(-12deg)}
+.boss.won .bimg{filter:drop-shadow(0 4px 10px rgba(255,159,10,.45))}
 .sstats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .sst{padding:14px;border-radius:22px;display:grid;gap:2px}.sst img{width:42px;height:42px;object-fit:contain}.sst b{font-size:26px;font-weight:800}.sst small{color:var(--soft);font-size:12.5px;font-weight:700}
 .rlegend{border-radius:22px;padding:4px 14px}
@@ -326,6 +325,19 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .mbars>div{display:grid;grid-template-rows:auto 1fr auto;height:100%;text-align:center;gap:4px}
 .mbb{display:flex;align-items:flex-end;background:var(--field);border-radius:10px;overflow:hidden}.mbb i{display:block;width:100%;border-radius:10px}
 .mbv{font-weight:800;font-size:13px}.mbars small{font-size:11px;color:var(--soft)}.mic{width:38px;height:38px;object-fit:contain}
+
+.bodysvg{width:100%;height:auto;max-height:340px}
+.bodyload{aspect-ratio:1/2;border-radius:20px;background:var(--field)}
+.bborder{fill:none;stroke:light-dark(#c9d1dc,rgba(255,255,255,.18));stroke-width:2;vector-effect:non-scaling-stroke}
+.bbase path{fill:light-dark(#dfe5ec,rgba(255,255,255,.12))}.bbase.hair path{fill:light-dark(#c8d0da,rgba(255,255,255,.2))}
+.mu path{stroke:light-dark(#fff,rgba(10,15,30,.5));stroke-width:1.2;vector-effect:non-scaling-stroke}
+.mu.l0 path{fill:light-dark(#c9d2dd,rgba(255,255,255,.2))}.mu.l1 path{fill:#ffcfa3}.mu.l2 path{fill:#ffa45c}.mu.l3 path{fill:#ff7027}.mu.l4 path{fill:#d63f07}
+
+.today{display:grid;grid-template-columns:112px minmax(0,1fr);gap:16px;align-items:center;width:100%;padding:14px 16px;border-radius:24px;text-align:left;color:inherit}
+.tring{position:relative;width:112px;height:112px}.tring .ringsvg{position:absolute;inset:0}
+.tleg{display:grid;gap:8px}.tleg span{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:15px;font-weight:700}
+.tleg i{width:12px;height:12px;border-radius:50%;background:var(--c)}.tleg b{color:var(--c)}
+.pillbtn.wide{display:block;width:100%;margin:14px 0 6px;min-height:48px;font-size:15px}
 </style>
 </head>
 <body>
@@ -599,12 +611,11 @@ function vHome() {
   const kg = lastBody('kg'), hr = lastBody('hr'), sl = lastBody('sleep'), df = dayFood(t), gs = gameState(), ms = Object.values(muscleSets(weekStart(w), t).sets).reduce((a, b) => a + b, 0);
   const tile = (k, ic, lab, rng, val, unit, ok, act) => `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
-  return `<section class="hero"><div class="rings">${ringSvg(rings(t))}<button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button></div><h1>${title}</h1>${streakRow(gameState())}
+  return `<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button></div><h1>${title}</h1>${streakRow(gameState())}
     <div class="herorow"><button class="rbtn glass" data-act="faces" aria-label="Cambia avatar">${ico('sparkles')}</button><div class="status glass">Sedute fatte: <b>${st.nDone} di ${st.n}</b></div><button class="rbtn glass" data-act="sheet" aria-label="Misurazioni">•••</button></div></section>
     <h2 class="sec">Oggi, ${nice(t)}</h2>
     ${p.s.length ? `<div class="list glass">${p.s.map(ss => `<button class="lrow" style="${tv(ss.cat)}" data-goday="${t}"><span class="bub">${ico(ss.ic)}</span><span><b>${esc(ss.title)}</b><small><span class="tgt"></span>${esc(ss.slot)} · ${esc(ss.planMin)}' <em>${isDone(t, ss) ? '· Fatto' : ''}</em></small></span><span class="okc${isDone(t, ss) ? ' on' : ''}">✓</span></button>`).join('')}</div>`
       : `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma oggi.')}</p></div>`}
-    ${bossCard()}${goalCard()}
     <h2 class="sec">Questa settimana</h2>
     <div class="tiles">
       ${tile('run', 'shoe', 'Corsa', `${fmt(st.kmPlan)} km`, fmt(st.kmDone), 'km', kmOk, 'settimana')}
@@ -617,9 +628,11 @@ function vHome() {
       ${tile('sleep', 'bed', 'Sonno', '7-9 h', sl ? fmt(sl.v) : '–', 'h', sl && sl.v >= 7, 'sheet')}
       ${tile('circ', 'flame', 'Circuito', st.circPlan ? `${st.circPlan} min` : 'riposo', st.circ != null ? fmt(st.circ) : '–', 'min', st.circ != null, 'progressi')}
       ${tile('circ', 'f_fuoco', 'Slancio', `record ${gs.best}`, gs.streak, gs.streak === 1 ? 'giorno' : 'giorni', gs.streak > 0, 'slancio')}
-      ${tile('str', 'dumbbell', 'Muscoli', '10-20 a gruppo', ms, 'serie', ms > 0, 'progressi')}
+      ${tile('str', 'dumbbell', 'Muscoli', 'settimana', ms, 'serie', ms > 0, 'progressi')}
       ${tile('stair', 'stairs', 'StairMaster', st.stairPlan ? `${st.stairPlan} min` : 'riposo', st.stair ? fmt(st.stair, 0) : '–', 'min', !!st.stair, 'progressi')}
-    </div>`;
+    </div>
+    <h2 class="sec">Slancio di oggi</h2>${todayCard(t)}${goalCard()}${bossCard()}
+    <button class="pillbtn wide" data-act="slancio">Percorso, badge e lega ›</button>`;
 }
 const inp = (sid, k, lab, unit, ph, v) => `<label class="fl">${lab}<span class="in"><input inputmode="decimal" data-s="${sid}" data-k="${k}" value="${esc(v ?? '')}" placeholder="${esc(ph ?? '')}"><span>${unit}</span></span></label>`;
 function fieldsRun(iso, ss, test) {
@@ -731,7 +744,7 @@ function vPiano() {
   <h2 class="sec">Le 4 fasi</h2><div class="list glass">${ph.map(p => `<div class="lrow" style="${tv(p[1])}"><span class="bub">${ico(p[0])}</span><span><b>${p[2]}</b><small><em>${p[3]}</em></small><small>${p[4]}</small></span><span></span></div>`).join('')}</div>
   <h2 class="sec">Regole d'oro</h2><div class="list glass">${rules.map(r => `<div class="lrow" style="${tv(r[1])}"><span class="bub">${ico(r[0])}</span><span><b>${r[2]}</b><small>${r[3]}</small></span><span></span></div>`).join('')}</div>
   <h2 class="sec">App</h2><div class="list glass"><a class="lrow" style="${tv('q')};text-decoration:none;color:inherit" href="notifiche.html"><span class="bub">${ico('bolt')}</span><span><b>Notifiche</b><small>Attiva o controlla le notifiche</small></span><span class="chev">›</span></a><button class="lrow" style="${tv('heart')}" data-act="logout"><span class="bub">${ico('avatar')}</span><span><b>Esci</b><small>lucaattolini27@gmail.com</small></span><span class="chev">›</span></button></div>
-  <p class="credit">Illustrazioni 3D e avatar generati su misura. Avatar alternativi: <a href="https://github.com/microsoft/fluentui-emoji">Fluent Emoji</a> di Microsoft, licenza MIT. Ispirazione grafica: Riccardo Breccia.</p>`;
+  <p class="credit">Illustrazioni 3D e avatar generati su misura. Avatar alternativi: <a href="https://github.com/microsoft/fluentui-emoji">Fluent Emoji</a> di Microsoft, licenza MIT. Sagome dei muscoli: <a href="https://github.com/soroojshehryar/react-muscle-highlighter">react-muscle-highlighter</a>, licenza MIT. Ispirazione grafica: Riccardo Breccia.</p>`;
 }
 
 /* ================= foglio misurazioni ================= */
@@ -1256,7 +1269,7 @@ const BADGES = [
   {id: 'meglio', n: 'Più forte di prima', d: 'di aumento sul tuo primo massimale', ic: 'bolt', t: [5, 10, 25, 50], u: '%', v: s => Math.floor(s.bestGain * 100)},
   {id: 'volume', n: 'Mattoncini', d: 'serie registrate', ic: 'kettle', t: [100, 500, 1000, 2500], v: s => s.sets},
   {id: 'motore', n: 'Motore', d: 'ore di cardio', ic: 'heart', t: [5, 20, 50, 100], v: s => Math.floor(s.cardioMin / 60)},
-  {id: 'boss', n: 'Ammazzaboss', d: 'boss della settimana battuti', ic: 'f_boss', t: [1, 4, 12, 26], v: s => s.bosses},
+  {id: 'boss', n: 'Sfide vinte', d: 'sfide della settimana completate', ic: 'f_vetta', t: [1, 4, 12, 26], v: s => s.bosses},
   {id: 'anelli', n: 'Tre anelli', d: 'giornate perfette', ic: 'sparkles', t: [1, 10, 30, 100], v: s => s.perfect},
   {id: 'parola', n: 'Parola data', d: 'propositi scritti', ic: 'f_bicipite', t: [1, 7, 30, 100], v: s => s.goals},
   {id: 'carburante', n: 'Pieno di carburante', d: 'giorni con le proteine centrate', ic: 'f_steak', t: [7, 30, 100, 200], v: s => s.fuelDays},
@@ -1337,6 +1350,10 @@ function ringSvg(r) {
   const arc = (rad, v, col) => { const C = 2 * Math.PI * rad; return `<circle cx="100" cy="100" r="${rad}" fill="none" stroke="${col}" stroke-opacity=".16" stroke-width="13"/><circle cx="100" cy="100" r="${rad}" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${Math.max(0.001, C * Math.min(1, v))} ${C}" transform="rotate(-90 100 100)"/>`; };
   return `<svg class="ringsvg" viewBox="0 0 200 200" aria-hidden="true">${arc(92, r.train, RCOL.train)}${arc(77, r.fuel, RCOL.fuel)}${arc(62, r.rec, RCOL.rec)}</svg>`;
 }
+function todayCard(iso) {
+  const r = rings(iso);
+  return `<button class="today glass" data-act="slancio"><span class="tring">${ringSvg(r)}</span><span class="tleg">${[['train', 'Allenamento', r.train], ['fuel', 'Carburante', r.fuel], ['rec', 'Recupero', r.rec]].map(([k, n, v]) => `<span style="--c:${RCOL[k]}"><i></i>${n}<b>${Math.round(Math.min(1, v) * 100)}%</b></span>`).join('')}</span></button>`;
+}
 function ringLegend(r) {
   const it = (k, n, v, sub) => `<div class="rl" style="--c:${RCOL[k]}"><i></i><span><b>${n}</b><small>${sub}</small></span><em>${Math.round(Math.min(1, v) * 100)}%</em></div>`;
   return `<div class="rlegend glass">${it('train', 'Allenamento', r.train, r.rest ? 'Riposo: vale come fatto' : 'Sedute di oggi')}${it('fuel', 'Carburante', r.fuel, 'Proteine mangiate')}${it('rec', 'Recupero', r.rec, 'Integratori presi')}</div>`;
@@ -1364,8 +1381,8 @@ function saveGoal(text) {
 function bossCard() {
   const t = localToday(), b = weekBoss(Math.max(weekOf(t), 0));
   if (!b) return '';
-  const when = b.done ? 'Sconfitto' : b.iso === t ? 'È oggi' : b.iso < t ? 'Scappato' : `${DAYS[dayIdx(b.iso)].toLowerCase()} ${dnum(b.iso)}`;
-  return `<button class="boss glass${b.done ? ' won' : ''}" data-goday="${b.iso}">${ico('f_boss', 'bimg')}<span><span class="lbl">Boss della settimana · ${esc(when)}</span><b>${esc(b.ss.title)}</b><small>${b.done ? '+15 punti e un passo verso l\'Ammazzaboss.' : 'Battilo per 15 punti extra.'}</small></span>${b.done ? '<span class="okm">✓</span>' : '<span class="chev">›</span>'}</button>`;
+  const when = b.done ? 'vinta' : b.iso === t ? 'oggi' : b.iso < t ? 'saltata' : `${DAYS[dayIdx(b.iso)].toLowerCase()} ${dnum(b.iso)}`;
+  return `<button class="boss glass${b.done ? ' won' : ''}" data-goday="${b.iso}">${ico('f_vetta', 'bimg')}<span><span class="lbl">Sfida della settimana · ${esc(when)}</span><b>${esc(b.ss.title)}</b><small>${b.done ? 'Vinta: +15 punti.' : 'La seduta più impegnativa: completala per 15 punti extra.'}</small></span>${b.done ? '<span class="okm">✓</span>' : '<span class="chev">›</span>'}</button>`;
 }
 /* ---- vista Slancio ---- */
 function medal(b, big) {
@@ -1395,7 +1412,7 @@ function vSlancio() {
   const s = gameState(), r = rings(s.today), earned = s.badges.filter(b => b.tier >= 0).length;
   let h = `<div class="vh"><div class="vt"><p class="eyebrow">Dal 23 novembre</p><h1>Slancio</h1></div></div>
   <div class="sstats">${[['f_fuoco', s.streak, 'giorni di fila'], ['trophy', s.best, 'record di serie'], ['f_bicipite', s.freezes + '/2', 'Rompighiaccio'], ['sparkles', s.weekPts, 'punti settimana']].map(x => `<div class="sst glass">${ico(x[0])}<b>${x[1]}</b><small>${x[2]}</small></div>`).join('')}</div>
-  <h2 class="sec">Oggi</h2>${ringLegend(r)}
+  <h2 class="sec">Oggi</h2>${todayCard(s.today)}
   <p class="eyebrow" style="margin:8px 6px 0">Il fuoco si accende quando chiudi l'anello rosso. Nei giorni di riposo è già chiuso. Se salti un giorno, un Rompighiaccio salva la serie; li ricarichi scrivendo il proposito per domani.</p>
   <h2 class="sec">Lega della settimana</h2>${leagueHtml(s)}
   <h2 class="sec">Percorso dello slancio · ${s.steps} passi</h2><div class="glass pathbox">${pathHtml(s)}</div>
@@ -1460,33 +1477,20 @@ function muscleSets(from, to) {
   return {sets: out, ex};
 }
 const musLevel = n => n <= 0 ? 0 : n < 5 ? 1 : n < 10 ? 2 : n < 16 ? 3 : 4;
+// sagome anatomiche: dati SVG di react-muscle-highlighter (licenza MIT), caricati a parte
+const MUSMAP = {chest: 'petto', deltoids: 'spalle', trapezius: 'dorso', 'upper-back': 'dorso', 'lower-back': 'dorso', biceps: 'braccia', triceps: 'braccia', forearm: 'braccia', abs: 'core', obliques: 'core', quadriceps: 'gambe', adductors: 'gambe', hamstring: 'posteriore', gluteal: 'posteriore', calves: 'polpacci', tibialis: 'polpacci'};
+let BODY = null, bodyLoading = false;
+const bodyGender = () => 'm';
+function loadBody() { if (BODY || bodyLoading) return; bodyLoading = true; fetch('em/body.json').then(r => r.json()).then(j => { BODY = j; safeRender(); }).catch(() => { bodyLoading = false; }); }
 function bodySvg(side, sets, div) {
-  const L = g => `class="mu l${musLevel((sets[g] || 0) / div)}" data-mus="${g}"`;
-  const base = `<g class="bb"><ellipse cx="60" cy="17" rx="11.5" ry="13.5"/><rect x="54" y="28" width="12" height="10" rx="4"/>
-    <path d="M40 39 Q60 34 80 39 Q93 42 95 55 L90 82 Q86 100 84 116 Q87 126 85 136 L35 136 Q33 126 36 116 Q34 100 30 82 L25 55 Q27 42 40 39Z"/>
-    <rect x="15" y="47" width="14" height="54" rx="7" transform="rotate(7 22 74)"/><rect x="91" y="47" width="14" height="54" rx="7" transform="rotate(-7 98 74)"/>
-    <rect x="10" y="97" width="12" height="48" rx="6" transform="rotate(8 16 121)"/><rect x="98" y="97" width="12" height="48" rx="6" transform="rotate(-8 104 121)"/>
-    <circle cx="12" cy="150" r="6"/><circle cx="108" cy="150" r="6"/>
-    <path d="M36 132 L59 132 L58 192 Q50 197 41 192 Q34 162 36 132Z"/><path d="M84 132 L61 132 L62 192 Q70 197 79 192 Q86 162 84 132Z"/>
-    <path d="M41 194 L57 194 L55 238 Q49 243 44 238Z"/><path d="M79 194 L63 194 L65 238 Q71 243 76 238Z"/>
-    <ellipse cx="48" cy="244" rx="8" ry="4"/><ellipse cx="72" cy="244" rx="8" ry="4"/></g>`;
-  const front = `<ellipse ${L('spalle')} cx="31" cy="53" rx="9.5" ry="8.5"/><ellipse ${L('spalle')} cx="89" cy="53" rx="9.5" ry="8.5"/>
-    <path ${L('petto')} d="M59 46 Q46 43 38 53 Q37 66 46 70 Q54 72 59 67Z"/><path ${L('petto')} d="M61 46 Q74 43 82 53 Q83 66 74 70 Q66 72 61 67Z"/>
-    <ellipse ${L('braccia')} cx="22" cy="78" rx="5.8" ry="13" transform="rotate(7 22 78)"/><ellipse ${L('braccia')} cx="98" cy="78" rx="5.8" ry="13" transform="rotate(-7 98 78)"/>
-    <ellipse ${L('braccia')} cx="16" cy="118" rx="4.8" ry="13" transform="rotate(8 16 118)"/><ellipse ${L('braccia')} cx="104" cy="118" rx="4.8" ry="13" transform="rotate(-8 104 118)"/>
-    <rect ${L('core')} x="47" y="74" width="26" height="44" rx="9"/><path class="ln" d="M60 76 V116 M48 88 H72 M48 101 H72"/>
-    <ellipse ${L('gambe')} cx="48" cy="160" rx="9.5" ry="25"/><ellipse ${L('gambe')} cx="72" cy="160" rx="9.5" ry="25"/>
-    <ellipse ${L('polpacci')} cx="49" cy="213" rx="5" ry="15"/><ellipse ${L('polpacci')} cx="71" cy="213" rx="5" ry="15"/>`;
-  const back = `<path ${L('dorso')} d="M60 39 L46 45 Q52 57 60 64 Q68 57 74 45Z"/>
-    <ellipse ${L('spalle')} cx="31" cy="53" rx="9.5" ry="8.5"/><ellipse ${L('spalle')} cx="89" cy="53" rx="9.5" ry="8.5"/>
-    <path ${L('dorso')} d="M40 59 Q35 82 46 106 Q55 101 58 90 L58 66 Q49 58 40 59Z"/><path ${L('dorso')} d="M80 59 Q85 82 74 106 Q65 101 62 90 L62 66 Q71 58 80 59Z"/>
-    <rect ${L('core')} x="52" y="96" width="16" height="22" rx="6"/>
-    <ellipse ${L('braccia')} cx="22" cy="78" rx="5.8" ry="13" transform="rotate(7 22 78)"/><ellipse ${L('braccia')} cx="98" cy="78" rx="5.8" ry="13" transform="rotate(-7 98 78)"/>
-    <ellipse ${L('braccia')} cx="16" cy="118" rx="4.8" ry="13" transform="rotate(8 16 118)"/><ellipse ${L('braccia')} cx="104" cy="118" rx="4.8" ry="13" transform="rotate(-8 104 118)"/>
-    <ellipse ${L('posteriore')} cx="49.5" cy="130" rx="10.5" ry="10"/><ellipse ${L('posteriore')} cx="70.5" cy="130" rx="10.5" ry="10"/>
-    <ellipse ${L('posteriore')} cx="48" cy="166" rx="8.5" ry="20"/><ellipse ${L('posteriore')} cx="72" cy="166" rx="8.5" ry="20"/>
-    <ellipse ${L('polpacci')} cx="48.5" cy="210" rx="7" ry="16"/><ellipse ${L('polpacci')} cx="71.5" cy="210" rx="7" ry="16"/>`;
-  return `<svg class="bodysvg" viewBox="0 0 120 250" role="img" aria-label="${side === 'f' ? 'Fronte' : 'Retro'}">${base}${side === 'f' ? front : back}</svg>`;
+  if (!BODY) { loadBody(); return '<div class="bodyload"></div>'; }
+  const b = BODY[bodyGender() + side];
+  let h = '';
+  for (const [slug, paths] of b.parts) {
+    const g = MUSMAP[slug], attr = g ? `class="mu l${musLevel((sets[g] || 0) / div)}" data-mus="${g}"` : `class="bbase${slug === 'hair' ? ' hair' : ''}"`;
+    h += `<g ${attr}>${paths.map(d => `<path d="${d}"/>`).join('')}</g>`;
+  }
+  return `<svg class="bodysvg" viewBox="${b.vb}" role="img" aria-label="${side === 'f' ? 'Fronte' : 'Retro'}">${b.border.map(d => `<path class="bborder" d="${d}"/>`).join('')}${h}</svg>`;
 }
 function muscleSection() {
   const t = localToday(), wk = weekStart(Math.max(weekOf(t), 0));
