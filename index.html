@@ -742,7 +742,7 @@ function exBlock(iso, ss, item, idx, total) {
   for (let i = 0; i < n; i++) {
     const v = cs[i] || [], lv = (last && last.sets[i]) || [], ok = !!sd[i];
     const ph0 = lv[0] ?? (e.u === TOT ? String(e.r).replace(/[^0-9].*$/, '') : ''), ph1 = lv[1] ?? (e.u === TOT ? '' : String(e.r).replace(/[^0-9-].*$/, '').split('-').pop());
-    rows += `<div class="srow${ok ? ' ok' : ''}"><span class="sn">${i + 1}</span><button class="prev" data-prev="${i}" data-ex="${key}" data-s="${ss.id}" ${filled(lv) ? '' : 'disabled'} aria-label="Copia questa serie dalla volta scorsa">${esc(pv(lv))}</button>` +
+    rows += `<div class="srow${ok ? ' ok' : ''}"><span class="sn">${i + 1}</span><button class="prev" data-prev="${i}" data-ex="${key}" data-s="${ss.id}" ${filled(lv) ? '' : 'disabled'} aria-label="Copia questa serie dalla sessione precedente">${esc(pv(lv))}</button>` +
       `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit0}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="0" value="${esc(v[0] ?? '')}" placeholder="${esc(ph0)}"></span>` +
       (unit1 ? `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit1}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="1" value="${esc(v[1] ?? '')}" placeholder="${esc(ph1)}"></span>` : '<span></span>') +
       `<button class="setck" data-setck="${i}" data-ex="${key}" data-s="${ss.id}" aria-pressed="${ok}" aria-label="Serie ${i + 1} fatta">✓</button></div>`;
@@ -752,7 +752,7 @@ function exBlock(iso, ss, item, idx, total) {
   return `<div class="ex" style="${tv(g.k)}"><div class="exh"><span class="exi">${ico(g.ic)}</span><h3>${esc(e.n)}</h3>${ctl}</div>
   <div class="meta"><span class="tag a">${n} × ${esc(e.r)}</span><button class="tag tbtn" data-rest="${restSec(e.rest)}">⏱ Recupero ${esc(e.rest)}</button><button class="tag tbtn" data-exnote="${key}" data-s="${ss.id}">📝 Nota</button>${last ? `<button class="tag tbtn" data-copy="${key}" data-s="${ss.id}" data-n="${n}">↺ Come l'ultima volta</button>` : ''}${e.tip ? `<span class="tag">${esc(e.tip)}</span>` : ''}</div>
   ${showNote ? `<div class="exnote"><textarea data-s="${ss.id}" data-exn="${key}" rows="1" placeholder="Nota su questo esercizio…">${esc(note)}</textarea></div>` : ''}
-  <div class="shead"><span>Serie</span><span>Volta scorsa${last ? ` <small>${esc(short(last.d))}</small>` : ''}</span><span>${esc(unit0)}</span><span>${esc(unit1 || '')}</span><span>✓</span></div>
+  <div class="shead"><span>Serie</span><span>Sessione precedente${last ? ` <small>${esc(short(last.d))}</small>` : ''}</span><span>${esc(unit0)}</span><span>${esc(unit1 || '')}</span><span>✓</span></div>
   <div class="sets2">${rows}</div>
   <div class="setbtns"><button class="mini" data-addset="${key}" data-s="${ss.id}" data-n="${n}">+ Aggiungi serie</button>${n > 1 ? `<button class="mini" data-delset="${key}" data-s="${ss.id}" data-n="${n}">− Togli serie</button>` : ''}</div></div>`;
 }
