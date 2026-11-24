@@ -1,4 +1,4 @@
-const SCHEDA = 'https://claude.ai/artifact/JASFY1xxpDKSCxptCsURKG';
+const SCHEDA = 'https://attolini-luca.github.io/100K/';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', () => {});

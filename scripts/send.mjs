@@ -2,7 +2,7 @@
 import webpush from 'web-push';
 import { plan, weekOf, dayIdx, addDays, PLANNED_WEEKS } from './plan.mjs';
 
-const SCHEDA = 'https://claude.ai/artifact/JASFY1xxpDKSCxptCsURKG';
+const SCHEDA = 'https://attolini-luca.github.io/100K/';
 const VAPID_PUBLIC = 'BEmX_RHaPOMpPT2WoDBsLhasaYmW-7AWiwcUfRH2XCE8GFwH9Z7OCfQo8FfZVxswyxbVin9-1fZwCB7nguaY3ew';
 
 // orario di ogni notifica (ora di Roma) e cron UTC che la fa partire (inverno + estate)
