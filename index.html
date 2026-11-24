@@ -523,7 +523,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261125c';
+const AV = '20261125d';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -2368,8 +2368,10 @@ const hasPlan = () => !!(custom.plan && custom.plan.start);
 // il gioco di ognuno parte dal suo primo giorno nell'app (o dall'inizio della sua scheda)
 function gameStart() {
   if (isOwner) return GAME_START;
-  const firstLog = Object.keys(logs).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
-  const c = [profile.since, firstLog, hasPlan() ? custom.plan.start : null].filter(Boolean).sort()[0] || localToday();
+  // si conta solo da quando la persona è entrata nell'app: mai prima, nemmeno se la scheda parte prima
+  const firstLog = Object.keys(logs).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && Object.values((logs[k] || {}).s || {}).some(v => v && (v.done || v.sets))).sort()[0];
+  const c = profile.since || firstLog || localToday();
+  if (!profile.since && profileReady && mode === 'db') { profile.since = c; U().collection('prefs').doc('profile').set({since: c}, {merge: true}).catch(() => {}); }
   return c < GAME_START ? GAME_START : c;
 }
 const RCOL = {train: '#fa2d55', fuel: '#ff9f0a', rec: '#30c85a'};
