@@ -445,6 +445,15 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .srow .in.hasgoal input{padding:0 4px 15px!important}
 .sgoal{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:10.5px;font-weight:800;color:var(--a);opacity:.85;pointer-events:none;white-space:nowrap;line-height:1}
 .shead small{display:block}
+
+.aday{display:grid;gap:8px;padding:8px;border-radius:22px;border:2px dashed transparent;transition:background .15s,border-color .15s}
+.aday>header{display:flex;gap:8px;align-items:baseline;padding:2px 6px}.aday>header b{font-size:15px}.aday>header span{font-size:12px;font-weight:800;color:var(--blue)}
+.aday.over{border-color:var(--blue);background:light-dark(rgba(10,132,255,.08),rgba(10,132,255,.14))}
+.adrop{padding:12px;border-radius:16px;font-size:13px;font-weight:700;color:var(--faint);background:light-dark(rgba(255,255,255,.5),rgba(255,255,255,.04));text-align:center}
+.alist{gap:4px}
+.arow{grid-template-columns:52px minmax(0,1fr) 36px}
+.grip{width:36px;height:52px;display:grid;place-items:center;font-size:22px;color:var(--faint);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.arow.dragging{opacity:.35}.arow.ghost{box-shadow:0 18px 40px rgba(0,0,0,.25);transform:scale(1.03)}
 </style>
 </head>
 <body>
@@ -491,7 +500,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124j';
+const AV = '20261124k';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1212,20 +1221,52 @@ function openMove(okey) {
   sheet.classList.add('on'); scrim.classList.add('on');
 }
 function moveTo(okey, iso) {
-  const [o] = okey.split('|'), mv = Object.assign({}, movesOf()), from = whereIs(okey);
-  const ss = plan(from).s.find(x => x.okey === okey);
-  if (ss && from !== iso && hasData(sessLog(from, ss.id))) { toast('Hai già registrato dati qui: non lo sposto', true); return; }
-  if (iso === o) delete mv[okey]; else mv[okey] = iso;
-  custom.moves = mv; saveCustom(); closeSheet(); cur = iso; oggiMode = 'cal'; try { localStorage.setItem('scheda100k-oggimode', 'cal'); } catch (e) {} render(); window.scrollTo(0, 0); toast(iso === o ? 'Riportato al suo giorno' : `Spostato a ${DAYS[dayIdx(iso)].toLowerCase()} ${dnum(iso)}`);
+  const [o] = okey.split('|'), from = whereIs(okey);
+  if (from === iso) { closeSheet(); return; }
+  const ss = plan(from).s.find(x => x.okey === okey), data = ss ? sessLog(from, ss.id) : null, carry = data && (data.done || hasData(data));
+  const mv = Object.assign({}, movesOf()); if (iso === o) delete mv[okey]; else mv[okey] = iso;
+  custom.moves = mv;
+  // se avevi già registrato qualcosa, i dati si spostano con l'allenamento
+  if (carry) { const ss2 = plan(iso).s.find(x => x.okey === okey); if (ss2) { const df = editDay(from), copy = JSON.parse(JSON.stringify(df.s[ss.id] || {})); delete df.s[ss.id]; queueSave(from); const dt = editDay(iso); dt.s[ss2.id] = copy; queueSave(iso); } }
+  saveCustom(); closeSheet(); cur = iso; render();
+  toast(iso === o ? 'Riportato al suo giorno' : `Spostato a ${DAYS[dayIdx(iso)].toLowerCase()} ${dnum(iso)}`);
 }
 function vAllenamenti() {
   const w = Math.max(weekOf(cur), 0), nums = weekNumbers(w), t = localToday(), rows = [];
   for (let i = 0; i < 7; i++) { const iso = addDays(weekStart(w), i); for (const ss of planBase(iso).s) { const okey = iso + '|' + ss.id, at = whereIs(okey), cur2 = plan(at).s.find(x => x.okey === okey); rows.push({okey, n: nums[okey], ss, at, done: cur2 ? isDone(at, cur2) : false}); } }
-  const next = rows.find(r => !r.done && r.at >= t) || rows.find(r => !r.done);
   if (!rows.length) return `<div class="rest glass">${ico('rest')}<h2>Nessun allenamento</h2><p>Questa settimana non ha ancora un piano.</p></div>`;
-  return `<div class="alist">${rows.map(r => `<div class="arow glass${r.done ? ' done' : ''}${next === r ? ' next' : ''}" style="${tv(r.ss.cat)}"><button class="anum" data-goday="${r.at}" data-mode="cal">${esc(r.n)}</button><button class="amain" data-goday="${r.at}" data-mode="cal"><span class="lbl">${r.done ? 'Fatto' : next === r ? 'Tocca a te' : r.at < t ? 'Saltato' : 'Da fare'} · ${DAYS[dayIdx(r.at)].toLowerCase()} ${dnum(r.at)}${r.at !== r.okey.split('|')[0] ? ' (spostato)' : ''}</span><b>${esc(r.ss.title)}</b><small>${esc(r.ss.slot)} · ${esc(r.ss.planMin)}'</small></button>${r.done ? '<span class="okm">✓</span>' : r.at !== t ? `<button class="mini" data-moveto="${t}" data-okey="${r.okey}">Fallo oggi</button>` : '<span class="atoday">oggi</span>'}</div>`).join('')}</div>
-  <p class="eyebrow" style="margin:10px 6px 0">Tocca un allenamento per aprirlo. "Fallo oggi" lo sposta a oggi solo per questa settimana.</p>`;
+  const next = rows.find(r => !r.done && r.at >= t) || rows.find(r => !r.done);
+  const row = r => `<div class="arow glass${r.done ? ' done' : ''}${next === r ? ' next' : ''}" style="${tv(r.ss.cat)}" data-okey="${r.okey}"><button class="anum" data-goday="${r.at}" data-mode="cal">${esc(r.n)}</button><button class="amain" data-goday="${r.at}" data-mode="cal"><span class="lbl">${r.done ? 'Fatto' : next === r ? 'Tocca a te' : r.at < t ? 'Saltato' : 'Da fare'}${r.at !== r.okey.split('|')[0] ? ' · spostato' : ''}</span><b>${esc(r.ss.title)}</b><small>${esc(r.ss.slot)} · ${esc(r.ss.planMin)}'</small></button><span class="grip" data-grip="${r.okey}" aria-label="Trascina per spostare">⠿</span></div>`;
+  let h = '<div class="alist">';
+  for (let i = 0; i < 7; i++) {
+    const iso = addDays(weekStart(w), i), mine = rows.filter(r => r.at === iso);
+    h += `<section class="aday${iso === t ? ' today' : ''}" data-dropday="${iso}"><header><b>${DAYS[i]} ${dnum(iso)}</b>${iso === t ? '<span>oggi</span>' : ''}</header>${mine.length ? mine.map(row).join('') : '<div class="adrop">Riposo · trascina qui un allenamento</div>'}</section>`;
+  }
+  return h + `</div><p class="eyebrow" style="margin:10px 6px 0">Tieni premuto ⠿ e trascina un allenamento su un altro giorno: vale solo per questa settimana. Tocca il rettangolo per aprirlo.</p>`;
 }
+/* ---- trascinamento ---- */
+let drag = null;
+document.addEventListener('pointerdown', e => {
+  const g = e.target.closest && e.target.closest('[data-grip]'); if (!g) return;
+  e.preventDefault(); const rowEl = g.closest('.arow'), r = rowEl.getBoundingClientRect(), ghost = rowEl.cloneNode(true);
+  ghost.classList.add('ghost'); Object.assign(ghost.style, {position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', zIndex: 90, pointerEvents: 'none'});
+  document.body.appendChild(ghost); rowEl.classList.add('dragging');
+  drag = {okey: g.dataset.grip, ghost, rowEl, dy: e.clientY - r.top, over: null};
+  try { navigator.vibrate && navigator.vibrate(15); } catch (err) {}
+});
+window.addEventListener('pointermove', e => {
+  if (!drag) return; e.preventDefault();
+  drag.ghost.style.top = (e.clientY - drag.dy) + 'px';
+  const el = document.elementFromPoint(e.clientX, e.clientY), d = el && el.closest('[data-dropday]');
+  if (drag.over !== d) { if (drag.over) drag.over.classList.remove('over'); drag.over = d; if (d) d.classList.add('over'); }
+  if (e.clientY < 90) window.scrollBy(0, -12); else if (e.clientY > innerHeight - 140) window.scrollBy(0, 12);
+}, {passive: false});
+function endDrag() {
+  if (!drag) return; const {okey, ghost, rowEl, over} = drag; drag = null;
+  ghost.remove(); rowEl.classList.remove('dragging'); if (over) over.classList.remove('over');
+  if (over && over.dataset.dropday !== whereIs(okey)) { moveTo(okey, over.dataset.dropday); oggiMode = 'list'; try { localStorage.setItem('scheda100k-oggimode', 'list'); } catch (e) {} render(); }
+}
+window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
 
 /* ================= calcoli ================= */
 function hasData(l) { if (!l) return false; if (['min','km','hr'].some(k => num(l[k]) != null)) return true; if (l.chk && Object.values(l.chk).some(Boolean)) return true; if (l.sets) return Object.values(l.sets).some(a => (a || []).some(x => x && (num(x[0]) != null || num(x[1]) != null))); return false; }
