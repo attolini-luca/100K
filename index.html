@@ -228,6 +228,15 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .merow{grid-template-columns:minmax(0,1fr) 96px 36px!important}
 .merow .in input,#meN{color:var(--ink)}
 .mename{text-align:left;min-width:0}.mename b{font-size:15px}.mename small{font-size:12px;color:var(--soft)}
+
+.stime{font-size:12.5px;font-weight:800;color:var(--a);margin:10px 16px 2px}
+.sup{list-style:none;margin:0 16px;padding:0}
+.sup li{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.sup li:first-child{border-top:0}
+.sup b{display:block;font-size:15px}.sup small{font-size:12.5px;color:var(--soft)}
+.sck{width:34px;height:34px;border-radius:50%;background:light-dark(#fff,rgba(255,255,255,.08));box-shadow:0 2px 8px rgba(40,70,120,.14);color:var(--faint);font-weight:900;font-size:16px}
+.sck[aria-pressed=true]{background:#34c759;color:#fff}
+.suprow{grid-template-columns:36px minmax(0,1fr)!important}
 </style>
 </head>
 <body>
@@ -886,6 +895,7 @@ function vCibo() {
     if (o.steps) h += `<details class="steps2"><summary>Come si prepara</summary><p>${esc(o.steps)}</p></details>`;
     h += `<div class="exadd"><button class="pillbtn" data-medit="${m.k}" data-i="${oi}">Modifica</button>${m.rotate ? `<button class="ghost2" data-maddopt="${m.k}">+ Nuova cena</button>` : ''}</div></article>`;
   }
+  h += suppBlock(iso);
   h += `<div class="exadd" style="justify-content:center;padding-bottom:10px"><button class="pillbtn" data-act="spesa">🛒 Lista della spesa della settimana</button>${custom.diet ? '<button class="ghost2" data-act="dietreset">Ripristina dieta originale</button>' : ''}</div>`;
   return h;
 }
@@ -973,6 +983,133 @@ sheet.addEventListener('submit', e => {
   saveCustom(); foodPick.onPick(k);
 });
 
+/* ================= integratori ================= */
+const SCAT = {vit: 'Vitamine e minerali', omega: 'Omega 3 e grassi', perf: 'Performance', endu: 'Endurance e idratazione', prot: 'Proteine e amminoacidi', adat: 'Adattogeni', sonno: 'Recupero e sonno', dig: 'Digestione e salute', art: 'Articolazioni'};
+const STIME = {colazione: 'Con la colazione', pranzo: 'Con il pranzo', pre: 'Prima dei pesi', corsa: 'Durante corsa e lungo', post: 'Dopo i pesi', sera: 'La sera'};
+// nome, categoria, dose tipica, momento, a cosa serve
+const SUPPS = {
+  d3k2: ['Vitamina D3 + K2', 'vit', '1 capsula', 'colazione', 'Ossa, muscoli e sistema immunitario; con un pasto che ha grassi'],
+  d3: ['Vitamina D3', 'vit', '1 capsula (2000 UI)', 'colazione', 'Utile soprattutto da ottobre ad aprile'],
+  multi: ['Multivitaminico', 'vit', '1 compressa', 'colazione', 'Copre i buchi della dieta; occhio a non doppiare D3 e B'],
+  bcomp: ['Complesso B con B12', 'vit', '1 compressa', 'colazione', 'Metabolismo energetico; meglio la mattina'],
+  b12: ['Vitamina B12', 'vit', '1 compressa', 'colazione', 'Energia e globuli rossi'],
+  vitc: ['Vitamina C', 'vit', '500 mg', 'colazione', 'Difese immunitarie; lontano dai pesi se punti all\'ipertrofia'],
+  magnesio: ['Magnesio', 'vit', '300-400 mg', 'sera', 'Crampi, sonno e recupero; bisglicinato o citrato'],
+  zinco: ['Zinco', 'vit', '15-25 mg', 'sera', 'Ormoni e difese; non insieme a ferro e calcio'],
+  zma: ['ZMA', 'vit', '3 capsule', 'sera', 'Zinco, magnesio e B6 per la notte'],
+  ferro: ['Ferro', 'vit', '1 compressa', 'colazione', 'Solo se le analisi lo indicano'],
+  calcio: ['Calcio', 'vit', '500 mg', 'pranzo', 'Se mangi pochi latticini'],
+  potassio: ['Potassio', 'vit', '1 compressa', 'pranzo', 'Equilibrio dei liquidi'],
+  selenio: ['Selenio', 'vit', '55 µg', 'colazione', 'Tiroide e antiossidante'],
+  omega3: ['Omega 3', 'omega', '2-3 g di EPA+DHA', 'colazione', 'Cuore, infiammazione e articolazioni; con un pasto'],
+  krill: ['Olio di krill', 'omega', '1 g', 'colazione', 'Omega 3 in forma fosfolipidica'],
+  creatina: ['Creatina monoidrato', 'perf', '5 g', 'post', 'Forza e recupero; tutti i giorni, l\'orario conta poco'],
+  preworkout: ['Pre-workout', 'perf', '1 misurino', 'pre', 'Con caffeina: almeno 6 ore prima di dormire'],
+  caffeina: ['Caffeina', 'perf', '200 mg', 'pre', 'Prestazione e concentrazione; non la sera'],
+  betaala: ['Beta-alanina', 'perf', '3-5 g', 'pre', 'Sforzi intensi da 1 a 4 minuti; dà formicolio'],
+  citrullina: ['Citrullina', 'perf', '6-8 g', 'pre', 'Pump e resistenza nelle serie lunghe'],
+  barbabietola: ['Succo di barbabietola (nitrati)', 'perf', '70 ml concentrato', 'pre', 'Economia di corsa; 2-3 ore prima'],
+  carnitina: ['L-carnitina', 'perf', '2 g', 'pre', 'Trasporto dei grassi'],
+  taurina: ['Taurina', 'perf', '1-2 g', 'pre', 'Spesso già nei pre-workout'],
+  elettroliti: ['Elettroliti', 'endu', '1 bustina in 500 ml', 'corsa', 'Sodio e potassio per uscite lunghe e sudate'],
+  gel: ['Gel energetici', 'endu', '1 ogni 40 minuti', 'corsa', 'Dal minuto 45 dei lunghi'],
+  malto: ['Maltodestrine o ciclodestrine', 'endu', '30-60 g per ora', 'corsa', 'Carboidrati da bere nei lunghi'],
+  isotonico: ['Bevanda isotonica', 'endu', '500 ml', 'corsa', 'Liquidi, sali e zuccheri insieme'],
+  whey: ['Proteine whey', 'prot', '30 g', 'post', 'Già nella dieta, nello shake dopo i pesi'],
+  caseina: ['Caseina', 'prot', '30 g', 'sera', 'Proteine lente prima di dormire'],
+  eaa: ['Amminoacidi essenziali (EAA)', 'prot', '10 g', 'corsa', 'Durante allenamenti lunghi a digiuno'],
+  bcaa: ['BCAA', 'prot', '5-10 g', 'corsa', 'Utili solo con poche proteine; con 230 g al giorno servono a poco'],
+  glutammina: ['Glutammina', 'prot', '5 g', 'sera', 'Intestino e recupero'],
+  hmb: ['HMB', 'prot', '3 g', 'colazione', 'Protegge il muscolo nei periodi di deficit'],
+  ashwagandha: ['Ashwagandha', 'adat', '300-600 mg', 'sera', 'Stress, cortisolo e sonno; meglio a cicli'],
+  maca: ['Maca', 'adat', '1,5-3 g', 'colazione', 'Energia e libido'],
+  rhodiola: ['Rhodiola', 'adat', '200-400 mg', 'colazione', 'Fatica mentale; non la sera'],
+  ginseng: ['Ginseng', 'adat', '200-400 mg', 'colazione', 'Energia; non la sera'],
+  fienogreco: ['Fieno greco', 'adat', '500-600 mg', 'pranzo', 'Libido e glicemia; con un pasto'],
+  tribulus: ['Tribulus', 'adat', '500 mg', 'colazione', 'Libido; effetto sul testosterone non dimostrato'],
+  gaba: ['GABA', 'sonno', '500-750 mg', 'sera', 'Rilassamento prima di dormire'],
+  melatonina: ['Melatonina', 'sonno', '1 mg', 'sera', '30 minuti prima di dormire'],
+  glicina: ['Glicina', 'sonno', '3 g', 'sera', 'Qualità del sonno'],
+  ciliegia: ['Estratto di ciliegia aspra', 'sonno', '1 dose', 'sera', 'Recupero e indolenzimento'],
+  curcuma: ['Curcuma con piperina', 'sonno', '500 mg', 'pranzo', 'Infiammazione; con un pasto'],
+  enzimi: ['Enzimi digestivi (Digezyme)', 'dig', '1 capsula', 'pranzo', 'Prima dei pasti più grandi'],
+  probiotici: ['Probiotici', 'dig', '1 capsula', 'colazione', 'Flora intestinale; a stomaco quasi vuoto'],
+  psillio: ['Fibre di psillio', 'dig', '5 g', 'sera', 'Regolarità; con tanta acqua'],
+  colostro: ['Colostro', 'dig', '1 dose', 'colazione', 'Intestino e difese'],
+  teverde: ['Estratto di tè verde', 'dig', '1 capsula', 'colazione', 'Antiossidante; contiene caffeina'],
+  collagene: ['Collagene', 'art', '10 g', 'pre', 'Tendini e legamenti; con vitamina C, 30-60 minuti prima'],
+  glucosamina: ['Glucosamina e condroitina', 'art', '1 dose', 'pranzo', 'Cartilagini'],
+  msm: ['MSM', 'art', '1-3 g', 'pranzo', 'Articolazioni']
+};
+const DEFAULT_SUPP = ['d3k2', 'bcomp', 'omega3', 'creatina', 'preworkout', 'elettroliti', 'ashwagandha', 'magnesio', 'multi', 'enzimi', 'maca', 'gaba', 'fienogreco'];
+const SUP = k => SUPPS[k] || ((custom.suppx || {})[k]) || ['Integratore', 'vit', '', 'colazione', ''];
+const suppSel = () => (custom.supp && custom.supp.sel) || DEFAULT_SUPP;
+const suppCfg = k => Object.assign({dose: SUP(k)[2], t: SUP(k)[3]}, ((custom.supp || {}).cfg || {})[k] || {});
+const suppDay = iso => (dayLog(iso).f || {}).sup || {};
+function suppToday(iso) {
+  const p = plan(iso).s, weights = p.some(x => x.kind === 'strength' || x.kind === 'circuit'), longRun = p.some(x => x.id === 'long' || x.cat === 'q' || (x.planMin || 0) >= 60 && x.kind === 'run');
+  return suppSel().filter(k => { const t = suppCfg(k).t; if (t === 'pre') return weights; if (t === 'corsa') return longRun; return true; });
+}
+function suppBlock(iso) {
+  const ks = suppToday(iso), dl = suppDay(iso), done = ks.filter(k => dl[k]).length;
+  let h = `<article class="sc meal" style="${tv('mob')}"><header><div class="ic">${ico('f_pillole')}</div><div><div class="lbl">Integratori</div><h2>${ks.length ? `${done} di ${ks.length} presi` : 'Nessuno oggi'}</h2><p class="tg">Pre-workout solo nei giorni di pesi, elettroliti nelle corse lunghe</p></div><span></span></header>`;
+  for (const [t, tn] of Object.entries(STIME)) {
+    const g = ks.filter(k => suppCfg(k).t === t); if (!g.length) continue;
+    h += `<div class="stime">${esc(tn)}</div><ul class="sup">${g.map(k => `<li><button class="sck" data-sup="${k}" aria-pressed="${!!dl[k]}" aria-label="Preso">✓</button><span><b>${esc(SUP(k)[0])}</b><small>${esc(suppCfg(k).dose)}</small></span></li>`).join('')}</ul>`;
+  }
+  h += `<div class="exadd"><button class="pillbtn" data-act="suplib">Gestisci integratori</button></div></article>`;
+  return h;
+}
+let supPick = null;
+function openSuppLib() {
+  supPick = {cat: '', q: ''};
+  sheet.innerHTML = `<div class="grab"></div><div class="libtop"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Integratori</h2><button class="pillbtn" id="closeSheet" type="button">Fatto</button></div>
+    <p class="eyebrow" style="margin:6px 0 0">Tocca il cerchio per attivarlo, il nome per cambiare dose e momento.</p>
+    <span class="in" style="margin-top:10px"><input id="supQ" placeholder="Cerca…" autocomplete="off"></span>
+    <div class="chips"><button data-scat="" aria-pressed="true">Tutti</button><button data-scat="mine" aria-pressed="false">I miei</button>${Object.entries(SCAT).map(([k, n]) => `<button data-scat="${k}" aria-pressed="false">${esc(n)}</button>`).join('')}</div></div>
+    <div id="supList">${supRows()}</div>
+    <div class="libsec">${ico('sparkles')}Aggiungi un integratore che non c'è</div>
+    <form id="newSup" class="form"><label class="fl" style="grid-column:1/-1">Nome<span class="in"><input id="nsN" placeholder="Es. Vitamina K2"></span></label>
+      <label class="fl">Dose<span class="in"><input id="nsD" placeholder="1 capsula"></span></label><label class="fl">Quando<span class="in"><select id="nsT" style="border:0;background:none;width:100%;font-weight:700;min-height:44px">${Object.entries(STIME).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('')}</select></span></label>
+      <button class="btn" style="grid-column:1/-1">Aggiungi</button></form>`;
+  sheet.classList.add('on'); scrim.classList.add('on'); sheet.scrollTop = 0;
+}
+function supRows() {
+  const q = supPick.q.trim().toLowerCase(), all = Object.assign({}, SUPPS, custom.suppx || {}), sel = suppSel();
+  let h = '';
+  for (const [ck, cn] of Object.entries(SCAT)) {
+    if (supPick.cat && supPick.cat !== 'mine' && supPick.cat !== ck) continue;
+    const ks = Object.keys(all).filter(k => all[k][1] === ck && (supPick.cat !== 'mine' || sel.includes(k)) && (!q || all[k][0].toLowerCase().includes(q)));
+    if (!ks.length) continue;
+    h += `<div class="libsec">${esc(cn)}</div><div class="list" style="background:var(--field)">` + ks.map(k => { const c = suppCfg(k), on = sel.includes(k); return `<div class="lrow suprow"><button class="sck" data-supon="${k}" aria-pressed="${on}" aria-label="Attiva">✓</button><button class="mename" data-supcfg="${k}"><b>${esc(all[k][0])}</b><small>${esc(c.dose)} · ${esc(STIME[c.t] || '')}${all[k][4] ? ' · ' + esc(all[k][4]) : ''}</small></button></div>`; }).join('') + '</div>';
+  }
+  return h || '<p class="eyebrow" style="text-align:center;margin:20px">Nessun integratore trovato: aggiungilo qui sotto.</p>';
+}
+function openSuppCfg(k) {
+  const c = suppCfg(k);
+  sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">${esc(SUP(k)[0])}</h2><button class="pillbtn" id="supBack" type="button">‹ Indietro</button></div>
+    ${SUP(k)[4] ? `<p class="eyebrow" style="margin:8px 0 0">${esc(SUP(k)[4])}</p>` : ''}
+    <form id="supCfgForm" class="form" data-k="${k}" style="margin-top:12px"><label class="fl" style="grid-column:1/-1">Dose<span class="in"><input id="scD" value="${esc(c.dose)}"></span></label>
+    <label class="fl" style="grid-column:1/-1">Quando<span class="in"><select id="scT" style="border:0;background:none;width:100%;font-weight:700;min-height:44px">${Object.entries(STIME).map(([t, n]) => `<option value="${t}"${t === c.t ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></span></label>
+    <button class="btn" style="grid-column:1/-1">Salva</button></form>`;
+  sheet.scrollTop = 0;
+}
+function saveSupp(fn) { const s = JSON.parse(JSON.stringify(custom.supp || {})); s.sel = s.sel || suppSel().slice(); s.cfg = s.cfg || {}; fn(s); custom.supp = s; saveCustom(); render(); }
+sheet.addEventListener('input', e => { if (e.target.id === 'supQ' && supPick) { supPick.q = e.target.value; document.getElementById('supList').innerHTML = supRows(); } });
+sheet.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t || !supPick) return;
+  if (t.id === 'supBack') openSuppLib();
+  else if (t.dataset.scat !== undefined && t.closest('.chips')) { supPick.cat = t.dataset.scat; for (const c of sheet.querySelectorAll('.chips button')) c.setAttribute('aria-pressed', c === t); document.getElementById('supList').innerHTML = supRows(); }
+  else if (t.dataset.supon) { const k = t.dataset.supon; saveSupp(s => { s.sel = s.sel.includes(k) ? s.sel.filter(x => x !== k) : s.sel.concat(k); }); document.getElementById('supList').innerHTML = supRows(); }
+  else if (t.dataset.supcfg) openSuppCfg(t.dataset.supcfg);
+});
+sheet.addEventListener('submit', e => {
+  if (e.target.id === 'supCfgForm') { e.preventDefault(); const k = e.target.dataset.k, dose = document.getElementById('scD').value.trim(), tt = document.getElementById('scT').value; saveSupp(s => { s.cfg[k] = {dose, t: tt}; if (!s.sel.includes(k)) s.sel.push(k); }); openSuppLib(); }
+  else if (e.target.id === 'newSup') { e.preventDefault(); const n = document.getElementById('nsN').value.trim(); if (!n) return; const k = 'cs' + Date.now().toString(36);
+    custom.suppx = Object.assign({}, custom.suppx, {[k]: [n, 'vit', document.getElementById('nsD').value.trim() || '1 dose', document.getElementById('nsT').value, '']});
+    saveSupp(s => { s.sel.push(k); }); openSuppLib(); }
+});
+
 /* ================= render e navigazione ================= */
 function render() {
   for (const a of document.querySelectorAll('nav.tabs a')) { if (a.dataset.v === (view === 'settimana' ? 'oggi' : view)) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
@@ -1006,6 +1143,8 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.medit) openMealEdit(b.dataset.medit, +b.dataset.i);
   else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
+  else if (b.dataset.act === 'suplib') openSuppLib();
+  else if (b.dataset.sup) { const d = editDay(cur); d.f = d.f || {}; d.f.sup = Object.assign({}, d.f.sup, {[b.dataset.sup]: !(d.f.sup || {})[b.dataset.sup]}); queueSave(cur); render(); }
   else if (b.dataset.act === 'dietreset') { if (confirm('Torno alla dieta originale? Le tue modifiche ai pasti spariscono.')) { delete custom.diet; saveCustom(); render(); } }
   else if (b.dataset.act === 'sheet') openSheet();
   else if (b.dataset.act === 'faces') openFaces();
@@ -1068,7 +1207,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
       safeRender();
     }, onErr));
     subs.push(db.doc('prefs/app').onSnapshot(d => { const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
-    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
+    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; if (c.supp) custom.supp = c.supp; if (c.suppx) custom.suppx = c.suppx; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.collection('body').onSnapshot(snap => { fill(body, snap); safeRender(); if (sheet.classList.contains('on') && sheet.querySelector('#bodyForm')) openSheet(); }, onErr));
   });
   window.__esci = () => auth.signOut();
