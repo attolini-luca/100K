@@ -205,6 +205,29 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 @media(min-width:560px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:370px){.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.tile .val{font-size:26px}.donut{grid-template-columns:120px minmax(0,1fr)}.donut svg{width:120px;height:120px}}
 @media(prefers-reduced-motion:reduce){#toast,.sheet,.scrim{transition:none}}
+
+.fhero{position:relative;padding:16px;margin:0 0 16px;overflow:hidden;background:radial-gradient(90% 80% at 100% 0%,var(--t) 0%,transparent 60%),var(--cardSolid)}
+.fhero .lbl{font-size:12.5px;font-weight:800;color:var(--a);margin:0}
+.fhtop{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px;align-items:center;margin-bottom:10px}
+.fhero img.fil{width:96px;height:96px;transform:rotate(6deg);filter:drop-shadow(0 10px 12px rgba(30,50,90,.22))}
+.fhl{display:grid;grid-template-columns:118px minmax(0,1fr);gap:14px;align-items:center;position:relative}
+.kring{width:118px;height:118px}
+.fhs{min-width:0}
+.mbar+.mbar{margin-top:8px}
+.mbl{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--soft)}
+.mbl b{color:var(--ink);font-size:14px}.mbl small{color:var(--faint);font-weight:700}
+.fnote{font-size:13.5px;color:var(--soft);margin:12px 2px 0;line-height:1.4}
+.optc{padding:6px 16px 2px}
+.ing{list-style:none;margin:8px 16px 4px;padding:0;display:grid;gap:0}
+.ing li{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;padding:7px 0;border-top:1px solid var(--line)}
+.ing li:first-child{border-top:0}
+.ing li b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.steps2{margin:4px 16px 0;font-size:14.5px}
+.steps2 summary{font-weight:800;color:var(--a);padding:8px 0;cursor:pointer}
+.steps2 p{margin:0 0 6px;line-height:1.45}
+.merow{grid-template-columns:minmax(0,1fr) 96px 36px!important}
+.merow .in input,#meN{color:var(--ink)}
+.mename{text-align:left;min-width:0}.mename b{font-size:15px}.mename small{font-size:12px;color:var(--soft)}
 </style>
 </head>
 <body>
@@ -214,7 +237,7 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 <nav class="tabs glass" aria-label="Viste">
   <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 3 10.4V20a1 1 0 0 0 1 1h5.5v-6h5v6H20a1 1 0 0 0 1-1v-9.6z"/></svg>Home</a>
   <a href="#oggi" data-v="oggi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.5 8h2v8h-2zM15.5 8h2v8h-2zM3 10h2.5v4H3zM18.5 10H21v4h-2.5zM9.5 11h5v2h-5z"/></svg>Allenamento</a>
-  <a href="#settimana" data-v="settimana"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2zm-2 7v10h14V9zm2 2h3v3H7z"/></svg>Settimana</a>
+  <a href="#cibo" data-v="cibo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h1.6v6.2a1 1 0 0 0 .9 1V2H11v7.2a1 1 0 0 0 .9-1V2h1.6v7a3 3 0 0 1-2.5 3v9.2A.8.8 0 0 1 10.2 22H9.4a.8.8 0 0 1-.8-.8V12A3 3 0 0 1 6 9V2zm10.5 0C19.4 2 20 5 20 8.5c0 2.3-1 3.6-2.2 4v8.7a.8.8 0 0 1-.8.8h-.8a.8.8 0 0 1-.8-.8V2.8c0-.5.4-.8.8-.8z"/></svg>Cibo</a>
   <a href="#progressi" data-v="progressi"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 20V11h3.5v9zm6.25 0V4h3.5v16zM16.5 20v-6H20v6z"/></svg>Progressi</a>
   <a href="#piano" data-v="piano"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10a2 2 0 0 1 2 2v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a2 2 0 0 1 2-2m2 5v2h6V8zm0 4v2h6v-2zm0 4v2h4v-2z"/></svg>Piano</a>
 </nav>
@@ -251,7 +274,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const ico = (name, cls = '') => `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png" alt="" draggable="false">`;
+const ico = (name, cls = '') => `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png" alt="" draggable="false">`;
 
 /* ================= categorie ================= */
 const CATS = {
@@ -412,7 +435,7 @@ function flush(iso) {
   d.date = iso; d.w = weekOf(iso); d.at = new Date().toISOString();
   const copy = JSON.parse(JSON.stringify(d));
   if (mode !== 'db') { logs[iso] = copy; delete work[iso]; lsSave(); toast('Salvato sul telefono'); return; }
-  chains[iso] = (chains[iso] || Promise.resolve()).then(() => db.collection('logs').doc(iso).set(copy)).then(() => {
+  chains[iso] = (chains[iso] || Promise.resolve()).then(() => db.collection('logs').doc(iso).set(fsEnc(copy))).then(() => {
     logs[iso] = copy; if (work[iso] && JSON.stringify(work[iso]) === JSON.stringify(d)) delete work[iso]; toast('Salvato ✓');
   }).catch(e => { toast(e && e.code === 'quota_exceeded' ? 'Spazio pieno: non salvato' : 'Non salvato, riprovo…', true); setTimeout(() => queueSave(iso), 4000); });
 }
@@ -473,7 +496,7 @@ function vHome() {
   const t = localToday(), p = plan(t), w = Math.max(weekOf(t), 0), st = weekStats(w);
   const allDone = p.s.length && p.s.every(ss => isDone(t, ss));
   const title = !p.s.length ? 'Oggi si recupera' : allDone ? 'Giornata fatta!' : 'Si parte, Luca!';
-  const kg = lastBody('kg'), hr = lastBody('hr'), sl = lastBody('sleep');
+  const kg = lastBody('kg'), hr = lastBody('hr'), sl = lastBody('sleep'), df = dayFood(t);
   const tile = (k, ic, lab, rng, val, unit, ok, act) => `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
   return `<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button></div><h1>${title}</h1>
@@ -485,6 +508,8 @@ function vHome() {
     <div class="tiles">
       ${tile('run', 'shoe', 'Corsa', `${fmt(st.kmPlan)} km`, fmt(st.kmDone), 'km', kmOk, 'settimana')}
       ${tile('str', 'kettle', 'Forza', `${st.strN} sedute`, st.strDone, 'fatte', st.strN && st.strDone >= st.strN, 'settimana')}
+      ${tile('circ', 'f_patata', 'Calorie', `${df.t.kcal} kcal`, fmt(df.eaten.kcal, 0), 'kcal', df.eaten.kcal >= df.t.kcal * 0.9, 'cibo')}
+      ${tile('heart', 'f_steak', 'Proteine', `${df.t.p} g`, fmt(df.eaten.p, 0), 'g', df.eaten.p >= df.t.p * 0.9, 'cibo')}
       ${tile('heart', 'heart', 'Cuore', '40-46 BPM', hr ? fmt(hr.v, 0) : '–', 'bpm', hr && hr.v <= 46, 'sheet')}
       ${tile('kg', 'scale', 'Peso', '92 kg', kg ? fmt(kg.v) : '–', 'kg', kg && kg.v <= 92, 'sheet')}
       ${tile('long', 'mountain', 'Lungo', st.longPlan ? `${st.longPlan} min` : 'riposo', st.long != null ? fmt(st.long, 0) : '–', 'min', st.long != null && st.long >= st.longPlan, 'progressi')}
@@ -545,7 +570,7 @@ function dayPicker() {
 }
 function vOggi() {
   const p = plan(cur), w = Math.max(weekOf(cur), 0);
-  let h = `<div class="vh"><div class="vt"><p class="eyebrow">Settimana ${w} · ${cur === localToday() ? 'oggi' : DAYS[dayIdx(cur)].toLowerCase()}</p><h1>${DAYS[dayIdx(cur)]} ${dnum(cur)}</h1></div>${cur !== localToday() ? '<button class="pillbtn" id="goToday">Oggi</button>' : ''}</div>` + dayPicker();
+  let h = `<div class="vh"><div class="vt"><p class="eyebrow">Settimana ${w} · ${cur === localToday() ? 'oggi' : DAYS[dayIdx(cur)].toLowerCase()}</p><h1>${DAYS[dayIdx(cur)]} ${dnum(cur)}</h1></div><div style="display:flex;gap:8px">${cur !== localToday() ? '<button class="pillbtn" id="goToday">Oggi</button>' : ''}<button class="pillbtn" data-act="settimana">Settimana</button></div></div>` + dayPicker();
   if (!p.s.length) h += `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma.')}</p></div>`;
   else { h += p.s.map(ss => card(cur, ss)).join(''); if (p.note) h += `<p class="eyebrow" style="text-align:center">${esc(p.note)}</p>`; }
   return h;
@@ -756,11 +781,203 @@ function drawCharts() {
   for (const el of viewEl.querySelectorAll('[data-chart]')) { const f = () => { try { D[el.dataset.chart](el); } catch (e) { el.textContent = 'Grafico non disponibile'; } }; figs.set(el, f); chartRO.observe(el); f(); }
 }
 
+/* ================= alimentazione ================= */
+const FCAT = {prot: 'Proteine', latt: 'Latticini e uova', carbo: 'Carboidrati', verd: 'Verdure', frutta: 'Frutta', grassi: 'Grassi', cond: 'Condimenti e altro'};
+// nome, categoria, proteine, carboidrati, grassi per 100 g, [peso di un pezzo, singolare, plurale]
+const FOODS = {
+  pollo: ['Petto di pollo cotto', 'prot', 31, 0, 3.6], tacchino: ['Petto di tacchino cotto', 'prot', 29, 0, 1.5], spalla: ['Spalla di manzo cotta e sfilacciata', 'prot', 28, 0, 12],
+  pulled: ['Spalla di maiale (pulled pork) cotta', 'prot', 26, 0, 15], scottona: ['Macinato di scottona 5% crudo', 'prot', 21, 0, 5], chianina: ['Macinato di chianina 10% crudo', 'prot', 20, 0, 10],
+  tagliata: ['Controfiletto di manzo crudo', 'prot', 22, 0, 5], salmone: ['Salmone fresco crudo', 'prot', 20, 0, 13], salmAff: ['Salmone affumicato', 'prot', 22, 0, 5],
+  merluzzo: ['Merluzzo crudo', 'prot', 18, 0, 0.7], tonno: ['Tonno al naturale', 'prot', 25, 0, 1], gamberi: ['Gamberi crudi', 'prot', 24, 0, 0.8], bresaola: ['Bresaola', 'prot', 32, 0, 2.6],
+  crudo: ['Prosciutto crudo sgrassato', 'prot', 28, 0, 6], tofu: ['Tofu', 'prot', 12, 2, 7], whey: ['Proteine whey in polvere', 'prot', 78, 6, 6, [30, 'misurino', 'misurini']],
+  uova: ['Uova intere', 'latt', 12.6, 0.7, 9.5, [60, 'uovo', 'uova']], albumi: ['Albumi', 'latt', 11, 0.7, 0.2], yogurt: ['Yogurt greco 0%', 'latt', 10, 4, 0], skyr: ['Skyr', 'latt', 11, 4, 0.2],
+  fiocchi: ['Fiocchi di latte', 'latt', 11, 3.4, 4.3], mozzLight: ['Mozzarella light', 'latt', 20, 1, 9], parmigiano: ['Parmigiano', 'latt', 33, 0, 28], ricotta: ['Ricotta', 'latt', 11, 3, 10],
+  patDolce: ['Patata dolce cotta al forno', 'carbo', 2, 21, 0.2], patate: ['Patate cotte al forno', 'carbo', 2.5, 20, 0.1], riso: ['Riso basmati crudo', 'carbo', 8, 78, 1],
+  pasta: ['Pasta integrale cruda', 'carbo', 13, 64, 2.5], paneSegale: ['Pane di segale', 'carbo', 8.5, 48, 3.3, [40, 'fetta', 'fette']], paneInt: ['Pane integrale', 'carbo', 9, 42, 3, [40, 'fetta', 'fette']],
+  avena: ["Fiocchi d'avena", 'carbo', 13, 60, 7], quinoa: ['Quinoa cruda', 'carbo', 14, 64, 6], farro: ['Farro crudo', 'carbo', 15, 67, 2.5], couscous: ['Cous cous crudo', 'carbo', 13, 72, 1],
+  gallette: ['Gallette di riso', 'carbo', 8, 81, 3, [8, 'galletta', 'gallette']], lenticchie: ['Lenticchie cotte', 'carbo', 9, 20, 0.4], ceci: ['Ceci cotti', 'carbo', 9, 27, 2.6],
+  avocado: ['Avocado', 'grassi', 2, 8.5, 14.7, [140, 'avocado', 'avocado']], olio: ['Olio extravergine', 'grassi', 0, 0, 100, [10, 'cucchiaio', 'cucchiai']], mandorle: ['Mandorle', 'grassi', 21, 22, 50],
+  noci: ['Noci', 'grassi', 15, 14, 65], burroArachidi: ["Burro d'arachidi", 'grassi', 25, 20, 50], fondente: ['Cioccolato fondente 85%', 'grassi', 11, 19, 50],
+  broccoli: ['Broccoli', 'verd', 2.8, 7, 0.4], zucchine: ['Zucchine', 'verd', 1.2, 3.1, 0.3], insalata: ['Insalata', 'verd', 1.4, 2.9, 0.2], carote: ['Carote', 'verd', 0.9, 10, 0.2],
+  cipolla: ['Cipolla rossa', 'verd', 1.1, 9, 0.1], cavolfiore: ['Cavolfiore', 'verd', 1.9, 5, 0.3], fagiolini: ['Fagiolini', 'verd', 1.8, 7, 0.1], spinaci: ['Spinaci', 'verd', 2.9, 3.6, 0.4],
+  pomodori: ['Pomodorini', 'verd', 0.9, 3.9, 0.2], peperoni: ['Peperoni', 'verd', 1, 6, 0.3], rucola: ['Rucola', 'verd', 2.6, 3.7, 0.7], cavoletti: ['Cavoletti di Bruxelles', 'verd', 3.4, 9, 0.3], finocchio: ['Finocchio', 'verd', 1.2, 7, 0.2],
+  banana: ['Banana', 'frutta', 1.1, 23, 0.3, [120, 'banana', 'banane']], mela: ['Mela', 'frutta', 0.3, 14, 0.2, [150, 'mela', 'mele']], frutti: ['Frutti di bosco', 'frutta', 0.7, 10, 0.3],
+  kiwi: ['Kiwi', 'frutta', 1.1, 15, 0.5, [75, 'kiwi', 'kiwi']], arancia: ['Arancia', 'frutta', 0.9, 9, 0.1, [150, 'arancia', 'arance']], datteri: ['Datteri', 'frutta', 2, 75, 0.2, [8, 'dattero', 'datteri']],
+  miele: ['Miele', 'cond', 0.3, 82, 0, [10, 'cucchiaino', 'cucchiaini']], mielePic: ['Miele piccante', 'cond', 0.3, 82, 0, [10, 'cucchiaino', 'cucchiaini']], passata: ['Passata di pomodoro', 'cond', 1.3, 6, 0.2],
+  soia: ['Salsa di soia', 'cond', 8, 5, 0], spezie: ['Spezie, sale e lime', 'cond', 0, 0, 0], caffe: ['Caffè', 'cond', 0, 0, 0, [30, 'tazzina', 'tazzine']]
+};
+const TARGETS = {facile: {n: 'Giorno facile', kcal: 2500, p: 230, c: 225, f: 75}, normale: {n: 'Giorno normale', kcal: 2900, p: 230, c: 315, f: 80}, duro: {n: 'Giorno duro', kcal: 3200, p: 230, c: 390, f: 80}};
+const I = (f, g, d) => d ? {f, g, d} : {f, g};
+const DEFAULT_DIET = {meals: [
+  {k: 'pre', n: 'Prima della corsa', t: '6:00', opts: [{n: 'Banana e caffè', ic: 'f_banana', items: [I('banana', 120), I('caffe', 30), I('paneSegale', 0, {duro: 40}), I('miele', 0, {duro: 10})]}]},
+  {k: 'colazione', n: 'Colazione', t: '7:30', opts: [
+    {n: 'Toast al salmone', ic: 'f_uova', items: [I('paneSegale', 80), I('salmAff', 100), I('uova', 120), I('albumi', 100), I('avocado', 70)], steps: 'Tosta il pane, strapazza uova e albumi con un pizzico di sale, completa con salmone e avocado a fette.'},
+    {n: 'Bresaola e omelette', ic: 'f_uova', items: [I('paneSegale', 80), I('bresaola', 70), I('uova', 120), I('albumi', 100), I('avocado', 70)], steps: 'Omelette con uova e albumi in padella antiaderente, servita con pane tostato, bresaola e avocado.'}]},
+  {k: 'pranzo', n: 'Pranzo', t: '13:00', opts: [{n: 'Bowl pollo e patata dolce', ic: 'f_bowl', items: [I('pollo', 160), I('patDolce', 300, {duro: 400, facile: 200}), I('broccoli', 150), I('olio', 10), I('yogurt', 100), I('spezie', 0)],
+    steps: 'Nel weekend: pollo al forno o in padella con paprika e aglio, patate dolci a cubetti al forno a 200° per 30 minuti, broccoli al vapore. Salsa: yogurt greco, lime, sale e pepe. Si conserva 4 giorni in frigo.'}]},
+  {k: 'merenda', n: 'Merenda', t: '17:00', opts: [{n: 'Yogurt, avena e frutta', ic: 'f_yogurt', items: [I('yogurt', 250), I('avena', 40, {duro: 60, facile: 30}), I('mela', 150), I('miele', 10)], steps: 'Due ore prima dei pesi. Mescola yogurt e avena, aggiungi il frutto a pezzi e il miele.'}]},
+  {k: 'post', n: "Dopo l'allenamento", t: '19:30', opts: [{n: 'Shake proteico', ic: 'f_shake', items: [I('whey', 30)], steps: 'Un misurino in 300 ml di acqua o latte, entro un\'ora dalla fine dei pesi.'}]},
+  {k: 'cena', n: 'Cena', t: '20:30', rotate: true, opts: [
+    {n: 'Patata dolce loaded con spalla', ic: 'f_patata', items: [I('patDolce', 350, {duro: 450, facile: 250}), I('spalla', 130), I('uova', 60), I('avocado', 70), I('insalata', 50), I('cipolla', 30)],
+      steps: 'Cuoci la patata dolce intera al forno a 200° per 45-50 minuti, aprila a metà e schiacciala nel piatto. Al centro la spalla sfilacciata, di lato avocado, insalata e un uovo all\'occhio di bue. Cipolla rossa in agrodolce: affettata sottile, 20 minuti in aceto, acqua, sale e un cucchiaino di miele.'},
+    {n: 'Bowl di scottona alla messicana', ic: 'f_patata', items: [I('patDolce', 300, {duro: 400, facile: 200}), I('scottona', 200), I('fiocchi', 100), I('avocado', 70), I('insalata', 50), I('mielePic', 10), I('spezie', 0)],
+      steps: 'Rosola il macinato con paprika affumicata, cumino, aglio e sale. Patate dolci a cubetti al forno. Componi la bowl con fiocchi di latte, avocado e insalata, chiudi con un filo di miele piccante e lime.'},
+    {n: 'Pollo hot honey e patate dolci', ic: 'f_pollo', items: [I('pollo', 200), I('patDolce', 350, {duro: 450, facile: 250}), I('broccoli', 200), I('mielePic', 15), I('olio', 10)],
+      steps: 'Pollo a pezzi in padella con paprika e aglio, a fine cottura glassa con miele e peperoncino. Patate dolci a spicchi al forno, broccoli al vapore o saltati.'},
+    {n: 'Salmone, riso e zucchine', ic: 'f_salmone', items: [I('salmone', 180), I('riso', 80, {duro: 110, facile: 50}), I('zucchine', 200), I('yogurt', 80), I('olio', 5)],
+      steps: 'Salmone al forno a 200° per 12-15 minuti con limone e pepe. Riso basmati bollito, zucchine a rondelle in padella. Salsa: yogurt greco, limone ed erba cipollina.'},
+    {n: 'Pasta al ragù di scottona', ic: 'f_pasta', items: [I('pasta', 110, {duro: 140, facile: 80}), I('scottona', 180), I('passata', 150), I('zucchine', 150), I('parmigiano', 15), I('olio', 5)],
+      steps: 'La cena del venerdì, prima del lungo. Ragù veloce: macinato rosolato con un filo d\'olio, poi passata e zucchine a dadini per 20 minuti. Pasta al dente e parmigiano sopra.'},
+    {n: 'Tagliata con patate e carote', ic: 'f_steak', items: [I('tagliata', 220), I('patate', 350, {duro: 450, facile: 250}), I('carote', 150), I('uova', 60), I('olio', 10)],
+      steps: 'Controfiletto in padella rovente 2-3 minuti per lato, riposa 5 minuti e taglia a fette. Patate e carote a spicchi al forno con rosmarino.'},
+    {n: 'Burger di chianina e patate dolci', ic: 'f_steak', items: [I('chianina', 200), I('patDolce', 300, {duro: 400, facile: 200}), I('insalata', 60), I('carote', 80), I('olio', 5)],
+      steps: 'Burger al piatto, cotto in padella 4 minuti per lato. Patate dolci a bastoncino al forno a 220° per 25 minuti. Insalata e carote julienne.'}]}
+]};
+const dietData = () => (custom.diet && custom.diet.meals) ? custom.diet : DEFAULT_DIET;
+const FOOD = k => FOODS[k] || ((custom.foods || {})[k]) || ['Alimento', 'cond', 0, 0, 0];
+function dayKind(iso) {
+  const s = plan(iso).s;
+  if (s.some(x => x.cat === 'q' || x.id === 'long')) return 'duro';
+  if (!s.some(x => x.cat !== 'mob')) return 'facile';
+  return 'normale';
+}
+const hasMorningRun = iso => plan(iso).s.some(x => (x.kind === 'run' || x.kind === 'test') && x.slot === 'Mattina');
+const grams = (it, kind) => (it.d && it.d[kind] != null) ? it.d[kind] : it.g;
+function macros(items, kind) {
+  const t = {p: 0, c: 0, f: 0};
+  for (const it of items) { const g = grams(it, kind), fd = FOOD(it.f); t.p += fd[2] * g / 100; t.c += fd[3] * g / 100; t.f += fd[4] * g / 100; }
+  t.kcal = t.p * 4 + t.c * 4 + t.f * 9; return t;
+}
+function qty(it, kind) {
+  const g = grams(it, kind), fd = FOOD(it.f), pz = fd[5];
+  if (pz && g && fd[2] + fd[3] + fd[4] === 0) return `${Math.round(g / pz[0])} ${g / pz[0] > 1 ? pz[2] : pz[1]}`;
+  if (pz && g) { const n = g / pz[0]; const nice = Math.abs(n - Math.round(n)) < 0.01 ? String(Math.round(n)) : Math.abs(n - 0.5) < 0.01 ? '½' : Math.abs(n * 2 - Math.round(n * 2)) < 0.01 ? (Math.floor(n) + '½') : null; if (nice) return `${nice} ${n > 1 ? pz[2] : pz[1]} · ${Math.round(g)} g`; }
+  return g ? Math.round(g) + ' g' : '';
+}
+const foodLog = iso => (dayLog(iso).f || {});
+function mealOptIndex(iso, m) {
+  const l = foodLog(iso)[m.k];
+  if (l && l.o != null && m.opts[l.o]) return l.o;
+  if (m.rotate) return dayIdx(iso) % m.opts.length;
+  return 0;
+}
+function visibleMeals(iso) { return dietData().meals.filter(m => m.k !== 'pre' || hasMorningRun(iso)); }
+function dayFood(iso) {
+  const kind = dayKind(iso), meals = visibleMeals(iso), tot = {p: 0, c: 0, f: 0, kcal: 0}, eaten = {p: 0, c: 0, f: 0, kcal: 0};
+  for (const m of meals) { const o = m.opts[mealOptIndex(iso, m)], mm = macros(o.items, kind); for (const k in tot) tot[k] += mm[k]; if ((foodLog(iso)[m.k] || {}).d) for (const k in eaten) eaten[k] += mm[k]; }
+  return {kind, tot, eaten, t: TARGETS[kind]};
+}
+function editFood(iso, k) { const d = editDay(iso); d.f = d.f || {}; d.f[k] = d.f[k] || {}; return d.f[k]; }
+function bar(label, val, max, col) { const pc = Math.min(100, max ? val / max * 100 : 0); return `<div class="mbar"><div class="mbl"><span>${label}</span><b>${Math.round(val)}<small> / ${max} g</small></b></div><div class="prog"><i style="width:${pc}%;background:${col}"></i></div></div>`; }
+function ring(val, max) {
+  const R = 46, C = 2 * Math.PI * R, pc = Math.min(1, max ? val / max : 0);
+  return `<svg viewBox="0 0 110 110" class="kring" role="img" aria-label="Calorie"><circle cx="55" cy="55" r="${R}" fill="none" stroke="var(--field)" stroke-width="11"/><circle cx="55" cy="55" r="${R}" fill="none" stroke="#ff8a3d" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C * pc} ${C}" transform="rotate(-90 55 55)"/><text x="55" y="54" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)">${Math.round(val)}</text><text x="55" y="72" text-anchor="middle" font-size="11" font-weight="600" fill="var(--soft)">di ${max} kcal</text></svg>`;
+}
+function vCibo() {
+  const iso = cur, df = dayFood(iso), kind = df.kind, meals = visibleMeals(iso), fl = foodLog(iso);
+  let h = `<div class="vh"><div class="vt"><p class="eyebrow">${esc(df.t.n)} · ${DAYS[dayIdx(iso)].toLowerCase()} ${dnum(iso)}</p><h1>Alimentazione</h1></div>${iso !== localToday() ? '<button class="pillbtn" id="goToday">Oggi</button>' : ''}</div>` + dayPicker();
+  h += `<section class="fhero glass" style="${tv('circ')}"><div class="fhtop"><div><p class="lbl">Mangiato oggi</p><p class="fnote" style="margin:2px 0 0">Menu di ${iso === localToday() ? 'oggi' : 'questo giorno'}: <b>${Math.round(df.tot.kcal)} kcal</b> e <b>${Math.round(df.tot.p)} g</b> di proteine.<br>${kind === 'duro' ? 'Giorno duro: più carboidrati per allenarti bene.' : kind === 'facile' ? 'Giorno facile: meno carboidrati, proteine sempre alte.' : 'Giorno normale: Z2 e pesi.'}</p></div>${ico('f_patata', 'fil')}</div><div class="fhl">${ring(df.eaten.kcal, df.t.kcal)}<div class="fhs">${bar('Proteine', df.eaten.p, df.t.p, '#e0244a')}${bar('Carboidrati', df.eaten.c, df.t.c, '#f59e0b')}${bar('Grassi', df.eaten.f, df.t.f, '#7cc520')}</div></div></section>`;
+  for (const m of meals) {
+    const oi = mealOptIndex(iso, m), o = m.opts[oi], mm = macros(o.items, kind), done = !!(fl[m.k] || {}).d;
+    const items = o.items.filter(it => grams(it, kind) > 0 || FOOD(it.f)[2] + FOOD(it.f)[3] + FOOD(it.f)[4] === 0);
+    h += `<article class="sc meal" style="${tv(m.k === 'cena' ? 'circ' : m.k === 'post' ? 'str' : m.k === 'merenda' ? 'kg' : m.k === 'pranzo' ? 'run' : m.k === 'pre' ? 'q' : 'long')}"><header><div class="ic">${ico(o.ic || 'f_patata')}</div><div><div class="lbl">${esc(m.n)} · ${esc(m.t)}</div><h2>${esc(o.n)}</h2><p class="tg">${Math.round(mm.kcal)} kcal · P ${Math.round(mm.p)} · C ${Math.round(mm.c)} · G ${Math.round(mm.f)}</p></div><button class="ck" data-eat="${m.k}" aria-pressed="${done}" aria-label="Segna come mangiato">✓</button></header>`;
+    if (m.opts.length > 1) h += `<div class="chips optc">${m.opts.map((x, i) => `<button data-opt="${m.k}" data-i="${i}" aria-pressed="${i === oi}">${m.rotate ? esc(x.n) : 'Opzione ' + 'ABCDEFG'[i]}</button>`).join('')}</div>`;
+    h += `<ul class="ing">${items.map(it => `<li><span>${esc(FOOD(it.f)[0])}</span><b>${esc(qty(it, kind))}</b></li>`).join('')}</ul>`;
+    if (o.steps) h += `<details class="steps2"><summary>Come si prepara</summary><p>${esc(o.steps)}</p></details>`;
+    h += `<div class="exadd"><button class="pillbtn" data-medit="${m.k}" data-i="${oi}">Modifica</button>${m.rotate ? `<button class="ghost2" data-maddopt="${m.k}">+ Nuova cena</button>` : ''}</div></article>`;
+  }
+  h += `<div class="exadd" style="justify-content:center;padding-bottom:10px"><button class="pillbtn" data-act="spesa">🛒 Lista della spesa della settimana</button>${custom.diet ? '<button class="ghost2" data-act="dietreset">Ripristina dieta originale</button>' : ''}</div>`;
+  return h;
+}
+/* ---- modifica pasti ---- */
+let mealCtx = null;
+const cloneDiet = () => JSON.parse(JSON.stringify(dietData()));
+function saveDiet(d) { custom.diet = d; saveCustom(); }
+function openMealEdit(mk, oi) {
+  const d = cloneDiet(), m = d.meals.find(x => x.k === mk), o = m.opts[oi];
+  mealCtx = {mk, oi, draft: d};
+  renderMealEdit();
+}
+function renderMealEdit() {
+  const {mk, oi, draft} = mealCtx, m = draft.meals.find(x => x.k === mk), o = m.opts[oi], kind = dayKind(cur);
+  const mm = macros(o.items, kind);
+  sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Modifica ${esc(m.n.toLowerCase())}</h2><button class="pillbtn" id="closeSheet" type="button">Chiudi</button></div>
+    <label class="fl" style="margin-top:12px">Nome<span class="in"><input id="meN" value="${esc(o.n)}"></span></label>
+    <p class="eyebrow" style="margin:12px 4px 6px">Ingredienti (grammi del giorno normale) · ${Math.round(mm.kcal)} kcal, P ${Math.round(mm.p)} g</p>
+    <div class="list" style="background:var(--field)">${o.items.map((it, i) => `<div class="lrow merow"><button class="mename" data-mswap="${i}"><b>${esc(FOOD(it.f)[0])}</b><small>Tocca per cambiare</small></button><span class="in" style="background:var(--cardSolid)"><input inputmode="decimal" data-mg="${i}" value="${esc(it.g)}"><span>g</span></span><button class="del" data-mdel="${i}" aria-label="Togli">✕</button></div>`).join('')}</div>
+    <div class="exadd"><button class="pillbtn" data-madd="1">+ Aggiungi ingrediente</button></div>
+    <label class="fl" style="margin-top:8px">Come si prepara<textarea id="meS" rows="3" style="width:100%;border:0;border-radius:14px;background:var(--field);padding:12px;font-size:15px">${esc(o.steps || '')}</textarea></label>
+    <div class="edbtns"><button class="btn" data-msave="1" style="grid-column:1/-1">Salva</button>${m.opts.length > 1 ? '<button class="btn red" data-mrem="1" style="grid-column:1/-1">Elimina questa opzione</button>' : ''}</div>`;
+  sheet.classList.add('on'); scrim.classList.add('on');
+}
+function syncMealDraft() {
+  const {mk, oi, draft} = mealCtx, o = draft.meals.find(x => x.k === mk).opts[oi];
+  const n = document.getElementById('meN'); if (n) o.n = n.value.trim() || o.n;
+  const st = document.getElementById('meS'); if (st) o.steps = st.value.trim();
+  for (const inp of sheet.querySelectorAll('[data-mg]')) { const i = +inp.dataset.mg, g = num(inp.value); if (o.items[i] && g != null) { const old = o.items[i].g; o.items[i].g = g; if (o.items[i].d && old) for (const k of Object.keys(o.items[i].d)) o.items[i].d[k] = Math.round(o.items[i].d[k] * g / old); } }
+}
+let foodPick = null;
+function openFoodLib(onPick, cat) {
+  foodPick = {onPick, cat: cat || '', q: ''};
+  const back = mealCtx ? '<button class="pillbtn" id="foodBack" type="button">‹ Indietro</button>' : '';
+  sheet.innerHTML = `<div class="grab"></div><div class="libtop"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Scegli alimento</h2>${back}</div>
+    <span class="in" style="margin-top:10px"><input id="foodQ" placeholder="Cerca…" autocomplete="off"></span>
+    <div class="chips"><button data-fcat="" aria-pressed="${!foodPick.cat}">Tutti</button>${Object.entries(FCAT).map(([k, n]) => `<button data-fcat="${k}" aria-pressed="${foodPick.cat === k}">${esc(n)}</button>`).join('')}</div></div>
+    <div id="foodList">${foodRows()}</div>
+    <div class="libsec">${ico('sparkles')}Crea un alimento tuo (valori per 100 g)</div>
+    <form id="newFood" class="form"><label class="fl" style="grid-column:1/-1">Nome<span class="in"><input id="nfN" placeholder="Es. Wrap integrale"></span></label>
+      <label class="fl">Proteine<span class="in"><input id="nfP" inputmode="decimal"><span>g</span></span></label><label class="fl">Carboidrati<span class="in"><input id="nfC" inputmode="decimal"><span>g</span></span></label>
+      <label class="fl">Grassi<span class="in"><input id="nfF" inputmode="decimal"><span>g</span></span></label><label class="fl">Categoria<span class="in"><select id="nfK" style="border:0;background:none;width:100%;font-weight:700;min-height:44px">${Object.entries(FCAT).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('')}</select></span></label>
+      <button class="btn" style="grid-column:1/-1">Crea e usa</button></form>`;
+  sheet.classList.add('on'); scrim.classList.add('on'); sheet.scrollTop = 0;
+}
+function foodRows() {
+  const q = foodPick.q.trim().toLowerCase(), all = Object.assign({}, FOODS, custom.foods || {});
+  let h = '';
+  for (const [ck, cn] of Object.entries(FCAT)) {
+    if (foodPick.cat && foodPick.cat !== ck) continue;
+    const ks = Object.keys(all).filter(k => all[k][1] === ck && (!q || all[k][0].toLowerCase().includes(q))).sort((a, b) => all[a][0].localeCompare(all[b][0], 'it'));
+    if (!ks.length) continue;
+    h += `<div class="libsec">${esc(cn)}</div><div class="list" style="background:var(--field)">` + ks.map(k => { const f = all[k]; return `<button class="lrow" data-fpick="${k}" style="grid-template-columns:minmax(0,1fr) auto"><span><b>${esc(f[0])}</b><small>per 100 g: P ${f[2]} · C ${f[3]} · G ${f[4]}</small></span><span class="chev">›</span></button>`; }).join('') + '</div>';
+  }
+  return h || '<p class="eyebrow" style="text-align:center;margin:20px">Nessun alimento trovato: crealo qui sotto.</p>';
+}
+function openSpesa() {
+  const ws = weekStart(Math.max(weekOf(cur), 0)), tot = {};
+  for (let i = 0; i < 7; i++) { const iso = addDays(ws, i), kind = dayKind(iso); for (const m of visibleMeals(iso)) for (const it of m.opts[mealOptIndex(iso, m)].items) { const g = grams(it, kind); if (g > 0) tot[it.f] = (tot[it.f] || 0) + g; } }
+  const groups = {};
+  for (const [k, g] of Object.entries(tot)) { const fd = FOOD(k); (groups[fd[1]] = groups[fd[1]] || []).push([fd[0], g, fd[5]]); }
+  sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Spesa della settimana</h2><button class="pillbtn" id="closeSheet" type="button">Chiudi</button></div><p class="eyebrow" style="margin:6px 0 0">Dal ${nice(ws)} al ${nice(addDays(ws, 6))}, con le cene della rotazione. Pesi da crudo o cotto come indicato.</p>` +
+    Object.entries(FCAT).filter(([k]) => groups[k]).map(([k, n]) => `<div class="libsec">${esc(n)}</div><div class="list" style="background:var(--field)">${groups[k].sort((a, b) => b[1] - a[1]).map(([nm, g, pz]) => `<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto"><span><b>${esc(nm)}</b></span><span style="font-weight:800">${pz ? Math.ceil(g / pz[0] - 0.01) + ' ' + (g / pz[0] > 1 ? pz[2] : pz[1]) + ' · ' : ''}${g >= 1000 ? fmt(g / 1000, 2) + ' kg' : Math.round(g) + ' g'}</span></div>`).join('')}</div>`).join('');
+  sheet.classList.add('on'); scrim.classList.add('on'); sheet.scrollTop = 0;
+}
+sheet.addEventListener('input', e => { if (e.target.id === 'foodQ' && foodPick) { foodPick.q = e.target.value; document.getElementById('foodList').innerHTML = foodRows(); } });
+sheet.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'foodBack') { renderMealEdit(); return; }
+  if (t.dataset.fcat !== undefined && t.closest('.chips') && foodPick) { foodPick.cat = t.dataset.fcat; for (const c of sheet.querySelectorAll('.chips button')) c.setAttribute('aria-pressed', c === t); document.getElementById('foodList').innerHTML = foodRows(); return; }
+  if (t.dataset.fpick && foodPick) { foodPick.onPick(t.dataset.fpick); return; }
+  if (!mealCtx) return;
+  const o = () => mealCtx.draft.meals.find(x => x.k === mealCtx.mk).opts[mealCtx.oi];
+  if (t.dataset.mswap) { syncMealDraft(); const i = +t.dataset.mswap; openFoodLib(k => { o().items[i] = {f: k, g: o().items[i].g}; renderMealEdit(); }, FOOD(o().items[i].f)[1]); }
+  else if (t.dataset.mdel) { syncMealDraft(); o().items.splice(+t.dataset.mdel, 1); renderMealEdit(); }
+  else if (t.dataset.madd) { syncMealDraft(); openFoodLib(k => { o().items.push({f: k, g: 100}); renderMealEdit(); }); }
+  else if (t.dataset.msave) { syncMealDraft(); saveDiet(mealCtx.draft); mealCtx = null; closeSheet(); render(); }
+  else if (t.dataset.mrem) { const m = mealCtx.draft.meals.find(x => x.k === mealCtx.mk); m.opts.splice(mealCtx.oi, 1); saveDiet(mealCtx.draft); mealCtx = null; closeSheet(); render(); }
+});
+sheet.addEventListener('submit', e => {
+  if (e.target.id !== 'newFood' || !foodPick) return; e.preventDefault();
+  const n = document.getElementById('nfN').value.trim(); if (!n) return;
+  const k = 'cf' + Date.now().toString(36);
+  custom.foods = Object.assign({}, custom.foods, {[k]: [n, document.getElementById('nfK').value, num(document.getElementById('nfP').value) || 0, num(document.getElementById('nfC').value) || 0, num(document.getElementById('nfF').value) || 0]});
+  saveCustom(); foodPick.onPick(k);
+});
+
 /* ================= render e navigazione ================= */
 function render() {
-  for (const a of document.querySelectorAll('nav.tabs a')) { if (a.dataset.v === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
+  for (const a of document.querySelectorAll('nav.tabs a')) { if (a.dataset.v === (view === 'settimana' ? 'oggi' : view)) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
 
-  viewEl.innerHTML = ({home: vHome, oggi: vOggi, settimana: vSettimana, progressi: vProgressi, piano: vPiano}[view])();
+  viewEl.innerHTML = ({home: vHome, oggi: vOggi, cibo: vCibo, settimana: vSettimana, progressi: vProgressi, piano: vPiano}[view])();
   if (view === 'progressi') drawCharts();
 }
 let deferred = false;
@@ -784,6 +1001,12 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.day) { cur = b.dataset.day; render(); }
   else if (b.dataset.step) { cur = addDays(cur, +b.dataset.step); render(); }
   else if (b.id === 'goToday') { cur = localToday(); render(); }
+  else if (b.dataset.eat) { const f = editFood(cur, b.dataset.eat); f.d = !f.d; queueSave(cur); render(); }
+  else if (b.dataset.opt) { editFood(cur, b.dataset.opt).o = +b.dataset.i; queueSave(cur); render(); }
+  else if (b.dataset.medit) openMealEdit(b.dataset.medit, +b.dataset.i);
+  else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
+  else if (b.dataset.act === 'spesa') openSpesa();
+  else if (b.dataset.act === 'dietreset') { if (confirm('Torno alla dieta originale? Le tue modifiche ai pasti spariscono.')) { delete custom.diet; saveCustom(); render(); } }
   else if (b.dataset.act === 'sheet') openSheet();
   else if (b.dataset.act === 'faces') openFaces();
   else if (b.dataset.act === 'logout') { if (window.__esci) window.__esci(); }
@@ -793,7 +1016,7 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.reset) { const c = Object.assign({}, custom.sess); delete c[b.dataset.reset]; custom.sess = c; saveCustom(); render(); }
   else if (b.dataset.act) go(b.dataset.act);
 });
-const VIEWS = ['home', 'oggi', 'settimana', 'progressi', 'piano'];
+const VIEWS = ['home', 'oggi', 'cibo', 'settimana', 'progressi', 'piano'];
 function go(v) { if (location.hash === '#' + v) route(); else location.hash = v; }
 function route() { let h = location.hash.slice(1); if (h === 'grafici') h = 'progressi'; if (h === 'corpo') { h = 'progressi'; setTimeout(openSheet, 50); } view = VIEWS.includes(h) ? h : 'home'; render(); window.scrollTo(0, 0); }
 window.addEventListener('hashchange', route);
@@ -804,6 +1027,9 @@ const FB_CFG = {apiKey: 'AIzaSyBj2rmugqDg_w0uJEtrnx0WZOyjxMCbwpY', authDomain: '
 const OWNER = 'lucaattolini27@gmail.com';
 // dati inseriti nella prima versione della scheda, importati una volta sola
 const SEED = {'2026-11-23': {date: '2026-11-23', w: 0, s: {test1: {done: true, fcmax: '186', hr: '161', km: '4.66', min: '30', note: 'Quasi a digiuno e dopo 1,5 ore di trail con scatti: corsa-camminata dal minuto 13. Test da rifare.'}}}, '2026-11-24': {date: '2026-11-24', w: 0, s: {push: {sets: {panca: [['60', '']]}}}}};
+// Firestore non accetta array dentro array: le serie [kg, rip] diventano {a, b} nel database
+const fsEnc = d => { const c = JSON.parse(JSON.stringify(d)); for (const s of Object.values(c.s || {})) if (s && s.sets) for (const k of Object.keys(s.sets)) s.sets[k] = (s.sets[k] || []).map(x => Array.isArray(x) ? {a: x[0] ?? '', b: x[1] ?? ''} : (x || {a: '', b: ''})); return c; };
+const fsDec = d => { for (const s of Object.values(d.s || {})) if (s && s.sets) for (const k of Object.keys(s.sets)) s.sets[k] = (s.sets[k] || []).map(x => Array.isArray(x) ? x : [x && x.a != null ? x.a : '', x && x.b != null ? x.b : '']); return d; };
 const loginEl = document.getElementById('login'), loginErr = document.getElementById('loginErr');
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 (async () => {
@@ -834,15 +1060,15 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
     const fill = (target, snap) => { for (const k of Object.keys(target)) delete target[k]; for (const d of snap.docs) if (d.exists) target[d.id] = d.data(); };
     let seeded = false;
     subs.push(db.collection('logs').onSnapshot(snap => {
-      fill(logs, snap);
+      fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]);
       if (!snap.metadata.fromCache) {
         clearTimeout(timer);
-        if (snap.empty && !seeded) { seeded = true; Object.entries(SEED).forEach(([k, v]) => db.collection('logs').doc(k).set(v).catch(() => {})); }
+        if (snap.empty && !seeded) { seeded = true; Object.entries(SEED).forEach(([k, v]) => db.collection('logs').doc(k).set(fsEnc(v)).catch(() => {})); }
       }
       safeRender();
     }, onErr));
     subs.push(db.doc('prefs/app').onSnapshot(d => { const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
-    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
+    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.collection('body').onSnapshot(snap => { fill(body, snap); safeRender(); if (sheet.classList.contains('on') && sheet.querySelector('#bodyForm')) openSheet(); }, onErr));
   });
   window.__esci = () => auth.signOut();
