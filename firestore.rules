@@ -28,6 +28,10 @@ service cloud.firestore {
     match /push/{uid} {
       allow read, write: if member() && request.auth.uid == uid;
     }
+    // icona personale dell'app: ognuno manda la sua, la pubblica un'azione di GitHub
+    match /icons/{uid} {
+      allow read, write: if member() && request.auth.uid == uid;
+    }
     // segnalazioni: ognuno può inviarne, solo Luca le legge
     match /feedback/{id} {
       allow create: if member();

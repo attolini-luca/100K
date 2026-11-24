@@ -476,6 +476,7 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .bh3{font-size:15px;margin:16px 0 8px}.bgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bopt{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:18px;background:var(--field);text-align:center}.bopt img{width:52px;height:52px;object-fit:contain}.bopt b{font-size:13px;line-height:1.2}.bopt small{color:var(--soft);font-size:11px}.bopt.new{outline:2px dashed var(--soft);outline-offset:-2px}
 .bhero{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:20px;background:var(--field);margin:12px 0}.bhero img{width:72px;height:72px;object-fit:contain}.bhero small{display:block;color:var(--soft);font-size:13px;line-height:1.45;margin-top:4px}
 #upd{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;padding:10px 14px;border-radius:20px;text-align:left;box-shadow:var(--shadow);background:var(--cardSolid)}#upd img{width:40px;height:40px;object-fit:contain}#upd small{display:block;color:var(--soft);font-size:12px}
+.inst{min-height:0;margin:0 0 14px;padding-right:120px}.inst p{margin:6px 0 10px;font-size:14px;line-height:1.4;color:var(--soft)}.inst .btn{height:44px;padding:0 22px}
 </style>
 </head>
 <body>
@@ -522,7 +523,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124v';
+const AV = '20261124w';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1366,6 +1367,7 @@ function vHome() {
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
   return `${topBar(gs)}<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button><button class="avedit" data-act="faces" aria-label="Cambia avatar">✏️</button></div><h1>${title}</h1>
     <div class="herorow"><div class="status glass">Sedute: <b>${st.nDone} di ${st.n}</b></div><button class="hbtn glass" data-act="sheet">＋ Misure</button></div></section>
+    ${installCard()}
     <h2 class="sec">Questa settimana</h2>
     <div class="tiles">
       ${tile('run', 'shoe', 'Corsa', `${fmt(st.kmPlan)} km`, fmt(st.kmDone), 'km', kmOk, 'settimana')}
@@ -1619,7 +1621,7 @@ function prepAvatar(file) {
 async function saveAvatarImg(v) {
   avatarImg = v; try { if (v) localStorage.setItem('scheda100k-avimg', v); else localStorage.removeItem('scheda100k-avimg'); } catch (e) {}
   render(); openFaces();
-  if (mode === 'db') { try { await U().collection('prefs').doc('app').set({avatarImg: v || null}, {merge: true}); toast('Avatar salvato ✓'); } catch (e) { toast('Avatar non salvato: riprova', true); } }
+  if (mode === 'db') { try { await U().collection('prefs').doc('app').set({avatarImg: v || null}, {merge: true}); toast('Avatar salvato ✓'); if (v && userEmail) requestIcon(await emailHash(userEmail)); } catch (e) { toast('Avatar non salvato: riprova', true); } }
 }
 sheet.addEventListener('change', async e => { if (e.target.id !== 'avFile' || !e.target.files[0]) return; try { avDraft = await prepAvatar(e.target.files[0]); openFaces(); } catch (err) { toast('Immagine non leggibile', true); } });
 sheet.addEventListener('click', e => {
@@ -2915,7 +2917,40 @@ async function personalIcon() {
     const had = localStorage.getItem('scheda100k-icon');
     if (r.ok) { localStorage.setItem('scheda100k-icon', h); const b = `icone/${h}/`; document.querySelector('link[rel=manifest]').href = b + 'manifest.json'; document.querySelector('link[rel=apple-touch-icon]').href = b + 'apple-touch-icon.png'; document.querySelector('link[rel=icon]').href = b + 'icon-192.png'; }
     else if (had) localStorage.removeItem('scheda100k-icon');
+    iconReady = r.ok; requestIcon(h); safeRender();
   } catch (e) {}
+}
+// l'icona si crea da sola: l'app disegna avatar + sfondo e la manda; un'azione di GitHub la pubblica in pochi minuti
+let iconReady = false;
+const avSig = s => { let x = 0; for (let i = 0; i < s.length; i += 97) x = (x * 31 + s.charCodeAt(i)) | 0; return (x >>> 0).toString(36) + s.length; };
+function drawIcon(src) {
+  return new Promise((res, rej) => {
+    const img = new Image(); img.onload = () => {
+      const S = 512, c = document.createElement('canvas'); c.width = c.height = S; const x = c.getContext('2d');
+      const g = x.createRadialGradient(S / 2, S * 0.45, 0, S / 2, S * 0.45, S * 0.72); g.addColorStop(0, '#f0f5fd'); g.addColorStop(1, '#c4d8f2'); x.fillStyle = g; x.fillRect(0, 0, S, S);
+      x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 2; for (const r of [150, 190, 230]) { x.beginPath(); x.arc(S / 2, S / 2, r, 0, Math.PI * 2); x.stroke(); }
+      const k = 0.62 * S / Math.max(img.width, img.height), w = img.width * k, hh = img.height * k;
+      x.shadowColor = 'rgba(40,70,120,.25)'; x.shadowBlur = 18; x.shadowOffsetY = 12; x.drawImage(img, (S - w) / 2, (S - hh) / 2 + 5, w, hh);
+      res(c.toDataURL('image/jpeg', 0.92));
+    }; img.onerror = rej; img.src = src;
+  });
+}
+async function requestIcon(h) {
+  if (isOwner || mode !== 'db' || !avatarImg || !h) return;
+  const sig = h + ':' + avSig(avatarImg); let last = null; try { last = localStorage.getItem('scheda100k-iconreq'); } catch (e) {}
+  if (last === sig) return;
+  try { const png = await drawIcon(avatarImg); await db.collection('icons').doc(myUid).set({h, png, name: profile.name || userName || '', at: Date.now()}); localStorage.setItem('scheda100k-iconreq', sig); } catch (e) {}
+}
+// installazione: pulsante su Android (Chrome), istruzioni su iPhone
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; safeRender(); });
+window.addEventListener('appinstalled', () => { installEvt = null; toast('App installata ✓'); safeRender(); });
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+function installCard() {
+  if (isStandalone() || mode !== 'db') return '';
+  const ios = /iPhone|iPad/.test(navigator.userAgent), wait = !isOwner && avatarImg && !iconReady;
+  const sub = wait ? 'Sto preparando l\'icona con la tua faccia: qualche minuto e puoi installarla.' : !isOwner && !avatarImg ? 'Prima crea il tuo avatar (Piano › Il mio profilo): diventa l\'icona dell\'app.' : ios ? 'Tocca Condividi in basso e poi “Aggiungi alla schermata Home”.' : installEvt ? 'Un tocco e la trovi tra le app, con la tua faccia.' : 'Menu ⋮ di Chrome › “Installa app”.';
+  return `<div class="tile glass inst" style="${tv('q')}">${ico('avatar', 'il')}<div class="tl">${ico('sparkles')}Installa 100K</div><p>${sub}</p>${installEvt && !wait && (isOwner || avatarImg) ? '<button class="btn" data-act="install">Installa</button>' : ''}</div>`;
 }
 async function coachPlan() {
   if (isOwner || !userEmail || ((custom.plan && custom.plan.start) && custom.diet) || !crypto.subtle) return;
@@ -3059,6 +3094,7 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.act === 'spesa') openSpesa();
   else if (b.dataset.act === 'profilo') startOnboarding(true);
   else if (b.dataset.act === 'report') openReport();
+  else if (b.dataset.act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; safeRender(); }); }
   else if (b.dataset.act === 'export') exportData();
   else if (b.dataset.act === 'wipe') deleteData();
   else if (b.dataset.fbdel) db.collection('feedback').doc(b.dataset.fbdel).delete().catch(() => toast('Non riuscito', true));
@@ -3114,6 +3150,7 @@ const loginEl = document.getElementById('login'), loginErr = document.getElement
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go) { location.href = e.data.go; route(); } }); }
 // solo per i test automatici in locale
 if (location.hostname === 'localhost') window.__plan = () => JSON.stringify(custom.plan);
+if (location.hostname === 'localhost') window.__icon = s => drawIcon(s);
 if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOwner = own; profile = prof; if (cust) custom = Object.assign({sess: {}, ex: {}}, cust); renderTick++; render(); };
 (async () => {
   const fb = window.firebase;

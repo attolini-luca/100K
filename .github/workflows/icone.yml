@@ -1,0 +1,29 @@
+name: Icone
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # ogni 10 minuti controlla se qualcuno ha chiesto la sua icona
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install firebase-admin@12.7.0 sharp@0.33.5 --no-save --no-audit --no-fund
+      - run: node scripts/icons.mjs
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+      - name: Pubblica le nuove icone
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add icone
+          if git diff --cached --quiet; then echo "Nessuna icona nuova"; exit 0; fi
+          git -c user.name="100K bot" -c user.email="actions@users.noreply.github.com" commit -m "Nuove icone personali"
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
