@@ -389,6 +389,17 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .mzoom{width:84px;height:84px;border-radius:18px;background-image:url(em/mappa.jpg);background-size:600% auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
 .mptxt b{display:block;font-size:17px;margin:2px 0}.mptxt small{font-size:13px;color:var(--soft);line-height:1.35}.mptxt .lbl{font-size:12px;font-weight:800;color:#e8590c}
 .mx{width:34px;height:34px;border-radius:50%;background:var(--field);font-weight:800;color:var(--soft)}
+
+.tiles>.tile:last-child:nth-child(odd){grid-column:1/-1}
+.avbox{display:grid;justify-items:center;gap:10px;padding:6px 0 4px}
+.avbox img.cur{width:132px;height:132px;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(40,70,120,.22))}
+.avsteps{counter-reset:s;display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.avsteps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:14.5px;line-height:1.4}
+.avsteps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--field);display:grid;place-items:center;font-weight:800;font-size:13px}
+.avbtns{display:grid;gap:10px;margin-top:16px}.avbtns .btn,.avbtns label.btn{display:grid;place-items:center;width:100%;min-height:52px;cursor:pointer}
+.btn.light{background:var(--field);color:var(--ink)}
+.avprev{display:grid;justify-items:center;gap:10px;margin-top:14px;padding:14px;border-radius:22px;background:var(--field)}
+.avprev img{width:150px;height:150px;object-fit:contain;background:repeating-conic-gradient(light-dark(#e9edf3,#2a2f3a) 0 25%,transparent 0 50%) 0 0/18px 18px;border-radius:18px}
 </style>
 </head>
 <body>
@@ -435,8 +446,9 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124f';
-const ico = (name, cls = '') => `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
+const AV = '20261124g';
+let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
+const ico = (name, cls = '') => name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
 /* ================= categorie ================= */
 const CATS = {
@@ -656,6 +668,7 @@ const viewEl = document.getElementById('view');
 viewEl.addEventListener('click', e => { const m = e.target.closest('[data-mus]'); if (m) openMuscle(m.dataset.mus); });
 viewEl.addEventListener('submit', e => { if (e.target.id === 'goalForm') { e.preventDefault(); const v = document.getElementById('goalIn').value.trim(); document.activeElement && document.activeElement.blur(); saveGoal(v); } });
 
+function dplus(w) { if (w < 0) return 0; let t = 0; for (let i = 0; i < 7; i++) { const iso = addDays(weekStart(w), i); for (const ss of plan(iso).s) { const v = num(sessLog(iso, ss.id).dp); if (v != null) t += v; } } return t; }
 function vHome() {
   const t = localToday(), p = plan(t), w = Math.max(weekOf(t), 0), st = weekStats(w);
   const allDone = p.s.length && p.s.every(ss => isDone(t, ss));
@@ -676,7 +689,7 @@ function vHome() {
       ${tile('long', 'mountain', 'Lungo', st.longPlan ? `${st.longPlan} min` : 'riposo', st.long != null ? fmt(st.long, 0) : '–', 'min', st.long != null && st.long >= st.longPlan, 'progressi')}
       ${tile('sleep', 'bed', 'Sonno', '7-9 h', sl ? fmt(sl.v) : '–', 'h', sl && sl.v >= 7, 'sheet')}
       ${tile('circ', 'flame', 'Circuito', st.circPlan ? `${st.circPlan} min` : 'riposo', st.circ != null ? fmt(st.circ) : '–', 'min', st.circ != null, 'progressi')}
-      ${tile('circ', 'f_fuoco', 'Slancio', `record ${gs.best}`, gs.streak, gs.streak === 1 ? 'giorno' : 'giorni', gs.streak > 0, 'slancio')}
+      ${tile('long', 'f_vetta', 'Dislivello', `scorsa ${fmt(dplus(w - 1), 0)} m`, fmt(dplus(w), 0), 'm D+', dplus(w) > 0 && dplus(w) >= dplus(w - 1), 'settimana')}
       ${tile('str', 'dumbbell', 'Muscoli', 'settimana', ms, 'serie', ms > 0, 'progressi')}
       ${tile('stair', 'stairs', 'StairMaster', st.stairPlan ? `${st.stairPlan} min` : 'riposo', st.stair ? fmt(st.stair, 0) : '–', 'min', !!st.stair, 'progressi')}
     </div>
@@ -817,10 +830,56 @@ function openSheet() {
     <div class="hist">${ks.length ? `<div class="list" style="background:var(--field)">${ks.map(k => { const v = body[k], cs = Object.keys(MISURE).filter(c => v['c_' + c] != null).map(c => MISURE[c].toLowerCase() + ' ' + String(v['c_' + c]).replace('.', ',') + ' cm'); return `<div class="lrow" style="${tv('kg')};grid-template-columns:48px minmax(0,1fr) auto"><span class="bub">${ico('scale')}</span><span><b>${esc(nice(k))}</b><small>${[v.kg != null ? v.kg + ' kg' : '', v.hr != null ? v.hr + ' bpm' : '', v.hrv != null ? v.hrv + ' ms' : '', v.sleep != null ? v.sleep + ' h' : ''].concat(cs).filter(Boolean).map(esc).join(' · ')}</small></span><button class="del" data-delbody="${k}">Elimina</button></div>`; }).join('')}</div>` : ''}</div>`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
+const AV_PROMPT = 'Crea un avatar 3D della persona nella foto che ti allego, in stile memoji: solo testa e collo, vista frontale, stile cartoon 3D lucido e morbido, con lineamenti, forma del viso, capelli, barba, occhi, tatuaggi e colori fedeli alla foto, espressione serena e sorridente, luce morbida da studio. Sfondo completamente trasparente, immagine quadrata PNG, nessun testo.';
+let avDraft = null;
 function openFaces() {
-  sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">Il tuo avatar</h2><button class="pillbtn" id="closeSheet" type="button">Fatto</button></div><div class="faces">${FACES.map(f => `<button data-face="${f}" aria-pressed="${f === avatar}" aria-label="Avatar ${f === 'me' ? 'Luca' : f.slice(1)}"><img src="em/${f}.png" alt=""></button>`).join('')}</div>`;
+  sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Il tuo avatar</h2><button class="pillbtn" id="closeSheet" type="button">Chiudi</button></div>
+    <div class="avbox">${ico('avatar', 'cur')}</div>
+    <ol class="avsteps"><li>Premi “Copia il prompt e apri ChatGPT”.</li><li>Incolla il prompt, allega un tuo selfie (viso dritto, buona luce) e invia.</li><li>Tieni premuta l'immagine che ti crea e salvala sul telefono.</li><li>Torna qui e premi “Carica la mia memoji”.</li></ol>
+    <div class="avbtns"><button class="btn" id="avPrompt" type="button">Copia il prompt e apri ChatGPT</button><label class="btn light">Carica la mia memoji<input id="avFile" type="file" accept="image/*" hidden></label></div>
+    ${avDraft ? `<div class="avprev"><img src="${avDraft}" alt="Anteprima"><button class="btn" id="avUse" type="button" style="width:100%">Usa questo avatar</button></div>` : ''}
+    ${avatarImg ? '<button class="ghost2" id="avReset" type="button" style="margin-top:12px">Torna all\'avatar di prima</button>' : ''}`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
+// prepara l'immagine: toglie lo sfondo uniforme se c'è, ritaglia e la porta a 400x400
+function prepAvatar(file) {
+  return new Promise((res, rej) => {
+    const img = new Image(); img.onload = () => {
+      const S = 600, c = document.createElement('canvas'), k = Math.min(1, S / Math.max(img.width, img.height));
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const x = c.getContext('2d', {willReadFrequently: true}); x.drawImage(img, 0, 0, c.width, c.height);
+      const W = c.width, H = c.height, d = x.getImageData(0, 0, W, H), px = d.data;
+      const corner = [0, (W - 1) * 4, (H - 1) * W * 4, ((H - 1) * W + W - 1) * 4];
+      const opaque = corner.every(o => px[o + 3] > 250);
+      if (opaque) {
+        const ref = [0, 1, 2].map(ch => corner.reduce((a, o) => a + px[o + ch], 0) / 4), seen = new Uint8Array(W * H), q = [];
+        for (let x0 = 0; x0 < W; x0++) q.push(x0, (H - 1) * W + x0);
+        for (let y0 = 0; y0 < H; y0++) q.push(y0 * W, y0 * W + W - 1);
+        while (q.length) { const i = q.pop(); if (seen[i]) continue; seen[i] = 1; const o = i * 4;
+          if (Math.abs(px[o] - ref[0]) + Math.abs(px[o + 1] - ref[1]) + Math.abs(px[o + 2] - ref[2]) > 60) continue;
+          px[o + 3] = 0; const xx = i % W; if (xx > 0) q.push(i - 1); if (xx < W - 1) q.push(i + 1); if (i >= W) q.push(i - W); if (i < W * (H - 1)) q.push(i + W); }
+        x.putImageData(d, 0, 0);
+      }
+      let x1 = W, y1 = H, x2 = 0, y2 = 0; for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++) if (px[(y * W + xx) * 4 + 3] > 10) { if (xx < x1) x1 = xx; if (xx > x2) x2 = xx; if (y < y1) y1 = y; if (y > y2) y2 = y; }
+      if (x2 <= x1) { x1 = 0; y1 = 0; x2 = W - 1; y2 = H - 1; }
+      const bw = x2 - x1 + 1, bh = y2 - y1 + 1, side = Math.max(bw, bh), o = document.createElement('canvas'); o.width = o.height = 400;
+      const z = 400 / side; o.getContext('2d').drawImage(c, x1, y1, bw, bh, (400 - bw * z) / 2, (400 - bh * z) / 2, bw * z, bh * z);
+      res(o.toDataURL('image/webp', 0.9).startsWith('data:image/webp') ? o.toDataURL('image/webp', 0.9) : o.toDataURL('image/png'));
+    };
+    img.onerror = rej; img.src = URL.createObjectURL(file);
+  });
+}
+async function saveAvatarImg(v) {
+  avatarImg = v; try { if (v) localStorage.setItem('scheda100k-avimg', v); else localStorage.removeItem('scheda100k-avimg'); } catch (e) {}
+  render(); openFaces();
+  if (mode === 'db') { try { await db.collection('prefs').doc('app').set({avatarImg: v || null}, {merge: true}); toast('Avatar salvato ✓'); } catch (e) { toast('Avatar non salvato: riprova', true); } }
+}
+sheet.addEventListener('change', async e => { if (e.target.id !== 'avFile' || !e.target.files[0]) return; try { avDraft = await prepAvatar(e.target.files[0]); openFaces(); } catch (err) { toast('Immagine non leggibile', true); } });
+sheet.addEventListener('click', e => {
+  if (e.target.id === 'avPrompt') { (navigator.clipboard ? navigator.clipboard.writeText(AV_PROMPT) : Promise.reject()).then(() => toast('Prompt copiato: incollalo in ChatGPT')).catch(() => toast('Copia non riuscita: tieni premuto per copiare', true)); window.open('https://chatgpt.com/', '_blank'); }
+  else if (e.target.id === 'avUse' && avDraft) { const v = avDraft; avDraft = null; saveAvatarImg(v); }
+  else if (e.target.id === 'avReset') { avDraft = null; saveAvatarImg(null); }
+});
 async function setAvatar(f) {
   avatar = f; try { localStorage.setItem('scheda100k-avatar2', f); } catch (e) {}
   render(); openFaces();
@@ -1720,7 +1779,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').ca
       }
       safeRender(); applyPresi();
     }, onErr));
-    subs.push(db.doc('prefs/app').onSnapshot(d => { const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
+    subs.push(db.doc('prefs/app').onSnapshot(d => { const im = d.exists ? (d.data().avatarImg || null) : null; if (im !== avatarImg && d.exists) { avatarImg = im; try { if (im) localStorage.setItem('scheda100k-avimg', im); else localStorage.removeItem('scheda100k-avimg'); } catch (e) {} safeRender(); } const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; if (c.supp) custom.supp = c.supp; if (c.meas) custom.meas = c.meas; if (c.suppx) custom.suppx = c.suppx; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.collection('players').onSnapshot(snap => { players = {}; snap.docs.forEach(d => { players[d.id] = d.data(); }); safeRender(); }, () => {}));
     subs.push(db.collection('body').onSnapshot(snap => { fill(body, snap); safeRender(); if (sheet.classList.contains('on') && sheet.querySelector('#bodyForm')) openSheet(); }, onErr));
