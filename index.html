@@ -523,7 +523,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124z';
+const AV = '20261125a';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1121,7 +1121,13 @@ try { const c = JSON.parse(localStorage.getItem('scheda100k-custom') || 'null');
 const EXD = k => EX[k] || (custom.ex || {})[k] && Object.assign({}, custom.ex[k], {u: UNITS[custom.ex[k].t] || KG, m: MET[custom.ex[k].t] || 'e1rm'}) || {n: k, g: 'core', s: 3, r: '10', rest: "1'", u: KG, m: 'e1rm'};
 const exList = key => (custom.sess && custom.sess[key]) || (SESS[key] ? SESS[key].ex.map(k => ({k})) : []);
 const runAfterPick = () => { if (typeof afterPick === 'function' && afterPick) { const f = afterPick; afterPick = null; setTimeout(f, 320); } };
-const itemDef = it => { const d = EXD(it.k); return Object.assign({}, d, {s: it.s ?? d.s, r: it.r ?? d.r, rest: it.rest ?? d.rest}); };
+// progressione settimanale (it.wk = {1: {s, r}, 2: …}) contata dall'inizio della scheda; it.tip = indicazione del coach
+const planWeek = iso => { const st = custom.plan && custom.plan.start; return st && iso ? Math.floor((Date.parse(iso + 'T12:00:00') - Date.parse(st + 'T12:00:00')) / 6048e5) + 1 : 0; };
+const itemDef = (it, iso) => {
+  const d = EXD(it.k); let s = it.s ?? d.s, r = it.r ?? d.r, tip = it.tip ?? d.tip;
+  if (it.wk && iso) { const n = planWeek(iso), ks = Object.keys(it.wk).map(Number).sort((a, b) => a - b); if (n >= 1) { const k = ks.filter(x => x <= n).pop() ?? ks[0], w = it.wk[k]; s = w.s ?? s; r = w.r ?? r; tip = `Settimana ${k}${n > ks[ks.length - 1] ? '+ (dopo la 4ª: scarico attivo)' : ''}` + (it.tip ? ' · ' + it.tip : ''); } }
+  return Object.assign({}, d, {s, r, rest: it.rest ?? d.rest, tip});
+};
 async function saveCustom() {
   try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {}
   if (mode === 'db') { try { await U().collection('prefs').doc('custom').set(JSON.parse(JSON.stringify(custom))); toast('Scheda aggiornata ✓'); } catch (e) { toast('Non salvato: riprova', true); } }
@@ -1403,7 +1409,7 @@ const restSec = r => { const m = String(r || '').match(/(\d+)\s*'/), s = String(
 const filled = x => x && ((x[0] !== '' && x[0] != null) || (x[1] !== '' && x[1] != null));
 let noteOpen = {};
 function exBlock(iso, ss, item, idx, total) {
-  const key = item.k, e = itemDef(item), l = sessLog(iso, ss.id), cs = (l.sets && l.sets[key]) || [], sd = (l.sd && l.sd[key]) || [], last = lastSets(iso, key), g = GROUPS[e.g] || GROUPS.core;
+  const key = item.k, e = itemDef(item, iso), l = sessLog(iso, ss.id), cs = (l.sets && l.sets[key]) || [], sd = (l.sd && l.sd[key]) || [], last = lastSets(iso, key), g = GROUPS[e.g] || GROUPS.core;
   const n = Math.max(1, (l.xs && l.xs[key]) || Math.max(setsFor(e, ss.half), cs.length));
   const unit0 = e.u[0], unit1 = e.u[1], goal = String(e.r || '').replace(/ ?totali/, '');
   const pv = lv => { if (!filled(lv)) return '–'; const a = lv[0], b = lv[1]; if (unit1 && a !== '' && a != null && b !== '' && b != null) return `${a} × ${b}`; return [a, b].filter(v => v !== '' && v != null).join(' ') + (a !== '' && a != null ? ' ' + unit0 : ' ' + (unit1 || '')); };
@@ -1427,7 +1433,7 @@ function exBlock(iso, ss, item, idx, total) {
 }
 function sessSummary(iso, ss) {
   const l = sessLog(iso, ss.id); let vol = 0, done = 0, tot = 0;
-  for (const it of exList(ss.sess)) { const e = itemDef(it); tot += Math.max(1, (l.xs && l.xs[it.k]) || setsFor(e, ss.half)); }
+  for (const it of exList(ss.sess)) { const e = itemDef(it, iso); tot += Math.max(1, (l.xs && l.xs[it.k]) || setsFor(e, ss.half)); }
   for (const [k, arr] of Object.entries(l.sets || {})) { const e = EXD(k), sd = (l.sd && l.sd[k]) || []; (arr || []).forEach((x, i) => { if (!sd[i]) return; done++; const a = num(x && x[0]), b = num(x && x[1]); if (e.u === KG && a != null && b != null) vol += a * b; }); }
   const end = l.t1 || l.t0, mins = l.t0 ? Math.max(1, Math.round(((iso === localToday() && !l.done ? Date.now() : end) - l.t0) / 60000)) : 0;
   return `<div class="ssum"><span><small>Durata</small><b>${mins ? (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + "'" : mins + "'") : '–'}</b></span><span><small>Volume</small><b>${fmt(vol, 0)} kg</b></span><span><small>Serie</small><b>${done}/${tot}</b></span></div>`;
@@ -2112,7 +2118,7 @@ function ring(val, max) {
 function vCibo() {
   const iso = cur, df = dayFood(iso), kind = df.kind, meals = visibleMeals(iso), fl = foodLog(iso);
   let h = `<div class="vh"><div class="vt"><p class="eyebrow">${esc(df.t.n)} · ${DAYS[dayIdx(iso)].toLowerCase()} ${dnum(iso)}</p><h1>Alimentazione</h1></div>${iso !== localToday() ? '<button class="pillbtn" id="goToday">Oggi</button>' : ''}</div>` + dayPicker();
-  h += `<section class="fhero glass" style="${tv('circ')}"><div class="fhtop"><div><p class="lbl">Mangiato oggi</p><p class="fnote" style="margin:2px 0 0">Menu di ${iso === localToday() ? 'oggi' : 'questo giorno'}: <b>${Math.round(df.tot.kcal)} kcal</b> e <b>${Math.round(df.tot.p)} g</b> di proteine.<br>${kind === 'duro' ? 'Giorno duro: più carboidrati per allenarti bene.' : kind === 'facile' ? 'Giorno facile: meno carboidrati, proteine sempre alte.' : 'Giorno normale: Z2 e pesi.'}</p></div>${ico('f_patata', 'fil')}</div><div class="fhl">${ring(df.eaten.kcal, df.t.kcal)}<div class="fhs">${bar('Proteine', df.eaten.p, df.t.p, '#e0244a')}${bar('Carboidrati', df.eaten.c, df.t.c, '#f59e0b')}${bar('Grassi', df.eaten.f, df.t.f, '#7cc520')}</div></div></section>`;
+  h += `<section class="fhero glass" style="${tv('circ')}"><div class="fhtop"><div><p class="lbl">Mangiato oggi</p><p class="fnote" style="margin:2px 0 0">Menu di ${iso === localToday() ? 'oggi' : 'questo giorno'}: <b>${Math.round(df.tot.kcal)} kcal</b> e <b>${Math.round(df.tot.p)} g</b> di proteine.${isOwner ? '<br>' + (kind === 'duro' ? 'Giorno duro: più carboidrati per allenarti bene.' : kind === 'facile' ? 'Giorno facile: meno carboidrati, proteine sempre alte.' : 'Giorno normale: Z2 e pesi.') : custom.diet && custom.diet.targets ? '<br>Le dosi sono quelle della tua dieta: varia gli alimenti come preferisci.' : ''}</p></div>${ico('f_patata', 'fil')}</div><div class="fhl">${ring(df.eaten.kcal, df.t.kcal)}<div class="fhs">${bar('Proteine', df.eaten.p, df.t.p, '#e0244a')}${bar('Carboidrati', df.eaten.c, df.t.c, '#f59e0b')}${bar('Grassi', df.eaten.f, df.t.f, '#7cc520')}</div></div></section>`;
   for (const m of meals) {
     const oi = mealOptIndex(iso, m), o = m.opts[oi], mm = macros(o.items, kind), done = !!(fl[m.k] || {}).d;
     const items = o.items.filter(it => grams(it, kind) > 0 || FOOD(it.f)[2] + FOOD(it.f)[3] + FOOD(it.f)[4] === 0);
