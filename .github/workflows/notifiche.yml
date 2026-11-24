@@ -5,11 +5,14 @@ on:
     - cron: '20 4,5 * * *'     # 06:20: misurazioni (lun, mer, ven)
     - cron: '30 16,17 * * *'   # 18:30: carburante (sera prima di qualità, test, lungo)
     - cron: '0 17,18 * * *'    # 19:00: report settimanale (domenica)
-    - cron: '30 19,20 * * *'   # 21:30: compila la scheda (giorni di allenamento)
+    - cron: '30 19,20 * * *'   # 21:30: integratori della sera e scheda da compilare
+    - cron: '30 5,6 * * *'     # 07:30: integratori della colazione
+    - cron: '0 11,12 * * *'    # 13:00: integratori del pranzo
+    - cron: '0 16,17 * * *'    # 18:00: pre-workout (giorni di pesi)
   workflow_dispatch:
     inputs:
       slot:
-        description: 'Quale notifica: test, mattina, misure, carburante, scheda, report'
+        description: 'Quale notifica: test, testInteg, mattina, misure, carburante, scheda, report, integColazione, integPranzo, integPre'
         default: 'test'
       date:
         description: 'Data AAAA-MM-GG (vuoto = oggi)'

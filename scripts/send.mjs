@@ -11,7 +11,10 @@ const SLOTS = {
   misure:     {at: '06:20', crons: ['20 4,5 * * *']},
   carburante: {at: '18:30', crons: ['30 16,17 * * *']},
   report:     {at: '19:00', crons: ['0 17,18 * * *']},
-  scheda:     {at: '21:30', crons: ['30 19,20 * * *']}
+  scheda:     {at: '21:30', crons: ['30 19,20 * * *']},
+  integColazione: {at: '07:30', crons: ['30 5,6 * * *']},
+  integPranzo:    {at: '13:00', crons: ['0 11,12 * * *']},
+  integPre:       {at: '18:00', crons: ['0 16,17 * * *']}
 };
 
 function rome(d = new Date()) {
@@ -31,12 +34,14 @@ const listOf = iso => training(iso).map(label).filter(Boolean).join(' · ');
 function message(slot, iso) {
   const w = weekOf(iso), d = dayIdx(iso), p = plan(iso);
   if (slot === 'test') return {title: 'Notifiche attive ✅', body: 'Ciao Luca, da domani alle 6:00 ti scrivo io. Si parte!'};
+  if (slot === 'testInteg') return {title: 'Integratori della colazione 💊', body: '{colazione}', sup: 'colazione'};
   if (slot === 'mattina') {
     const extra = [];
     if (w > PLANNED_WEEKS && d === 0) extra.push(`Settimana ${w}: scrivi a Claude per il piano nuovo.`);
     if (w === 4 && d === 0) extra.push('Settimana di scarico: volume giù, recupera bene.');
     if (p.s.some(ss => ss.kind === 'test')) extra.push('Test di soglia: pasto con carboidrati 2-3 ore prima.');
     const today = listOf(iso);
+    if (p.s.some(ss => ss.id === 'long' || ss.cat === 'q')) extra.push('Per la corsa: {corsa}.');
     const body = today ? `Oggi: ${today}.` : (w > PLANNED_WEEKS ? 'Il piano di questa settimana va ancora scritto.' : 'Oggi riposo: rullo, stretching e una camminata.');
     return {title: 'Buongiorno Luca ☀️', body: [body, ...extra].join(' ')};
   }
@@ -54,9 +59,13 @@ function message(slot, iso) {
   }
   if (slot === 'scheda') {
     const today = listOf(iso);
-    if (!today) return null;
-    return {title: 'Hai compilato la scheda? ✍️', body: `Segna km, carichi e note di oggi: ${today}.`};
+    // la sera arriva sempre: integratori della notte e, se ti sei allenato, la scheda da compilare
+    return {title: 'Prima di dormire 🌙', body: today ? `Integratori: {sera}. Poi segna km, carichi e note di oggi.` : 'Integratori: {sera}.', sup: 'sera', alt: today ? 'Segna km, carichi e note di oggi.' : null};
   }
+  const weights = plan(iso).s.some(ss => ss.kind === 'strength' || ss.kind === 'circuit');
+  if (slot === 'integColazione') return {title: 'Integratori della colazione 💊', body: '{colazione}', sup: 'colazione'};
+  if (slot === 'integPranzo') return {title: 'Integratori del pranzo 💊', body: '{pranzo}', sup: 'pranzo'};
+  if (slot === 'integPre') return weights ? {title: 'Tra poco si allena 💪', body: 'Ora: {pre}. Dopo i pesi: {post}.', sup: 'pre'} : null;
   if (slot === 'report') {
     if (d !== 6) return null;
     return {title: 'Report settimanale 📊', body: `Scrivi a Claude km, peso medio e sensazioni: prepariamo la settimana ${w + 1}.`};
@@ -80,7 +89,7 @@ async function main() {
   if (!raw || !process.env.VAPID_PRIVATE_KEY) throw new Error('Mancano i segreti PUSH_SUBSCRIPTION o VAPID_PRIVATE_KEY');
   const subs = [].concat(JSON.parse(raw));
   webpush.setVapidDetails('https://attolini-luca.github.io/100k/', VAPID_PUBLIC, process.env.VAPID_PRIVATE_KEY.trim());
-  const payload = JSON.stringify({...msg, url: SCHEDA, tag: `100k-${slot}`});
+  const payload = JSON.stringify({...msg, url: SCHEDA + (msg.sup ? '#cibo' : ''), tag: `100k-${slot}`});
   for (const s of subs) {
     const r = await webpush.sendNotification(s, payload, {TTL: 6 * 3600, urgency: 'high'});
     console.log('Inviata', slot, iso, r.statusCode, msg.title);

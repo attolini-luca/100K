@@ -1094,6 +1094,22 @@ function openSuppCfg(k) {
     <button class="btn" style="grid-column:1/-1">Salva</button></form>`;
   sheet.scrollTop = 0;
 }
+// copia per il service worker: quali integratori mostrare in ogni notifica
+let suppCacheLast = '';
+function syncSuppCache() {
+  const m = {}; for (const t of Object.keys(STIME)) m[t] = suppSel().filter(k => suppCfg(k).t === t).map(k => SUP(k)[0]);
+  const j = JSON.stringify(m); if (j === suppCacheLast || !('caches' in self)) return; suppCacheLast = j;
+  caches.open('100k-cfg').then(c => c.put('supp.json', new Response(j, {headers: {'Content-Type': 'application/json'}}))).catch(() => {});
+}
+// "Presi ✓" dalla notifica: segna gli integratori di quel momento appena i dati sono pronti
+let pendingPresi = null, logsReady = false;
+function applyPresi() {
+  if (!pendingPresi || !logsReady) return;
+  const slot = pendingPresi, iso = localToday(); pendingPresi = null;
+  const ks = suppToday(iso).filter(k => suppCfg(k).t === slot); if (!ks.length) return;
+  const d = editDay(iso); d.f = d.f || {}; d.f.sup = Object.assign({}, d.f.sup); for (const k of ks) d.f.sup[k] = true;
+  queueSave(iso); cur = iso; render(); toast('Integratori segnati ✓');
+}
 function saveSupp(fn) { const s = JSON.parse(JSON.stringify(custom.supp || {})); s.sel = s.sel || suppSel().slice(); s.cfg = s.cfg || {}; fn(s); custom.supp = s; saveCustom(); render(); }
 sheet.addEventListener('input', e => { if (e.target.id === 'supQ' && supPick) { supPick.q = e.target.value; document.getElementById('supList').innerHTML = supRows(); } });
 sheet.addEventListener('click', e => {
@@ -1116,6 +1132,7 @@ function render() {
 
   viewEl.innerHTML = ({home: vHome, oggi: vOggi, cibo: vCibo, settimana: vSettimana, progressi: vProgressi, piano: vPiano}[view])();
   if (view === 'progressi') drawCharts();
+  syncSuppCache();
 }
 let deferred = false;
 const typing = () => { const a = document.activeElement; return a && viewEl.contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName); };
@@ -1157,7 +1174,7 @@ viewEl.addEventListener('click', e => {
 });
 const VIEWS = ['home', 'oggi', 'cibo', 'settimana', 'progressi', 'piano'];
 function go(v) { if (location.hash === '#' + v) route(); else location.hash = v; }
-function route() { let h = location.hash.slice(1); if (h === 'grafici') h = 'progressi'; if (h === 'corpo') { h = 'progressi'; setTimeout(openSheet, 50); } view = VIEWS.includes(h) ? h : 'home'; render(); window.scrollTo(0, 0); }
+function route() { let h = location.hash.slice(1); const qm = h.match(/^(\w+)\?presi=(\w+)/); if (qm) { h = qm[1]; pendingPresi = qm[2]; history.replaceState(null, '', '#' + h); } if (h === 'grafici') h = 'progressi'; if (h === 'corpo') { h = 'progressi'; setTimeout(openSheet, 50); } view = VIEWS.includes(h) ? h : 'home'; render(); window.scrollTo(0, 0); applyPresi(); }
 window.addEventListener('hashchange', route);
 route();
 
@@ -1170,10 +1187,10 @@ const SEED = {'2026-11-23': {date: '2026-11-23', w: 0, s: {test1: {done: true, f
 const fsEnc = d => { const c = JSON.parse(JSON.stringify(d)); for (const s of Object.values(c.s || {})) if (s && s.sets) for (const k of Object.keys(s.sets)) s.sets[k] = (s.sets[k] || []).map(x => Array.isArray(x) ? {a: x[0] ?? '', b: x[1] ?? ''} : (x || {a: '', b: ''})); return c; };
 const fsDec = d => { for (const s of Object.values(d.s || {})) if (s && s.sets) for (const k of Object.keys(s.sets)) s.sets[k] = (s.sets[k] || []).map(x => Array.isArray(x) ? x : [x && x.a != null ? x.a : '', x && x.b != null ? x.b : '']); return d; };
 const loginEl = document.getElementById('login'), loginErr = document.getElementById('loginErr');
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go) { location.href = e.data.go; route(); } }); }
 (async () => {
   const fb = window.firebase;
-  if (!fb) { mode = 'local'; lsLoad(); toast('Firebase non raggiungibile: salvo sul telefono', true, true); safeRender(); return; }
+  if (!fb) { mode = 'local'; lsLoad(); logsReady = true; toast('Firebase non raggiungibile: salvo sul telefono', true, true); safeRender(); applyPresi(); return; }
   fb.initializeApp(FB_CFG);
   const auth = fb.auth(), fs = fb.firestore();
   try { await fs.enablePersistence({synchronizeTabs: true}); } catch (e) {}
@@ -1199,12 +1216,12 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catc
     const fill = (target, snap) => { for (const k of Object.keys(target)) delete target[k]; for (const d of snap.docs) if (d.exists) target[d.id] = d.data(); };
     let seeded = false;
     subs.push(db.collection('logs').onSnapshot(snap => {
-      fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]);
+      fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]); if (!snap.metadata.fromCache) logsReady = true;
       if (!snap.metadata.fromCache) {
         clearTimeout(timer);
         if (snap.empty && !seeded) { seeded = true; Object.entries(SEED).forEach(([k, v]) => db.collection('logs').doc(k).set(fsEnc(v)).catch(() => {})); }
       }
-      safeRender();
+      safeRender(); applyPresi();
     }, onErr));
     subs.push(db.doc('prefs/app').onSnapshot(d => { const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; if (c.supp) custom.supp = c.supp; if (c.suppx) custom.suppx = c.suppx; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
