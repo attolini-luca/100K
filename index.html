@@ -49,8 +49,8 @@ button{cursor:pointer;border:0;background:none}
 .pillbtn{height:40px;padding:0 16px;border-radius:99px;background:var(--card);box-shadow:var(--shadow);font-weight:700;font-size:14px;white-space:nowrap}
 .sec{font-size:21px;font-weight:800;margin:26px 4px 12px}
 /* toast */
-#toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-140%);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:20;padding:9px 16px;border-radius:99px;font-size:13px;font-weight:700;background:var(--cardSolid);box-shadow:var(--shadow);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
-#toast.on{transform:translate(-50%,0)}#toast.warn{background:#ff6b3d;color:#fff}
+#toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-140%);transition:transform .35s cubic-bezier(.2,.9,.3,1.2),visibility 0s .35s;visibility:hidden;z-index:20;padding:9px 16px;border-radius:99px;font-size:13px;font-weight:700;background:var(--cardSolid);box-shadow:var(--shadow);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+#toast.on{transform:translate(-50%,0);visibility:visible;transition:transform .35s cubic-bezier(.2,.9,.3,1.2)}#toast.warn{background:#ff6b3d;color:#fff}
 /* tab bar */
 nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:10;display:flex;gap:2px;padding:6px;border-radius:99px;width:min(94vw,440px)}
 nav.tabs a{flex:1;display:grid;justify-items:center;gap:1px;padding:7px 2px 6px;border-radius:99px;color:var(--soft);text-decoration:none;font-size:11px;font-weight:700}
