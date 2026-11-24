@@ -500,7 +500,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124l';
+const AV = '20261124m';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1371,8 +1371,8 @@ function exBlock(iso, ss, item, idx, total) {
     const v = cs[i] || [], lv = (last && last.sets[i]) || [], ok = !!sd[i];
     const ph0 = lv[0] ?? (e.u === TOT ? String(e.r).replace(/[^0-9].*$/, '') : ''), ph1 = lv[1] ?? (e.u === TOT ? '' : String(e.r).replace(/[^0-9-].*$/, '').split('-').pop());
     rows += `<div class="srow${ok ? ' ok' : ''}"><span class="sn">${i + 1}</span><button class="prev" data-prev="${i}" data-ex="${key}" data-s="${ss.id}" ${filled(lv) ? '' : 'disabled'} aria-label="Copia questa serie dalla sessione precedente">${esc(pv(lv))}</button>` +
-      `<span class="in${unit1 ? '' : ' hasgoal'}"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit0}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="0" value="${esc(v[0] ?? '')}" placeholder="${esc(ph0)}">${unit1 ? '' : `<small class="sgoal">🎯 ${esc(goal)}</small>`}</span>` +
-      (unit1 ? `<span class="in hasgoal"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit1}, obiettivo ${esc(goal)}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="1" value="${esc(v[1] ?? '')}" placeholder="${esc(ph1)}"><small class="sgoal">🎯 ${esc(goal)}</small></span>` : '<span></span>') +
+      `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit0}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="0" value="${esc(v[0] ?? '')}" placeholder="${esc(ph0)}"></span>` +
+      (unit1 ? `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit1}, obiettivo ${esc(goal)}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="1" value="${esc(v[1] ?? '')}" placeholder="${esc(ph1)}"></span>` : '<span></span>') +
       `<button class="setck" data-setck="${i}" data-ex="${key}" data-s="${ss.id}" aria-pressed="${ok}" aria-label="Serie ${i + 1} fatta">✓</button></div>`;
   }
   const ctl = idx >= 0 ? `<span class="exctl"><button class="mini" data-swap="${idx}" data-sess="${ss.sess}">Cambia</button><button class="mini" data-edit="${idx}" data-sess="${ss.sess}" aria-label="Modifica ${esc(e.n)}">•••</button></span>` : '';
