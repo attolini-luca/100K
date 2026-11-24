@@ -454,6 +454,21 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .arow{grid-template-columns:52px minmax(0,1fr) 36px}
 .grip{width:36px;height:52px;display:grid;place-items:center;font-size:22px;color:var(--faint);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .arow.dragging{opacity:.35}.arow.ghost{box-shadow:0 18px 40px rgba(0,0,0,.25);transform:scale(1.03)}
+#onb{position:fixed;inset:0;z-index:28;overflow:auto;display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));background:radial-gradient(120% 70% at 50% 15%,var(--bg3) 0%,var(--bg2) 45%,var(--bg1) 100%)}
+.obbar{height:6px;border-radius:9px;background:var(--field);overflow:hidden}.obbar i{display:block;height:100%;background:var(--ink);border-radius:9px;transition:width .3s}
+.obtop{display:flex;justify-content:space-between;min-height:40px;align-items:center;margin-top:6px}
+.obbody{flex:1;max-width:520px;width:100%;margin:0 auto}.obbody h1{font-size:30px;letter-spacing:-.03em;margin:6px 0 6px}
+.obic{width:110px;height:110px;object-fit:contain;display:block;margin:4px auto 6px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.15));border-radius:50%}
+.obsub{color:var(--soft);font-size:16px;margin:0 0 18px;line-height:1.4}.obsub2{font-weight:700;margin:18px 0 8px}
+.obhint{color:var(--soft);font-size:13px;line-height:1.45;margin:12px 4px 0}
+.obchips{display:flex;flex-wrap:wrap;gap:8px}.obchips button{min-height:46px;padding:0 16px;border-radius:16px;background:var(--cardSolid);box-shadow:var(--shadow);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.obchips button img{width:30px;height:30px;object-fit:contain}.obchips button[aria-pressed=true]{background:var(--ink);color:light-dark(#fff,#101318)}
+.obcheck{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:20px;background:var(--cardSolid);box-shadow:var(--shadow);font-size:15px;line-height:1.45}.obcheck input{width:24px;height:24px;flex:none;margin-top:2px;accent-color:#7cc520}
+.obtog{display:grid;gap:10px}.obtog .lrow{grid-template-columns:44px minmax(0,1fr) auto;border-radius:20px;text-align:left;width:100%}
+.obtog .bub{width:44px;height:44px;object-fit:contain}.sw{width:46px;height:28px;border-radius:99px;background:var(--field);position:relative;transition:background .2s}.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+[aria-pressed=true] .sw{background:#34c759}[aria-pressed=true] .sw::after{transform:translateX(18px)}
+.obfoot{max-width:520px;width:100%;margin:18px auto 0}.obfoot .btn{width:100%}.obfoot .btn:disabled{opacity:.4}
+.obz{margin-top:14px}
 </style>
 </head>
 <body>
@@ -500,7 +515,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124n';
+const AV = '20261124o';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1339,7 +1354,7 @@ function vHome() {
   const allDone = p.s.length && p.s.every(ss => isDone(t, ss));
   const title = !p.s.length ? 'Oggi si recupera' : allDone ? 'Giornata fatta!' : `Si parte, ${esc(profile.name || 'campione')}!`;
   const kg = lastBody('kg'), hr = lastBody('hr'), sl = lastBody('sleep'), df = dayFood(t), gs = gameState(), ms = Object.values(muscleSets(weekStart(w), t).sets).reduce((a, b) => a + b, 0);
-  const tile = (k, ic, lab, rng, val, unit, ok, act) => `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
+  const tile = (k, ic, lab, rng, val, unit, ok, act) => (({Corsa: 'run', Lungo: 'run', Dislivello: 'run', Forza: 'str', Muscoli: 'str', Circuito: 'str', StairMaster: 'str', Calorie: 'diet', Proteine: 'diet'})[lab] && !modOn(({Corsa: 'run', Lungo: 'run', Dislivello: 'run', Forza: 'str', Muscoli: 'str', Circuito: 'str', StairMaster: 'str', Calorie: 'diet', Proteine: 'diet'})[lab])) || (!isOwner && (lab === 'StairMaster' || lab === 'Circuito') && !(lab === 'Circuito' ? st.circPlan : st.stairPlan)) ? '' : `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
   return `${topBar(gs)}<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button><button class="avedit" data-act="faces" aria-label="Cambia avatar">✏️</button></div><h1>${title}</h1>
     <div class="herorow"><div class="status glass">Sedute: <b>${st.nDone} di ${st.n}</b></div><button class="hbtn glass" data-act="sheet">＋ Misure</button></div></section>
@@ -1349,8 +1364,8 @@ function vHome() {
       ${tile('str', 'kettle', 'Forza', `${st.strN} sedute`, st.strDone, 'fatte', st.strN && st.strDone >= st.strN, 'settimana')}
       ${tile('circ', 'f_patata', 'Calorie', `${df.t.kcal} kcal`, fmt(df.eaten.kcal, 0), 'kcal', df.eaten.kcal >= df.t.kcal * 0.9, 'cibo')}
       ${tile('heart', 'f_steak', 'Proteine', `${df.t.p} g`, fmt(df.eaten.p, 0), 'g', df.eaten.p >= df.t.p * 0.9, 'cibo')}
-      ${tile('heart', 'heart', 'Cuore', '40-46 BPM', hr ? fmt(hr.v, 0) : '–', 'bpm', hr && hr.v <= 46, 'sheet')}
-      ${tile('kg', 'scale', 'Peso', '92 kg', kg ? fmt(kg.v) : '–', 'kg', kg && kg.v <= 92, 'sheet')}
+      ${tile('heart', 'heart', 'Cuore', goalsOf().rhr, hr ? fmt(hr.v, 0) : '–', 'bpm', hr && goalsOf().rhrMax && hr.v <= goalsOf().rhrMax, 'sheet')}
+      ${tile('kg', 'scale', 'Peso', goalsOf().kg ? fmt(goalsOf().kg) + ' kg' : 'obiettivo libero', kg ? fmt(kg.v) : '–', 'kg', kg && goalsOf().kg && (goalsOf().kgDown ? kg.v <= goalsOf().kg : kg.v >= goalsOf().kg), 'sheet')}
       ${tile('long', 'mountain', 'Lungo', st.longPlan ? `${st.longPlan} min` : 'riposo', st.long != null ? fmt(st.long, 0) : '–', 'min', st.long != null && st.long >= st.longPlan, 'progressi')}
       ${tile('sleep', 'bed', 'Sonno', '7-9 h', sl ? fmt(sl.v) : '–', 'h', sl && sl.v >= 7, 'sheet')}
       ${tile('circ', 'flame', 'Circuito', st.circPlan ? `${st.circPlan} min` : 'riposo', st.circ != null ? fmt(st.circ) : '–', 'min', st.circ != null, 'progressi')}
@@ -1509,17 +1524,23 @@ function invitesHtml() {
 }
 async function saveInvites(next) { try { await db.doc('config/invites').set(next); toast('Invitati aggiornati ✓'); } catch (e) { toast(e && e.code === 'permission-denied' ? 'Aggiorna prima le regole di Firestore' : 'Non salvato: riprova', true); } }
 function vPiano() {
-  const zones = [['Z1', '113-139', 'Riscaldamento e recupero', '#60a5fa'], ['Z2', '140-152', 'Corsa facile e lunghi, 80% del tempo', '#7cc520'], ['Z3', '153-160', 'Quasi mai in fase 1', '#facc15'], ['Z4', '161-171', 'Soglia, una volta a settimana', '#f59e0b'], ['Z5', '172-189', 'Salite brevi e scatti', '#ef4444']];
+  const zz = zonesOf(), zd = isOwner ? ['Riscaldamento e recupero', 'Corsa facile e lunghi, 80% del tempo', 'Quasi mai in fase 1', 'Soglia, una volta a settimana', 'Salite brevi e scatti'] : ZDESC;
+  const zones = [0, 1, 2, 3, 4].map(i => ['Z' + (i + 1), zz.z ? `${zz.z[i][0]}-${zz.z[i][1]} bpm` : ZTALK[i], zz.z ? zd[i] : ZDESC[i], ZCOL[i]]);
   const ph = [['shoe', 'run', 'Base aerobica', 'Sett. 1-16 · 30 nov - 21 mar', '40 → 60 km, forza 4 volte, 98 → 92 kg'], ['mountain', 'long', 'Dislivello', 'Sett. 17-32 · 22 mar - 11 lug', 'Lunghi in montagna, gara di 40-50 km'], ['flame', 'circ', 'Specifico ultra', 'Sett. 33-45 · 12 lug - 10 ott', 'Back-to-back, discese, alimentazione'], ['trophy', 'q', 'Scarico e gara', 'Sett. 46-50 · 11 ott - 14 nov', 'Volume -40/60%, 86-89 kg in gara']];
   const rules = [['bolt', 'q', 'Volume +10% al massimo', 'Scarico ogni 4 settimane'], ['mountain', 'long', 'Lungo ≤ 35% della settimana', 'Il resto in uscite più brevi'], ['heart', 'heart', 'Mai qualità a digiuno', 'Carboidrati prima e dopo'], ['target', 'circ', 'Dolore che peggiora correndo', '2-3 giorni di stop, poi fisioterapista'], ['stairs', 'stair', 'Gambe doloranti?', 'Bike +20% di tempo a 130-145 bpm']];
-  return `<div class="vh"><div class="vt"><p class="eyebrow">Ottobre-novembre 2027</p><h1>Il piano</h1></div></div>
-  <div class="tile" style="${tv('long')};min-height:150px;margin-bottom:6px">${ico('trophy', 'il')}<div class="tl">${ico('mountain')}Obiettivo</div><div class="rng"><span class="tgt"></span>5000 m di dislivello</div><div class="val">100<small>km trail</small></div></div>
-  <h2 class="sec">Zone cardio</h2><div class="list glass">${zones.map(z => `<div class="lrow"><span class="bub" style="background:${z[3]}22"><b style="color:${z[3]};font-size:15px">${z[0]}</b></span><span><b>${z[1]} bpm</b><small>${z[2]}</small></span><span></span></div>`).join('')}</div>
-  <p class="eyebrow" style="margin:8px 6px 0">Soglia 174 bpm, stima Amazfit da confermare con il test.</p>
-  <h2 class="sec">Le 4 fasi</h2><div class="list glass">${ph.map(p => `<div class="lrow" style="${tv(p[1])}"><span class="bub">${ico(p[0])}</span><span><b>${p[2]}</b><small><em>${p[3]}</em></small><small>${p[4]}</small></span><span></span></div>`).join('')}</div>
-  <h2 class="sec">Regole d'oro</h2><div class="list glass">${rules.map(r => `<div class="lrow" style="${tv(r[1])}"><span class="bub">${ico(r[0])}</span><span><b>${r[2]}</b><small>${r[3]}</small></span><span></span></div>`).join('')}</div>
+  const gl = GOALS[profile.goal] || ['trophy', 'Obiettivo'];
+  const head = isOwner ? `<div class="vh"><div class="vt"><p class="eyebrow">Ottobre-novembre 2027</p><h1>Il piano</h1></div></div>
+  <div class="tile" style="${tv('long')};min-height:150px;margin-bottom:6px">${ico('trophy', 'il')}<div class="tl">${ico('mountain')}Obiettivo</div><div class="rng"><span class="tgt"></span>5000 m di dislivello</div><div class="val">100<small>km trail</small></div></div>`
+    : `<div class="vh"><div class="vt"><p class="eyebrow">${profile.raceDate ? esc(nice(profile.raceDate)) : 'Il tuo percorso'}</p><h1>Il piano</h1></div></div>
+  <div class="tile" style="${tv('long')};min-height:150px;margin-bottom:6px">${ico('trophy', 'il')}<div class="tl">${ico(gl[0])}Obiettivo</div><div class="rng"><span class="tgt"></span>${esc(profile.race || (profile.kgGoal ? 'Arrivare a ' + profile.kgGoal + ' kg' : 'Allenarsi con costanza'))}</div><div class="val" style="font-size:26px">${esc(gl[1])}</div></div>`;
+  return `${head}
+  ${!isOwner && typeof builderHtml === 'function' ? builderHtml() : ''}
+  <h2 class="sec">Zone cardio</h2><div class="list glass">${zones.map(z => `<div class="lrow"><span class="bub" style="background:${z[3]}22"><b style="color:${z[3]};font-size:15px">${z[0]}</b></span><span><b>${z[1]}</b><small>${z[2]}</small></span><span></span></div>`).join('')}</div>
+  <p class="eyebrow" style="margin:8px 6px 0">${esc(zz.note || '')}</p>
+  ${isOwner ? '' : '<!--'}<h2 class="sec">Le 4 fasi</h2><div class="list glass">${ph.map(p => `<div class="lrow" style="${tv(p[1])}"><span class="bub">${ico(p[0])}</span><span><b>${p[2]}</b><small><em>${p[3]}</em></small><small>${p[4]}</small></span><span></span></div>`).join('')}</div>
+  ${isOwner ? '' : '-->'}<h2 class="sec">Regole d'oro</h2><div class="list glass">${rules.map(r => `<div class="lrow" style="${tv(r[1])}"><span class="bub">${ico(r[0])}</span><span><b>${r[2]}</b><small>${r[3]}</small></span><span></span></div>`).join('')}</div>
   ${isOwner && mode === 'db' ? invitesHtml() : ''}
-  <h2 class="sec">App</h2><div class="list glass"><a class="lrow" style="${tv('q')};text-decoration:none;color:inherit" href="notifiche.html"><span class="bub">${ico('bolt')}</span><span><b>Notifiche</b><small>Attiva o controlla le notifiche</small></span><span class="chev">›</span></a><button class="lrow" style="${tv('heart')}" data-act="logout"><span class="bub">${ico('avatar')}</span><span><b>Esci</b><small>lucaattolini27@gmail.com</small></span><span class="chev">›</span></button></div>
+  <h2 class="sec">App</h2><div class="list glass"><button class="lrow" style="${tv('long')}" data-act="profilo"><span class="bub">${ico('avatar')}</span><span><b>Il mio profilo</b><small>Obiettivo, giorni, zone cardio e moduli</small></span><span class="chev">›</span></button><a class="lrow" style="${tv('q')};text-decoration:none;color:inherit" href="notifiche.html"><span class="bub">${ico('bolt')}</span><span><b>Notifiche</b><small>Attiva o controlla le notifiche</small></span><span class="chev">›</span></a><button class="lrow" style="${tv('heart')}" data-act="logout"><span class="bub">${ico('avatar')}</span><span><b>Esci</b><small>lucaattolini27@gmail.com</small></span><span class="chev">›</span></button></div>
   <p class="credit">Illustrazioni 3D e avatar generati su misura. Avatar alternativi: <a href="https://github.com/microsoft/fluentui-emoji">Fluent Emoji</a> di Microsoft, licenza MIT. Sagome dei muscoli: <a href="https://github.com/soroojshehryar/react-muscle-highlighter">react-muscle-highlighter</a>, licenza MIT. Ispirazione grafica: Riccardo Breccia.</p>`;
 }
 
@@ -1824,7 +1845,7 @@ function visibleMeals(iso) { return dietData().meals.filter(m => m.k !== 'pre' |
 function dayFood(iso) {
   const kind = dayKind(iso), meals = visibleMeals(iso), tot = {p: 0, c: 0, f: 0, kcal: 0}, eaten = {p: 0, c: 0, f: 0, kcal: 0};
   for (const m of meals) { const o = m.opts[mealOptIndex(iso, m)], mm = macros(o.items, kind); for (const k in tot) tot[k] += mm[k]; if ((foodLog(iso)[m.k] || {}).d) for (const k in eaten) eaten[k] += mm[k]; }
-  return {kind, tot, eaten, t: TARGETS[kind]};
+  return {kind, tot, eaten, t: targetsOf(kind)};
 }
 function editFood(iso, k) { const d = editDay(iso); d.f = d.f || {}; d.f[k] = d.f[k] || {}; return d.f[k]; }
 function bar(label, val, max, col) { const pc = Math.min(100, max ? val / max * 100 : 0); return `<div class="mbar"><div class="mbl"><span>${label}</span><b>${Math.round(val)}<small> / ${max} g</small></b></div><div class="prog"><i style="width:${pc}%;background:${col}"></i></div></div>`; }
@@ -2333,7 +2354,7 @@ function checkNews() {
   try { localStorage.setItem('scheda100k-seen', JSON.stringify(now)); } catch (e) {}
 }
 /* ---- lega: i tuoi punti nel database, per la classifica tra amici ---- */
-let players = {}, myUid = null, lastPush = '', userEmail = '', invites = {emails: [], names: {}}, profileReady = false;
+let players = {}, myUid = null, lastPush = '', userEmail = '', userName = '', invites = {emails: [], names: {}}, profileReady = false;
 function pushPlayer() {
   if (mode !== 'db' || !db || !myUid || !logsReady) return;
   const s = gameState(), j = JSON.stringify([s.weekKey, s.weekPts, s.streak, avatar]);
@@ -2364,7 +2385,7 @@ const musLevel = n => n <= 0 ? 0 : n < 5 ? 1 : n < 10 ? 2 : n < 16 ? 3 : 4;
 // sagome anatomiche: dati SVG di react-muscle-highlighter (licenza MIT), caricati a parte
 const MUSMAP = {chest: 'petto', deltoids: 'spalle', trapezius: 'dorso', 'upper-back': 'dorso', 'lower-back': 'dorso', biceps: 'braccia', triceps: 'braccia', forearm: 'braccia', abs: 'core', obliques: 'core', quadriceps: 'gambe', adductors: 'gambe', hamstring: 'posteriore', gluteal: 'posteriore', calves: 'polpacci', tibialis: 'polpacci'};
 let BODY = null, bodyLoading = false;
-const bodyGender = () => 'm';
+const bodyGender = () => profile.sex === 'f' ? 'f' : 'm';
 function loadBody() { if (BODY || bodyLoading) return; bodyLoading = true; fetch('em/body.json').then(r => r.json()).then(j => { BODY = j; safeRender(); }).catch(() => { bodyLoading = false; }); }
 function bodySvg(side, sets, div) {
   if (!BODY) { loadBody(); return '<div class="bodyload"></div>'; }
@@ -2400,9 +2421,133 @@ function openMuscle(g) {
   sheet.classList.add('on'); scrim.classList.add('on'); sheet.scrollTop = 0;
 }
 
+/* ================= profilo, obiettivi e primo accesso guidato ================= */
+const GOALS = {trail: ['mountain', 'Trail e ultra'], strada: ['shoe', 'Corsa su strada'], ibrido: ['kettle', 'Ibrido: corsa e forza'], forza: ['dumbbell', 'Forza e massa'], dimagrire: ['scale', 'Dimagrire'], salute: ['heart', 'Stare bene']};
+const ZDESC = ['Riscaldamento e recupero', 'Corsa facile e lunghi, la base', 'Ritmo medio, da dosare', 'Soglia, una volta a settimana', 'Scatti e salite brevi'];
+const ZTALK = ['Parli senza fatica, quasi camminata', 'Riesci a parlare a frasi intere', 'Parli a frasi brevi', 'Solo poche parole', 'Non riesci a parlare'];
+const ZCOL = ['#60a5fa', '#7cc520', '#facc15', '#f59e0b', '#ef4444'];
+const OWNER_Z = [[113, 139], [140, 152], [153, 160], [161, 171], [172, 189]];
+const modOn = k => isOwner || !profile.mod || profile.mod[k] !== false;
+const ageOf = p => p.born ? new Date().getFullYear() - Number(p.born) : null;
+// zone dalla soglia (Friel), altrimenti FC max con riserva cardiaca se c'è la FC a riposo
+function calcZones(p) {
+  const lt = num(p.lthr), rhr = num(p.rhr), age = ageOf(p);
+  let mx = num(p.hrmax), src = 'max';
+  const chain = (lo, his) => his.map((hi, i) => [i ? his[i - 1] + 1 : lo, hi]);
+  if (lt) return {src: 'lthr', z: chain(Math.round(lt * 0.65), [0.84, 0.89, 0.94, 0.99, 1.06].map(x => Math.round(lt * x)))};
+  if (!mx && age) { mx = Math.round(208 - 0.7 * age); src = 'eta'; }
+  if (!mx) return null;
+  const at = x => rhr ? Math.round(rhr + x * (mx - rhr)) : Math.round(mx * x);
+  return {src, z: chain(at(0.5), [0.6, 0.7, 0.8, 0.9, 1].map(at))};
+}
+function zonesOf() {
+  if (isOwner) return {src: 'lthr', z: OWNER_Z, note: 'Soglia 174 bpm, stima Amazfit da confermare con il test.'};
+  if (profile.watch === false) return {src: 'talk', z: null, note: 'Senza orologio si va a sensazione: il test del parlato funziona bene.'};
+  const zz = (profile.zones && profile.zones.length === 5) ? {src: 'man', z: profile.zones} : calcZones(profile);
+  if (!zz) return {src: 'talk', z: null, note: 'Inserisci FC max o soglia nel profilo per avere le zone in bpm.'};
+  zz.note = {lthr: `Calcolate dalla soglia di ${profile.lthr} bpm.`, max: `Calcolate dalla FC max di ${profile.hrmax} bpm${profile.rhr ? ' e dalla FC a riposo' : ''}.`, eta: "Stimate dall'età: fai un test per averle precise.", man: 'Inserite a mano.'}[zz.src];
+  return zz;
+}
+const zoneTxt = n => { const z = zonesOf(); return z.z ? `Z${n} ${z.z[n - 1][0]}-${z.z[n - 1][1]} bpm` : `Z${n}: ${ZTALK[n - 1].toLowerCase()}`; };
+function goalsOf() {
+  if (isOwner) return {kg: 92, kgDown: true, rhr: '40-46 BPM', rhrMax: 46};
+  const kg = num(profile.kgGoal), start = num(profile.kg), r = num(profile.rhr);
+  return {kg, kgDown: !(kg && start && kg > start), rhr: r ? `≤ ${r} BPM` : 'a riposo', rhrMax: r};
+}
+// calorie e macro per chi non è Luca: Mifflin-St Jeor per un'attività moderata, poi in base all'obiettivo
+function targetsOf(kind) {
+  if (isOwner || (custom.diet && custom.diet.targets)) return (isOwner ? TARGETS : custom.diet.targets)[kind] || TARGETS[kind];
+  const p = profile, kg = num(p.kg) || 70, h = num(p.height) || (p.sex === 'f' ? 165 : 177), a = ageOf(p) || 35;
+  const bmr = 10 * kg + 6.25 * h - 5 * a + (p.sex === 'f' ? -161 : 5);
+  const adj = {dimagrire: 0.85, forza: 1.08}[p.goal] || 1, mul = {facile: 1.45, normale: 1.6, duro: 1.8}[kind] || 1.6;
+  const kcal = Math.round(bmr * mul * adj / 50) * 50, pr = Math.round(kg * (p.goal === 'dimagrire' ? 2.2 : p.goal === 'forza' ? 2 : 1.8)), f = Math.round(kg * 0.9);
+  return {n: {facile: 'Giorno facile', normale: 'Giorno normale', duro: 'Giorno duro'}[kind], kcal, p: pr, c: Math.max(80, Math.round((kcal - pr * 4 - f * 9) / 4)), f};
+}
+
+let ob = null, obStep = 0, obEl = null;
+const DLONG = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+const obChips = (key, opts, multi) => `<div class="obchips">${opts.map(([v, lab, ic]) => { const on = multi ? (ob[key] || []).includes(v) : ob[key] === v; return `<button type="button" data-obk="${key}" data-obv="${esc(String(v))}" ${multi ? 'data-multi="1"' : ''} aria-pressed="${on}">${ic ? ico(ic) : ''}<span>${esc(lab)}</span></button>`; }).join('')}</div>`;
+const obIn = (key, lab, unit, ph, type) => `<label class="fl">${lab}<span class="in"><input data-obin="${key}" ${type === 'text' ? '' : 'inputmode="decimal"'} type="${type === 'date' ? 'date' : 'text'}" value="${esc(ob[key] ?? '')}" placeholder="${esc(ph || '')}">${unit ? `<span>${unit}</span>` : ''}</span></label>`;
+function zonePreview() {
+  if (ob.watch === false) return `<div class="list glass obz">${ZTALK.map((t, i) => `<div class="lrow"><span class="bub" style="background:${ZCOL[i]}22"><b style="color:${ZCOL[i]};font-size:15px">Z${i + 1}</b></span><span><b>${esc(t)}</b><small>${ZDESC[i]}</small></span><span></span></div>`).join('')}</div>`;
+  const z = calcZones(ob);
+  if (!z) return '<p class="obhint">Scrivi almeno la FC max, la soglia o l\'anno di nascita (passaggio prima) e le zone compaiono qui.</p>';
+  return `<div class="list glass obz">${z.z.map((r, i) => `<div class="lrow"><span class="bub" style="background:${ZCOL[i]}22"><b style="color:${ZCOL[i]};font-size:15px">Z${i + 1}</b></span><span><b>${r[0]}-${r[1]} bpm</b><small>${ZDESC[i]}</small></span><span></span></div>`).join('')}</div><p class="obhint">${{lthr: 'Dalla soglia: il metodo più preciso.', max: 'Dalla FC max' + (num(ob.rhr) ? ' e dalla FC a riposo (riserva cardiaca).' : '.'), eta: "Stima dall'età: va bene per partire, poi fai un test."}[z.src]}</p>`;
+}
+const OB_STEPS = [
+  {id: 'benv', ic: 'f_vetta', t: 'Benvenuto in 100K', sub: "Due minuti per cucire l'app su di te. Ogni passaggio si può saltare, tranne questo.", must: true,
+    body: () => `<label class="obcheck"><input type="checkbox" id="obConsent" ${ob.consent ? 'checked' : ''}><span>Ho letto l'<a href="privacy.html" target="_blank">informativa sulla privacy</a> e acconsento a salvare i miei allenamenti, le misure e i dati su cuore e alimentazione nel database dell'app.</span></label><p class="obhint">I tuoi dati stanno in una cartella solo tua: gli altri vedono solo nome, avatar e punti della lega. Puoi scaricarli o cancellarli quando vuoi da Piano.</p>`},
+  {id: 'nome', ic: 'avatar', t: 'Come ti chiami?', sub: 'Il nome che vedi in home e che vedono gli altri nella lega.', body: () => obIn('name', 'Nome', '', 'Margot', 'text')},
+  {id: 'sesso', ic: 'f_bicipite', t: 'Uomo o donna?', sub: 'Serve per la mappa dei muscoli e per stimare calorie e zone.', body: () => obChips('sex', [['f', 'Donna'], ['m', 'Uomo']])},
+  {id: 'dati', ic: 'scale', t: 'Due numeri su di te', sub: 'Peso, altezza e anno di nascita servono per calorie, proteine e zone cardio.', body: () => `<div class="form">${obIn('kg', 'Peso', 'kg', '65')}${obIn('height', 'Altezza', 'cm', '170')}${obIn('born', 'Anno di nascita', '', '1995')}</div>`},
+  {id: 'obiettivo', ic: 'trophy', t: 'Qual è il tuo obiettivo?', sub: 'Scegline uno: decide i suggerimenti, le calorie e il tono dei promemoria.',
+    body: () => `${obChips('goal', Object.entries(GOALS).map(([k, [ic, n]]) => [k, n, ic]))}<div class="form" style="margin-top:12px">${obIn('race', 'Gara o traguardo', '', 'Es. mezza maratona di Firenze', 'text')}${obIn('raceDate', 'Quando', '', '', 'date')}${obIn('kgGoal', 'Peso obiettivo', 'kg', 'facoltativo')}</div>`},
+  {id: 'giorni', ic: 'watch', t: 'Quando ti alleni?', sub: 'I giorni in cui di solito riesci. Le sedute si possono sempre spostare.',
+    body: () => `${obChips('days', DLONG.map((d, i) => [i, d.slice(0, 3)]), true)}<p class="obsub2">Tempo per seduta</p>${obChips('dur', [[30, "30'"], [45, "45'"], [60, "1 ora"], [90, "1 ora e mezza"]])}`},
+  {id: 'cuore', ic: 'heart', t: 'Le tue zone cardio', sub: "Hai un orologio o una fascia che misura i battiti?",
+    body: () => `${obChips('watch', [[true, 'Sì, ce l\'ho'], [false, 'No, vado a sensazione']])}${ob.watch === true ? `<div class="form" style="margin-top:12px">${obIn('rhr', 'FC a riposo', 'bpm', '55')}${obIn('hrmax', 'FC max', 'bpm', 'se la sai')}${obIn('lthr', 'FC di soglia', 'bpm', 'da un test')}</div>` : ''}<div id="obZones">${ob.watch == null ? '' : zonePreview()}</div>`},
+  {id: 'moduli', ic: 'target', t: "Cosa vuoi nell'app?", sub: 'Accendi solo quello che usi. Si cambia quando vuoi.',
+    body: () => `<div class="obtog">${[['run', 'shoe', 'Corsa', 'Uscite, km, lunghi e dislivello'], ['str', 'dumbbell', 'Forza', 'Schede, serie e carichi'], ['diet', 'f_bowl', 'Alimentazione', 'Pasti, calorie e proteine'], ['supp', 'f_pillole', 'Integratori', 'Cosa prendi e quando, con promemoria']].map(([k, ic, n, s]) => `<button type="button" class="lrow glass" data-obmod="${k}" aria-pressed="${(ob.mod || {})[k] !== false}">${ico(ic, 'bub')}<span><b>${n}</b><small>${s}</small></span><i class="sw"></i></button>`).join('')}</div>`},
+  {id: 'misure', ic: 'scale', t: 'Quali misure vuoi seguire?', sub: 'Le circonferenze che ti interessano, da segnare ogni tanto con il metro.', body: () => obChips('meas', Object.entries(MISURE).map(([k, n]) => [k, n]), true)},
+  {id: 'avatar', ic: 'avatar', t: 'Il tuo avatar', sub: 'Un selfie trasformato in memoji 3D con ChatGPT. Lo vedi in home e nella lega.',
+    body: () => `<div class="avbox">${ico('avatar', 'cur')}</div><button type="button" class="btn" id="obAv" style="width:100%">Crea il mio avatar</button>`},
+  {id: 'scheda', ic: 'dumbbell', t: 'La tua scheda', sub: 'Hai già un programma di allenamento?',
+    body: () => obChips('planSrc', [['io', 'Sì, la inserisco io', 'f_bodybuilder'], ['coach', 'Me la prepara Luca', 'trophy'], ['dopo', 'Ci penso dopo', 'bed']])},
+  {id: 'notif', ic: 'bolt', t: 'Promemoria', sub: 'Allenamento del giorno, integratori e proposito della sera. Si spengono quando vuoi.',
+    body: () => `<button type="button" class="btn" id="obPush" style="width:100%">${ob.push ? 'Notifiche attive ✓' : 'Attiva le notifiche'}</button><p class="obhint">Su iPhone funzionano solo se l'app è aggiunta alla schermata Home.</p>`},
+  {id: 'fine', ic: 'f_fuoco', t: 'Tutto pronto!', sub: 'Puoi cambiare tutto da Piano > Il mio profilo.', must: true,
+    body: () => `<div class="list glass">${[['Obiettivo', ob.goal ? GOALS[ob.goal][1] : '–'], ['Giorni', (ob.days || []).length ? ob.days.slice().sort().map(i => DLONG[i].slice(0, 3)).join(' ') : '–'], ['Zone', ob.watch === false ? 'a sensazione' : calcZones(ob) ? 'in bpm' : '–'], ['Calorie', (() => { const sv = profile; profile = ob; const t = targetsOf('normale'); profile = sv; return `${t.kcal} kcal · ${t.p} g proteine`; })()]].map(([a, b]) => `<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto"><span><small>${a}</small></span><b>${esc(b)}</b></div>`).join('')}</div>`},
+];
+function startOnboarding(edit) {
+  if (obEl) return;
+  ob = Object.assign({mod: {}, meas: measSel()}, JSON.parse(JSON.stringify(profile)));
+  if (!ob.name && userName) ob.name = userName;
+  obStep = edit ? 1 : 0;
+  obEl = document.createElement('div'); obEl.id = 'onb'; document.body.appendChild(obEl); drawOb();
+}
+function drawOb() {
+  const st = OB_STEPS[obStep], last = obStep === OB_STEPS.length - 1, n = OB_STEPS.length;
+  obEl.innerHTML = `<div class="obbar"><i style="width:${Math.round((obStep + 1) / n * 100)}%"></i></div>
+    <div class="obtop">${obStep ? '<button type="button" class="ghost2" data-ob="back">‹ Indietro</button>' : '<span></span>'}${!st.must ? '<button type="button" class="ghost2" data-ob="skip">Salta</button>' : '<span></span>'}</div>
+    <div class="obbody">${ico(st.ic, 'obic')}<h1>${esc(st.t)}</h1><p class="obsub">${esc(st.sub)}</p>${st.body()}</div>
+    <div class="obfoot"><button type="button" class="btn" data-ob="next" ${st.id === 'benv' && !ob.consent ? 'disabled' : ''}>${last ? 'Inizia' : 'Avanti'}</button></div>`;
+}
+function readOb() { for (const el of obEl.querySelectorAll('[data-obin]')) { const v = el.value.trim(); if (v) ob[el.dataset.obin] = v; else delete ob[el.dataset.obin]; } }
+async function finishOb() {
+  ob.done = true; ob.name = (ob.name || userName || 'Atleta').trim();
+  if (ob.watch === true) { const z = calcZones(ob); if (z) ob.zonesAuto = z.z; }
+  const meas = ob.meas; delete ob.meas;
+  profile = Object.assign({}, ob); if (isOwner) profile.owner = true;
+  if (meas && meas.length) { custom.meas = meas; saveCustom(); }
+  const go = ob.planSrc === 'io' && !isOwner;
+  obEl.remove(); obEl = null; renderTick++; render();
+  if (mode === 'db') {
+    try {
+      await U().collection('prefs').doc('profile').set(JSON.parse(JSON.stringify(profile)));
+      const t = localToday(), b = {}; if (num(profile.kg) && !(body[t] && body[t].kg)) b.kg = profile.kg; if (num(profile.rhr) && !(body[t] && body[t].hr)) b.hr = profile.rhr;
+      if (Object.keys(b).length) await U().collection('body').doc(t).set(b, {merge: true});
+      toast('Profilo salvato ✓');
+    } catch (e) { toast('Profilo non salvato: riprova da Piano', true); }
+  } else { try { localStorage.setItem('scheda100k-profile', JSON.stringify(profile)); } catch (e) {} }
+  if (go && typeof openBuilder === 'function') openBuilder();
+}
+document.addEventListener('click', e => {
+  if (!obEl || !obEl.contains(e.target)) return;
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.ob) { readOb(); if (b.dataset.ob === 'back') obStep = Math.max(0, obStep - 1); else if (obStep === OB_STEPS.length - 1) { finishOb(); return; } else obStep++; drawOb(); obEl.scrollTop = 0; return; }
+  if (b.dataset.obk) { readOb(); const k = b.dataset.obk, raw = b.dataset.obv, v = raw === 'true' ? true : raw === 'false' ? false : /^\d+$/.test(raw) && k !== 'meas' ? Number(raw) : raw;
+    if (b.dataset.multi) { const a = new Set(ob[k] || []); a.has(v) ? a.delete(v) : a.add(v); ob[k] = Array.from(a); } else ob[k] = v; drawOb(); return; }
+  if (b.dataset.obmod) { ob.mod = Object.assign({}, ob.mod); ob.mod[b.dataset.obmod] = ob.mod[b.dataset.obmod] === false; drawOb(); return; }
+  if (b.id === 'obAv') { readOb(); openFaces(); return; }
+  if (b.id === 'obPush') { readOb(); (typeof enablePush === 'function' ? enablePush() : Promise.reject()).then(ok => { if (ok) { ob.push = true; drawOb(); } }).catch(() => toast('Notifiche non disponibili su questo telefono', true)); }
+});
+document.addEventListener('change', e => { if (obEl && e.target.id === 'obConsent') { ob.consent = e.target.checked ? {at: Date.now(), v: 1} : null; drawOb(); } });
+document.addEventListener('input', e => { if (!obEl || !e.target.dataset.obin) return; ob[e.target.dataset.obin] = e.target.value.trim(); const z = obEl.querySelector('#obZones'); if (z && ob.watch != null) z.innerHTML = zonePreview(); });
+
 /* ================= render e navigazione ================= */
 function render() {
   renderTick++;
+  const cb = document.querySelector('nav.tabs a[data-v="cibo"]'); if (cb) cb.style.display = modOn('diet') || modOn('supp') ? '' : 'none';
   for (const a of document.querySelectorAll('nav.tabs a')) { if (a.dataset.v === (view === 'settimana' ? 'oggi' : view === 'slancio' ? 'home' : view)) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }
 
   viewEl.innerHTML = ({home: vHome, oggi: vOggi, cibo: vCibo, settimana: vSettimana, slancio: vSlancio, progressi: vProgressi, piano: vPiano}[view])();
@@ -2437,6 +2582,7 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.medit) openMealEdit(b.dataset.medit, +b.dataset.i);
   else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
+  else if (b.dataset.act === 'profilo') startOnboarding(true);
   else if (b.dataset.stage) { const keep = document.getElementById('mapwrap'), sx = keep && keep.scrollLeft, sy = keep && keep.scrollTop; mapOpen = b.dataset.stage === 'x' || +b.dataset.stage === mapOpen ? null : +b.dataset.stage; render(); const w = document.getElementById('mapwrap'); if (w && keep) { w.scrollLeft = sx; w.scrollTop = sy; } }
   else if (b.dataset.setck !== undefined) {
     const s = editSess(cur, b.dataset.s), k = b.dataset.ex, i = +b.dataset.setck, row = b.closest('.srow');
@@ -2489,7 +2635,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').ca
 if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOwner = own; profile = prof; if (cust) custom = Object.assign({sess: {}, ex: {}}, cust); renderTick++; render(); };
 (async () => {
   const fb = window.firebase;
-  if (!fb) { mode = 'local'; lsLoad(); logsReady = true; toast('Firebase non raggiungibile: salvo sul telefono', true, true); safeRender(); applyPresi(); return; }
+  if (!fb) { mode = 'local'; lsLoad(); try { const pp = JSON.parse(localStorage.getItem('scheda100k-profile') || 'null'); if (pp && !pp.owner) { profile = pp; isOwner = false; } } catch (e) {} logsReady = true; toast('Firebase non raggiungibile: salvo sul telefono', true, true); safeRender(); applyPresi(); return; }
   fb.initializeApp(FB_CFG);
   const auth = fb.auth(), fs = fb.firestore();
   try { await fs.enablePersistence({synchronizeTabs: true}); } catch (e) {}
@@ -2514,7 +2660,7 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
       let ok = false; try { const inv = await fs.doc('config/invites').get(); ok = inv.exists && (inv.data().emails || []).map(x => String(x).toLowerCase()).includes(email); } catch (e) {}
       if (!ok) { loginErr.textContent = `L'account ${email} non è ancora tra gli invitati. Chiedi a Luca di aggiungerti, poi riprova.`; auth.signOut(); return; }
     }
-    loginEl.classList.remove('on'); db = fs; mode = 'db'; myUid = user.uid; userEmail = email;
+    loginEl.classList.remove('on'); db = fs; mode = 'db'; myUid = user.uid; userEmail = email; userName = (user.displayName || '').split(' ')[0];
     if (isOwner) await migrateOwner();
     const timer = setTimeout(() => toast('Sei offline: salvo e sincronizzo appena torna la rete', false, true), 10000);
     const onErr = e => { clearTimeout(timer); toast(e && e.code === 'permission-denied' ? 'Permessi mancanti: controlla le regole di Firestore' : 'Salvataggio non raggiungibile', true, true); };
