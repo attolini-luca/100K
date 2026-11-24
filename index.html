@@ -400,6 +400,28 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .btn.light{background:var(--field);color:var(--ink)}
 .avprev{display:grid;justify-items:center;gap:10px;margin-top:14px;padding:14px;border-radius:22px;background:var(--field)}
 .avprev img{width:150px;height:150px;object-fit:contain;background:repeating-conic-gradient(light-dark(#e9edf3,#2a2f3a) 0 25%,transparent 0 50%) 0 0/18px 18px;border-radius:18px}
+
+.ssum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 12px 4px;padding:10px 12px;border-radius:18px;background:light-dark(rgba(255,255,255,.75),rgba(255,255,255,.05))}
+.ssum span{display:grid}.ssum small{font-size:11.5px;font-weight:700;color:var(--soft)}.ssum b{font-size:18px;font-weight:800;color:var(--a)}
+.tbtn{cursor:pointer;border:0}
+.exnote textarea{width:100%;border:0;border-radius:12px;background:var(--field);padding:10px 12px;font:inherit;font-size:14px;color:var(--ink);resize:vertical;margin-bottom:8px}
+.shead,.srow{display:grid;grid-template-columns:28px minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr) 40px;gap:6px;align-items:center}
+.shead{font-size:11px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.02em;padding:0 0 6px}.shead span:last-child{text-align:center}.shead small{text-transform:none;font-weight:700;color:var(--faint)}
+.sets2{display:grid;gap:6px}
+.srow{padding:3px;border-radius:14px;transition:background .2s}.srow.ok{background:light-dark(rgba(52,199,89,.14),rgba(52,199,89,.18))}
+.srow .sn{width:28px;height:28px;border-radius:50%;background:var(--t);color:var(--a);display:grid;place-items:center;font-size:13px;font-weight:800}
+.srow .in{min-height:42px}.srow .in input{text-align:center;font-size:16px;padding:0 4px}
+.prev{font-size:13px;font-weight:700;color:var(--soft);text-align:left;padding:6px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:none}
+.prev:disabled{color:var(--faint)}
+.setck{width:40px;height:40px;border-radius:12px;background:var(--field);color:var(--faint);font-weight:900;font-size:17px}
+.setck[aria-pressed=true]{background:#34c759;color:#fff}
+.setbtns{display:flex;gap:8px;margin-top:10px}.setbtns .mini{flex:1;min-height:40px}
+#rest{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:45;border-radius:22px;background:#111827;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.3);overflow:hidden;transform:translateY(160%);transition:transform .3s}
+#rest.on{transform:none}
+.rbar{height:4px;background:rgba(255,255,255,.15)}.rbar i{display:block;height:100%;background:#34c759}
+.rrow{display:grid;grid-template-columns:56px 1fr 56px auto;gap:8px;align-items:center;padding:8px 10px}
+.rrow button{height:40px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-weight:800}.rrow .rskip{padding:0 14px;background:#34c759}
+.rrow span{display:grid;justify-items:center}.rrow small{font-size:11px;opacity:.7;font-weight:700}.rrow b{font-size:24px;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -446,7 +468,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261124g';
+const AV = '20261124h';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -708,25 +730,59 @@ function fieldsRun(iso, ss, test) {
   return `<div class="fields">${h}</div>` + (pace ? `<p class="pace">Passo medio <b>${paceFmt(pace)}/km</b></p>` : '');
 }
 function fieldsSimple(iso, ss) { const l = sessLog(iso, ss.id); return `<div class="fields">${inp(ss.id, 'min', 'Tempo', 'min', ss.planMin, l.min)}${inp(ss.id, 'hr', 'FC media', 'bpm', '', l.hr)}${ss.kind === 'circuit' ? inp(ss.id, 'rpe', 'Fatica', '/10', '7', l.rpe) : ''}</div>`; }
+const restSec = r => { const m = String(r || '').match(/(\d+)\s*'/), s = String(r || '').match(/(\d+)\s*"/); const v = (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); return v || 90; };
+const filled = x => x && ((x[0] !== '' && x[0] != null) || (x[1] !== '' && x[1] != null));
+let noteOpen = {};
 function exBlock(iso, ss, item, idx, total) {
-  const key = item.k, e = itemDef(item), n = setsFor(e, ss.half), l = sessLog(iso, ss.id), cs = (l.sets && l.sets[key]) || [], last = lastSets(iso, key), g = GROUPS[e.g] || GROUPS.core;
-  const joiner = e.u === KG || e.u === CARRY ? '×' : '+';
-  const lastTxt = last ? last.sets.filter(x => x && (x[0] !== '' || x[1] !== '')).map(x => [x[0], x[1]].filter(v => v !== '' && v != null).join(joiner)).join(' · ') : '';
+  const key = item.k, e = itemDef(item), l = sessLog(iso, ss.id), cs = (l.sets && l.sets[key]) || [], sd = (l.sd && l.sd[key]) || [], last = lastSets(iso, key), g = GROUPS[e.g] || GROUPS.core;
+  const n = Math.max(1, (l.xs && l.xs[key]) || Math.max(setsFor(e, ss.half), cs.length));
+  const unit0 = e.u[0], unit1 = e.u[1];
+  const pv = lv => { if (!filled(lv)) return '–'; const a = lv[0], b = lv[1]; if (unit1 && a !== '' && a != null && b !== '' && b != null) return `${a}${unit0 === 'kg' ? 'kg' : ' ' + unit0} × ${b}`; return [a, b].filter(v => v !== '' && v != null).join(' ') + (a !== '' && a != null ? ' ' + unit0 : ' ' + (unit1 || '')); };
   let rows = '';
   for (let i = 0; i < n; i++) {
-    const v = cs[i] || [], lv = (last && last.sets[i]) || [];
-    const ph0 = lv[0] ?? (e.u === TOT ? String(e.r).replace(/[^0-9].*$/, '') : ''), ph1 = lv[1] ?? (e.u === TOT ? '' : String(e.r).replace(/[^0-9-].*$/, ''));
-    rows += `<span class="sn">${i + 1}</span><span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${e.u[0]}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="0" value="${esc(v[0] ?? '')}" placeholder="${esc(ph0)}"><span>${e.u[0]}</span></span>` +
-      (e.u[1] ? `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${e.u[1]}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="1" value="${esc(v[1] ?? '')}" placeholder="${esc(ph1)}"><span>${e.u[1]}</span></span>` : '<span></span>');
+    const v = cs[i] || [], lv = (last && last.sets[i]) || [], ok = !!sd[i];
+    const ph0 = lv[0] ?? (e.u === TOT ? String(e.r).replace(/[^0-9].*$/, '') : ''), ph1 = lv[1] ?? (e.u === TOT ? '' : String(e.r).replace(/[^0-9-].*$/, '').split('-').pop());
+    rows += `<div class="srow${ok ? ' ok' : ''}"><span class="sn">${i + 1}</span><button class="prev" data-prev="${i}" data-ex="${key}" data-s="${ss.id}" ${filled(lv) ? '' : 'disabled'} aria-label="Copia la serie precedente">${esc(pv(lv))}</button>` +
+      `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit0}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="0" value="${esc(v[0] ?? '')}" placeholder="${esc(ph0)}"></span>` +
+      (unit1 ? `<span class="in"><input inputmode="decimal" aria-label="${esc(e.n)} serie ${i + 1} ${unit1}" data-s="${ss.id}" data-ex="${key}" data-i="${i}" data-j="1" value="${esc(v[1] ?? '')}" placeholder="${esc(ph1)}"></span>` : '<span></span>') +
+      `<button class="setck" data-setck="${i}" data-ex="${key}" data-s="${ss.id}" aria-pressed="${ok}" aria-label="Serie ${i + 1} fatta">✓</button></div>`;
   }
   const ctl = idx >= 0 ? `<span class="exctl"><button class="mini" data-swap="${idx}" data-sess="${ss.sess}">Cambia</button><button class="mini" data-edit="${idx}" data-sess="${ss.sess}" aria-label="Modifica ${esc(e.n)}">•••</button></span>` : '';
-  return `<div class="ex" style="${tv(g.k)}"><div class="exh"><span class="exi">${ico(g.ic)}</span><h3>${esc(e.n)}</h3>${ctl}</div><div class="meta"><span class="tag a">${n} × ${esc(e.r)}</span><span class="tag">⏱ ${esc(e.rest)}</span>${e.tip ? `<span class="tag">${esc(e.tip)}</span>` : ''}</div><div class="sets">${rows}</div>${last ? `<div class="last"><span>Ultima volta, ${esc(short(last.d))}: ${esc(lastTxt)}</span><button class="copy" data-copy="${key}" data-s="${ss.id}" data-n="${n}">Copia</button></div>` : ''}</div>`;
+  const note = (l.exn && l.exn[key]) || '', showNote = note || noteOpen[ss.id + key];
+  return `<div class="ex" style="${tv(g.k)}"><div class="exh"><span class="exi">${ico(g.ic)}</span><h3>${esc(e.n)}</h3>${ctl}</div>
+  <div class="meta"><span class="tag a">${n} × ${esc(e.r)}</span><button class="tag tbtn" data-rest="${restSec(e.rest)}">⏱ Recupero ${esc(e.rest)}</button><button class="tag tbtn" data-exnote="${key}" data-s="${ss.id}">📝 Nota</button>${last ? `<button class="tag tbtn" data-copy="${key}" data-s="${ss.id}" data-n="${n}">↺ Come l'ultima volta</button>` : ''}${e.tip ? `<span class="tag">${esc(e.tip)}</span>` : ''}</div>
+  ${showNote ? `<div class="exnote"><textarea data-s="${ss.id}" data-exn="${key}" rows="1" placeholder="Nota su questo esercizio…">${esc(note)}</textarea></div>` : ''}
+  <div class="shead"><span>Serie</span><span>Precedente${last ? ` <small>${esc(short(last.d))}</small>` : ''}</span><span>${esc(unit0)}</span><span>${esc(unit1 || '')}</span><span>✓</span></div>
+  <div class="sets2">${rows}</div>
+  <div class="setbtns"><button class="mini" data-addset="${key}" data-s="${ss.id}" data-n="${n}">+ Aggiungi serie</button>${n > 1 ? `<button class="mini" data-delset="${key}" data-s="${ss.id}" data-n="${n}">− Togli serie</button>` : ''}</div></div>`;
 }
+function sessSummary(iso, ss) {
+  const l = sessLog(iso, ss.id); let vol = 0, done = 0, tot = 0;
+  for (const it of exList(ss.sess)) { const e = itemDef(it); tot += Math.max(1, (l.xs && l.xs[it.k]) || setsFor(e, ss.half)); }
+  for (const [k, arr] of Object.entries(l.sets || {})) { const e = EXD(k), sd = (l.sd && l.sd[k]) || []; (arr || []).forEach((x, i) => { if (!sd[i]) return; done++; const a = num(x && x[0]), b = num(x && x[1]); if (e.u === KG && a != null && b != null) vol += a * b; }); }
+  const end = l.t1 || l.t0, mins = l.t0 ? Math.max(1, Math.round(((iso === localToday() && !l.done ? Date.now() : end) - l.t0) / 60000)) : 0;
+  return `<div class="ssum"><span><small>Durata</small><b>${mins ? (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + "'" : mins + "'") : '–'}</b></span><span><small>Volume</small><b>${fmt(vol, 0)} kg</b></span><span><small>Serie</small><b>${done}/${tot}</b></span></div>`;
+}
+/* ---- timer di recupero ---- */
+const restEl = document.createElement('div'); restEl.id = 'rest'; document.body.appendChild(restEl);
+let restEnd = 0, restTot = 0, restIv = null;
+function startRest(sec) {
+  restTot = sec; restEnd = Date.now() + sec * 1000; clearInterval(restIv); restIv = setInterval(tickRest, 250); tickRest();
+}
+function tickRest() {
+  const left = Math.max(0, Math.ceil((restEnd - Date.now()) / 1000));
+  if (!restEnd) { restEl.classList.remove('on'); return; }
+  restEl.innerHTML = `<div class="rbar"><i style="width:${restTot ? (1 - left / restTot) * 100 : 0}%"></i></div><div class="rrow"><button data-r="-15">−15</button><span><small>Recupero</small><b>${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}</b></span><button data-r="15">+15</button><button data-r="x" class="rskip">Salta</button></div>`;
+  restEl.classList.add('on');
+  if (left <= 0) { clearInterval(restIv); restEnd = 0; restEl.classList.remove('on'); try { navigator.vibrate && navigator.vibrate([250, 120, 250, 120, 400]); } catch (e) {} toast('Recupero finito: prossima serie 💪');
+    if (document.hidden && 'serviceWorker' in navigator) navigator.serviceWorker.ready.then(r => r.showNotification('Recupero finito 💪', {body: 'Tocca a te: prossima serie.', icon: 'icon-192.png', badge: 'badge-96.png', tag: '100k-rest', vibrate: [250, 120, 250], renotify: true})).catch(() => {}); }
+}
+restEl.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (!b) return; if (b.dataset.r === 'x') { restEnd = 0; clearInterval(restIv); restEl.classList.remove('on'); return; } restEnd += +b.dataset.r * 1000; restTot = Math.max(restTot, Math.ceil((restEnd - Date.now()) / 1000)); tickRest(); });
 function strengthBlock(iso, ss) {
   const list = exList(ss.sess), keys = list.map(it => it.k), l = sessLog(iso, ss.id);
   const extra = Object.keys(l.sets || {}).filter(k => !keys.includes(k) && (l.sets[k] || []).some(x => x && (x[0] !== '' || x[1] !== '')));
   const isCustom = !!(custom.sess && custom.sess[ss.sess]);
-  return list.map((it, i) => exBlock(iso, ss, it, i, list.length)).join('') + extra.map(k => exBlock(iso, ss, {k}, -1, 0)).join('') +
+  return sessSummary(iso, ss) + list.map((it, i) => exBlock(iso, ss, it, i, list.length)).join('') + extra.map(k => exBlock(iso, ss, {k}, -1, 0)).join('') +
     `<div class="exadd"><button class="pillbtn" data-addex="${ss.sess}">+ Aggiungi esercizio</button>${isCustom ? `<button class="ghost2" data-reset="${ss.sess}">Ripristina originale</button>` : ''}</div>`;
 }
 function card(iso, ss) {
@@ -1695,6 +1751,7 @@ viewEl.addEventListener('input', e => {
   const t = e.target, sid = t.dataset.s; if (!sid) return;
   const s = editSess(cur, sid);
   if (t.dataset.ex) { s.sets = s.sets || {}; const a = s.sets[t.dataset.ex] = s.sets[t.dataset.ex] || []; const i = +t.dataset.i; a[i] = a[i] || ['', '']; a[i][+t.dataset.j] = t.value.trim(); for (let k = 0; k < a.length; k++) if (!a[k]) a[k] = ['', '']; }
+  else if (t.dataset.exn) s.exn = Object.assign({}, s.exn, {[t.dataset.exn]: t.value});
   else if (t.dataset.c) s.chk = Object.assign(s.chk || {}, {[t.dataset.c]: t.checked});
   else if (t.dataset.k) s[t.dataset.k] = t.dataset.k === 'note' ? t.value : t.value.trim();
   queueSave(cur);
@@ -1714,6 +1771,19 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
   else if (b.dataset.stage) { const keep = document.getElementById('mapwrap'), sx = keep && keep.scrollLeft, sy = keep && keep.scrollTop; mapOpen = b.dataset.stage === 'x' || +b.dataset.stage === mapOpen ? null : +b.dataset.stage; render(); const w = document.getElementById('mapwrap'); if (w && keep) { w.scrollLeft = sx; w.scrollTop = sy; } }
+  else if (b.dataset.setck !== undefined) {
+    const s = editSess(cur, b.dataset.s), k = b.dataset.ex, i = +b.dataset.setck, row = b.closest('.srow');
+    s.sd = Object.assign({}, s.sd); const sd = (s.sd[k] = (s.sd[k] || []).slice()); while (sd.length <= i) sd.push(false); sd[i] = !sd[i];
+    if (sd[i]) { s.sets = s.sets || {}; const a = s.sets[k] = s.sets[k] || []; while (a.length <= i) a.push(['', '']); a[i] = (a[i] || ['', '']).slice();
+      row.querySelectorAll('input').forEach(inp => { const j = +inp.dataset.j; if (!a[i][j] && inp.placeholder) a[i][j] = inp.placeholder; });
+      const now = Date.now(); if (!s.t0) s.t0 = now; s.t1 = now; startRest(restSec(itemDef({k}).rest)); }
+    queueSave(cur); render();
+  }
+  else if (b.dataset.prev !== undefined) { const last = lastSets(cur, b.dataset.ex), i = +b.dataset.prev; if (last && last.sets[i]) { const s = editSess(cur, b.dataset.s); s.sets = s.sets || {}; const a = s.sets[b.dataset.ex] = s.sets[b.dataset.ex] || []; while (a.length <= i) a.push(['', '']); a[i] = [last.sets[i][0] ?? '', last.sets[i][1] ?? '']; queueSave(cur); render(); } }
+  else if (b.dataset.addset) { const s = editSess(cur, b.dataset.s); s.xs = Object.assign({}, s.xs, {[b.dataset.addset]: +b.dataset.n + 1}); queueSave(cur); render(); }
+  else if (b.dataset.delset) { const s = editSess(cur, b.dataset.s), k = b.dataset.delset, n = +b.dataset.n - 1; s.xs = Object.assign({}, s.xs, {[k]: n}); if (s.sets && s.sets[k]) s.sets[k] = s.sets[k].slice(0, n); if (s.sd && s.sd[k]) s.sd = Object.assign({}, s.sd, {[k]: s.sd[k].slice(0, n)}); queueSave(cur); render(); }
+  else if (b.dataset.rest) startRest(+b.dataset.rest);
+  else if (b.dataset.exnote) { noteOpen[b.dataset.s + b.dataset.exnote] = !noteOpen[b.dataset.s + b.dataset.exnote]; render(); }
   else if (b.dataset.badge) openBadge(b.dataset.badge);
   else if (b.dataset.musr) { musRange = b.dataset.musr; render(); }
   else if (b.dataset.act === 'suplib') openSuppLib();
