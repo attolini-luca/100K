@@ -31,6 +31,30 @@ const label = ss => {
 const training = iso => plan(iso).s.filter(ss => ss.kind !== 'mobility');
 const listOf = iso => training(iso).map(label).filter(Boolean).join(' · ');
 
+const FRASI = [
+  'Domani non serve motivazione, serve un piano: scrivilo.',
+  'Il corpo arriva dove la testa ha già deciso di andare.',
+  'Una seduta fatta male vale più di una seduta saltata.',
+  'Non devi avere voglia, devi solo iniziare.',
+  'Il lungo si costruisce anche con il sonno di stasera.',
+  'Ogni serie è un mattone: domani quanti ne metti?',
+  'Riposare bene è parte del lavoro, non una pausa dal lavoro.',
+  'Chi scrive l\'obiettivo la sera lo trova pronto la mattina.',
+  'Piano, ma tutti i giorni.',
+  'Il dislivello non si negozia: si sale.',
+  'Fai domani una cosa che il te di un mese fa non riusciva a fare.',
+  'La prima sfida di domani la vinci quando metti le scarpe.',
+  'Un giorno storto non spegne il fuoco, arrendersi sì.',
+  'Proteine, sonno e acqua: il resto viene da sé.',
+  'Allenati per la persona che vuoi essere al traguardo.',
+  'Il fuoco si tiene acceso un ceppo alla volta.',
+  'Meglio dieci minuti fatti che un\'ora rimandata.',
+  'Scegli una cosa sola da fare benissimo domani.',
+  'La zona 2 è noiosa finché non vedi il passo scendere.',
+  'Domani conta di più del giorno perfetto che aspetti.'
+];
+const frase = iso => FRASI[Math.abs(Math.round((Date.parse(iso) - Date.parse('2026-11-23')) / 864e5)) % FRASI.length];
+
 function message(slot, iso) {
   const w = weekOf(iso), d = dayIdx(iso), p = plan(iso);
   if (slot === 'test') return {title: 'Notifiche attive ✅', body: 'Ciao Luca, da domani alle 6:00 ti scrivo io. Si parte!'};
@@ -43,7 +67,7 @@ function message(slot, iso) {
     const today = listOf(iso);
     if (p.s.some(ss => ss.id === 'long' || ss.cat === 'q')) extra.push('Per la corsa: {corsa}.');
     const body = today ? `Oggi: ${today}.` : (w > PLANNED_WEEKS ? 'Il piano di questa settimana va ancora scritto.' : 'Oggi riposo: rullo, stretching e una camminata.');
-    return {title: 'Buongiorno Luca ☀️', body: [body, ...extra].join(' ')};
+    return {title: 'Buongiorno Luca ☀️', body: ['{proposito}', body, ...extra].join(' ')};
   }
   if (slot === 'misure') {
     if (![0, 2, 4].includes(d)) return null;
@@ -60,7 +84,8 @@ function message(slot, iso) {
   if (slot === 'scheda') {
     const today = listOf(iso);
     // la sera arriva sempre: integratori della notte e, se ti sei allenato, la scheda da compilare
-    return {title: 'Prima di dormire 🌙', body: today ? `Integratori: {sera}. Poi segna km, carichi e note di oggi.` : 'Integratori: {sera}.', sup: 'sera', alt: today ? 'Segna km, carichi e note di oggi.' : null};
+    const propo = ` ✍️ Scrivi il proposito di domani e ricarichi il Rompighiaccio. «${frase(iso)}»`;
+    return {title: 'Prima di dormire 🌙', body: (today ? 'Integratori: {sera}. Segna km, carichi e note di oggi.' : 'Integratori: {sera}.') + propo, sup: 'sera', alt: (today ? 'Segna km, carichi e note di oggi.' : '') + propo};
   }
   const weights = plan(iso).s.some(ss => ss.kind === 'strength' || ss.kind === 'circuit');
   if (slot === 'integColazione') return {title: 'Integratori della colazione 💊', body: '{colazione}', sup: 'colazione'};

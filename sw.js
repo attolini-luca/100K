@@ -8,12 +8,17 @@ async function suppMap() {
   try { const c = await caches.open('100k-cfg'); const r = await c.match('supp.json'); return r ? await r.json() : null; } catch (e) { return null; }
 }
 const list = a => a && a.length ? a.join(', ') : null;
+async function propo() {
+  try { const c = await caches.open('100k-cfg'); const r = await c.match('proposito.json'); return r ? await r.json() : {}; } catch (e) { return {}; }
+}
+const oggi = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 async function show(d) {
   let body = d.body || '';
+  if (body.includes('{proposito}')) { const p = (await propo())[oggi()]; body = body.replace('{proposito}', p ? `Il tuo proposito: “${p}”.` : '').trim(); }
   const actions = [];
   if (/\{\w+\}/.test(body)) {
     const m = await suppMap();
-    if (d.sup && m && !list(m[d.sup])) { if (!d.alt) return; body = d.alt; d.sup = ''; } // nessun integratore in quel momento
+    if (d.sup && m && !list(m[d.sup])) { if (!d.alt) return; body = d.alt.trim(); d.sup = ''; } // nessun integratore in quel momento
     if (m && !list(m.corsa)) body = body.replace(/ ?Per la corsa: \{corsa\}\./, '');
     body = body.replace(/\{(\w+)\}/g, (x, k) => (m && list(m[k])) || (k === 'post' ? 'creatina e shake' : k === 'corsa' ? 'elettroliti' : 'apri l\'app per vederli'))
       .replace(/ Dopo i pesi: apri l'app per vederli\./, '');
