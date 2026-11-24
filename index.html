@@ -333,7 +333,7 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .mu path{stroke:light-dark(#fff,rgba(10,15,30,.5));stroke-width:1.2;vector-effect:non-scaling-stroke}
 .mu.l0 path{fill:light-dark(#c9d2dd,rgba(255,255,255,.2))}.mu.l1 path{fill:#ffcfa3}.mu.l2 path{fill:#ffa45c}.mu.l3 path{fill:#ff7027}.mu.l4 path{fill:#d63f07}
 
-.today{display:grid;grid-template-columns:112px minmax(0,1fr);gap:16px;align-items:center;width:100%;padding:14px 16px;border-radius:24px;text-align:left;color:inherit}
+.tcard{display:grid;grid-template-columns:112px minmax(0,1fr);gap:16px;align-items:center;width:100%;padding:14px 16px;border-radius:24px;text-align:left;color:inherit}
 .tring{position:relative;width:112px;height:112px}.tring .ringsvg{position:absolute;inset:0}
 .tleg{display:grid;gap:8px}.tleg span{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:15px;font-weight:700}
 .tleg i{width:12px;height:12px;border-radius:50%;background:var(--c)}.tleg b{color:var(--c)}
@@ -368,6 +368,27 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .herorow{flex-wrap:nowrap}.herorow .status{padding:8px 12px;white-space:nowrap}
 .rings{position:relative}
 .avedit{position:absolute;right:16%;bottom:16%;width:44px;height:44px;border-radius:50%;background:var(--cardSolid);box-shadow:0 6px 16px rgba(40,70,120,.22);font-size:19px;display:grid;place-items:center;z-index:2}
+
+.mhead2{display:flex;justify-content:space-between;align-items:center;margin-top:6px}.mhead2 b{font-size:15px}
+
+.lmini{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:12px 16px;border-radius:22px;margin-top:12px;text-align:left;color:inherit}
+.lmi{width:52px;height:52px;object-fit:contain}.lmini .lbl{font-size:12.5px;font-weight:800;color:#e8590c}.lmini b{display:block;font-size:16px;margin-top:2px}.lmini small{font-size:13px;color:var(--soft)}
+.mapwrap{position:relative;height:min(68vh,560px);overflow:auto;border-radius:26px;box-shadow:0 10px 30px rgba(40,70,120,.18);-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain}
+.mapwrap::-webkit-scrollbar{display:none}
+.mapwrap .map{width:165%;border-radius:0;box-shadow:none}
+.tfut{stroke:rgba(255,255,255,.55);stroke-width:7;stroke-dasharray:2 22}
+.mpin{position:absolute;transform:translate(-50%,-50%);padding:0;background:none;z-index:1}
+.mflag{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-size:14px;font-weight:900;color:#fff;background:rgba(255,255,255,.35);border:3px solid rgba(255,255,255,.9);box-shadow:0 4px 10px rgba(0,0,0,.2);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mpin.done .mflag{background:linear-gradient(180deg,#ffc964,#ff9f0a);border-color:#fff;font-size:16px}
+.mpin.next .mflag{background:#fff;color:#ff8a00;border-color:#ff9f0a;animation:pulse 1.8s ease-out infinite}
+.mpin.sel .mflag{outline:3px solid #1f2633;outline-offset:2px}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,159,10,.55)}100%{box-shadow:0 0 0 18px rgba(255,159,10,0)}}
+.mme{transform:translate(-50%,-85%)}
+.mtag{position:absolute;left:50%;top:-24px;transform:translateX(-50%);background:#1f2633;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.mpop{position:relative;display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border-radius:22px;margin-top:10px;animation:popin .3s ease}
+.mzoom{width:84px;height:84px;border-radius:18px;background-image:url(em/mappa.jpg);background-size:600% auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.mptxt b{display:block;font-size:17px;margin:2px 0}.mptxt small{font-size:13px;color:var(--soft);line-height:1.35}.mptxt .lbl{font-size:12px;font-weight:800;color:#e8590c}
+.mx{width:34px;height:34px;border-radius:50%;background:var(--field);font-weight:800;color:var(--soft)}
 </style>
 </head>
 <body>
@@ -414,7 +435,8 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const ico = (name, cls = '') => `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png" alt="" draggable="false">`;
+const AV = '20261124e';
+const ico = (name, cls = '') => `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
 /* ================= categorie ================= */
 const CATS = {
@@ -642,7 +664,7 @@ function vHome() {
   const tile = (k, ic, lab, rng, val, unit, ok, act) => `<button class="tile" style="${tv(k)}" data-act="${act}">${ico(ic, 'il')}<div class="tl">${ico(ic)}${esc(lab)}</div><div class="rng"><span class="tgt"></span>${esc(rng)}</div><div class="val">${val}<small>${esc(unit)}</small>${ok ? '<span class="okm">✓</span>' : ''}</div></button>`;
   const kmOk = st.kmPlan && st.kmDone >= st.kmPlan * 0.9;
   return `${topBar(gs)}<section class="hero"><div class="rings"><i></i><i></i><i></i><button data-act="faces" aria-label="Cambia avatar" style="display:contents">${ico('avatar', 'av')}</button><button class="avedit" data-act="faces" aria-label="Cambia avatar">✏️</button></div><h1>${title}</h1>
-    <div class="herorow"><button class="hbtn glass" data-act="faces">✏️ Avatar</button><div class="status glass">Sedute: <b>${st.nDone} di ${st.n}</b></div><button class="hbtn glass" data-act="sheet">＋ Misure</button></div></section>
+    <div class="herorow"><div class="status glass">Sedute: <b>${st.nDone} di ${st.n}</b></div><button class="hbtn glass" data-act="sheet">＋ Misure</button></div></section>
     <h2 class="sec">Questa settimana</h2>
     <div class="tiles">
       ${tile('run', 'shoe', 'Corsa', `${fmt(st.kmPlan)} km`, fmt(st.kmDone), 'km', kmOk, 'settimana')}
@@ -662,7 +684,7 @@ function vHome() {
     ${p.s.length ? `<div class="list glass">${p.s.map(ss => `<button class="lrow" style="${tv(ss.cat)}" data-goday="${t}"><span class="bub">${ico(ss.ic)}</span><span><b>${esc(ss.title)}</b><small><span class="tgt"></span>${esc(ss.slot)} · ${esc(ss.planMin)}' <em>${isDone(t, ss) ? '· Fatto' : ''}</em></small></span><span class="okc${isDone(t, ss) ? ' on' : ''}">✓</span></button>`).join('')}</div>`
       : `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma oggi.')}</p></div>`}
     <h2 class="sec">Slancio di oggi</h2>${todayCard(t)}${goalCard()}${bossCard()}
-    <button class="pillbtn wide" data-act="slancio">Percorso, badge e lega ›</button>`;
+    ${leagueMini(gs)}`;
 }
 const inp = (sid, k, lab, unit, ph, v) => `<label class="fl">${lab}<span class="in"><input inputmode="decimal" data-s="${sid}" data-k="${k}" value="${esc(v ?? '')}" placeholder="${esc(ph ?? '')}"><span>${unit}</span></span></label>`;
 function fieldsRun(iso, ss, test) {
@@ -779,14 +801,20 @@ function vPiano() {
 
 /* ================= foglio misurazioni ================= */
 const sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim');
+const MISURE = {vita: 'Vita', fianchi: 'Fianchi', petto: 'Petto', spalle: 'Spalle', collo: 'Collo', bicipite: 'Bicipite', avambraccio: 'Avambraccio', glutei: 'Glutei', coscia: 'Coscia', polpaccio: 'Polpaccio'};
+const measSel = () => (custom.meas && custom.meas.length ? custom.meas : ['vita', 'fianchi', 'bicipite', 'coscia']).filter(k => MISURE[k]);
+let measPick = false;
 function openSheet() {
   const t = localToday(), b = body[t] || {}, ks = Object.keys(body).sort().reverse().slice(0, 30);
   const f = (id, lab, unit, ph, v) => `<label class="fl">${lab}<span class="in"><input id="${id}" inputmode="decimal" value="${esc(v ?? '')}" placeholder="${ph}"><span>${unit}</span></span></label>`;
   sheet.innerHTML = `<div class="grab"></div><div style="display:flex;justify-content:space-between;align-items:center"><h2>Misurazioni</h2><button class="pillbtn" id="closeSheet" type="button">Chiudi</button></div><form id="bodyForm" class="form">
     <label class="fl" style="grid-column:1/-1">Data<span class="in"><input id="bDate" type="date" value="${t}"></span></label>
     ${f('bKg', 'Peso', 'kg', '98', b.kg)}${f('bHr', 'FC a riposo', 'bpm', '42', b.hr)}${f('bHrv', 'HRV', 'ms', '127', b.hrv)}${f('bSleep', 'Sonno', 'ore', '7,5', b.sleep)}
+    <div class="mhead2" style="grid-column:1/-1"><b>Circonferenze</b><button type="button" class="ghost2" id="measEdit">${measPick ? 'Fatto' : 'Scegli quali'}</button></div>
+    ${measPick ? `<div class="chips" style="grid-column:1/-1;flex-wrap:wrap">${Object.entries(MISURE).map(([k, n]) => `<button type="button" data-meas="${k}" aria-pressed="${measSel().includes(k)}">${n}</button>`).join('')}</div>` : ''}
+    ${measSel().map(k => f('c_' + k, MISURE[k], 'cm', '', b['c_' + k])).join('')}
     <button class="btn" style="grid-column:1/-1">Salva</button></form>
-    <div class="hist">${ks.length ? `<div class="list" style="background:var(--field)">${ks.map(k => { const v = body[k]; return `<div class="lrow" style="${tv('kg')};grid-template-columns:48px minmax(0,1fr) auto"><span class="bub">${ico('scale')}</span><span><b>${esc(nice(k))}</b><small>${[v.kg != null ? v.kg + ' kg' : '', v.hr != null ? v.hr + ' bpm' : '', v.hrv != null ? v.hrv + ' ms' : '', v.sleep != null ? v.sleep + ' h' : ''].filter(Boolean).map(esc).join(' · ')}</small></span><button class="del" data-delbody="${k}">Elimina</button></div>`; }).join('')}</div>` : ''}</div>`;
+    <div class="hist">${ks.length ? `<div class="list" style="background:var(--field)">${ks.map(k => { const v = body[k], cs = Object.keys(MISURE).filter(c => v['c_' + c] != null).map(c => MISURE[c].toLowerCase() + ' ' + String(v['c_' + c]).replace('.', ',') + ' cm'); return `<div class="lrow" style="${tv('kg')};grid-template-columns:48px minmax(0,1fr) auto"><span class="bub">${ico('scale')}</span><span><b>${esc(nice(k))}</b><small>${[v.kg != null ? v.kg + ' kg' : '', v.hr != null ? v.hr + ' bpm' : '', v.hrv != null ? v.hrv + ' ms' : '', v.sleep != null ? v.sleep + ' h' : ''].concat(cs).filter(Boolean).map(esc).join(' · ')}</small></span><button class="del" data-delbody="${k}">Elimina</button></div>`; }).join('')}</div>` : ''}</div>`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
 function openFaces() {
@@ -863,10 +891,13 @@ scrim.addEventListener('click', closeSheet);
 sheet.addEventListener('submit', e => {
   if (e.target.id !== 'bodyForm') return;
   e.preventDefault(); const iso = document.getElementById('bDate').value || localToday(), data = {date: iso};
-  for (const [k, id] of [['kg', 'bKg'], ['hr', 'bHr'], ['hrv', 'bHrv'], ['sleep', 'bSleep']]) { const v = num(document.getElementById(id).value); if (v != null) data[k] = v; }
+  for (const [k, id] of [['kg', 'bKg'], ['hr', 'bHr'], ['hrv', 'bHrv'], ['sleep', 'bSleep']].concat(measSel().map(c => ['c_' + c, 'c_' + c]))) { const el = document.getElementById(id), v = el ? num(el.value) : null; if (v != null) data[k] = v; }
   if (Object.keys(data).length > 1) { saveBody(iso, data); closeSheet(); }
 });
-sheet.addEventListener('click', e => { if (e.target.id === 'closeSheet') return closeSheet(); const fb = e.target.closest('[data-face]'); if (fb) return setAvatar(fb.dataset.face); const b = e.target.closest('[data-delbody]'); if (b) saveBody(b.dataset.delbody, null).then(() => openSheet()); });
+sheet.addEventListener('click', e => {
+  if (e.target.id === 'measEdit') { measPick = !measPick; return openSheet(); }
+  const mb = e.target.closest('[data-meas]'); if (mb) { const k = mb.dataset.meas, cur = measSel(); custom.meas = cur.includes(k) ? cur.filter(x => x !== k) : cur.concat(k); saveCustom(); return openSheet(); }
+  if (e.target.id === 'closeSheet') return closeSheet(); const fb = e.target.closest('[data-face]'); if (fb) return setAvatar(fb.dataset.face); const b = e.target.closest('[data-delbody]'); if (b) saveBody(b.dataset.delbody, null).then(() => openSheet()); });
 
 /* ================= grafici ================= */
 const figs = new Map();
@@ -1384,7 +1415,7 @@ function ringSvg(r) {
 }
 function todayCard(iso) {
   const r = rings(iso);
-  return `<button class="today glass" data-act="slancio"><span class="tring">${ringSvg(r)}</span><span class="tleg">${[['train', 'Allenamento', r.train], ['fuel', 'Carburante', r.fuel], ['rec', 'Recupero', r.rec]].map(([k, n, v]) => `<span style="--c:${RCOL[k]}"><i></i>${n}<b>${Math.round(Math.min(1, v) * 100)}%</b></span>`).join('')}</span></button>`;
+  return `<button class="tcard glass" data-act="slancio"><span class="tring">${ringSvg(r)}</span><span class="tleg">${[['train', 'Allenamento', r.train], ['fuel', 'Carburante', r.fuel], ['rec', 'Recupero', r.rec]].map(([k, n, v]) => `<span style="--c:${RCOL[k]}"><i></i>${n}<b>${Math.round(Math.min(1, v) * 100)}%</b></span>`).join('')}</span></button>`;
 }
 function ringLegend(r) {
   const it = (k, n, v, sub) => `<div class="rl" style="--c:${RCOL[k]}"><i></i><span><b>${n}</b><small>${sub}</small></span><em>${Math.round(Math.min(1, v) * 100)}%</em></div>`;
@@ -1426,15 +1457,51 @@ function medal(b, big) {
 }
 function trailLen() { const L = [0]; for (let i = 1; i < TRAIL.length; i++) L.push(L[i - 1] + Math.hypot(TRAIL[i][0] - TRAIL[i - 1][0], TRAIL[i][1] - TRAIL[i - 1][1])); return L; }
 function trailAt(d, L) { for (let i = 1; i < TRAIL.length; i++) if (d <= L[i]) { const f = (d - L[i - 1]) / ((L[i] - L[i - 1]) || 1); return {i, x: TRAIL[i - 1][0] + f * (TRAIL[i][0] - TRAIL[i - 1][0]), y: TRAIL[i - 1][1] + f * (TRAIL[i][1] - TRAIL[i - 1][1])}; } const e = TRAIL[TRAIL.length - 1]; return {i: TRAIL.length, x: e[0], y: e[1]}; }
-function pathHtml(s) {
-  const lap = Math.floor(s.steps / LAP), st = lap && s.steps % LAP === 0 ? LAP : s.steps % LAP, L = trailLen();
+const STAGE_TXT = ['Il ponte sul torrente: qui comincia tutto.', 'Primi passi tra gli abeti: l\'abitudine mette radici.', 'Una radura fiorita: la prima settimana è alle spalle.', 'Il lago alpino: due settimane di fila, si respira.', 'Il rifugio: tre settimane, ti meriti una pausa calda.', 'I pascoli alti: un mese intero di costanza.', 'Le rocce: da qui il sentiero si fa serio.', 'Il canalone: due mesi, gambe e testa più forti.', 'Il ghiacciaio: tre mesi, pochi arrivano fin qui.', 'La cresta: quattro mesi, la vetta è a un passo.', 'La vetta: sei mesi di fuoco acceso. Leggenda.'];
+let mapOpen = null, mapAnim = null;
+function stagePos(steps) {
+  const lap = Math.floor(steps / LAP), st = lap && steps % LAP === 0 ? LAP : steps % LAP, L = trailLen();
   let k = 0; STAGES.forEach((x, j) => { if (st >= x[0]) k = j; });
-  const a = STAGES[k], b = STAGES[k + 1], da = L[a[2]], d = b ? da + (L[b[2]] - da) * (st - a[0]) / (b[0] - a[0]) : da, me = trailAt(d, L);
-  const walked = TRAIL.slice(0, me.i).concat([[me.x, me.y]]).map(p => p.join(',')).join(' '), all = TRAIL.map(p => p.join(',')).join(' ');
+  const a = STAGES[k], b = STAGES[k + 1], da = L[a[2]], d = b ? da + (L[b[2]] - da) * (st - a[0]) / (b[0] - a[0]) : da;
+  return {lap, st, k, d, L};
+}
+function walkedPts(d, L) { const me = trailAt(d, L); return TRAIL.slice(0, me.i).concat([[me.x, me.y]]).map(p => p.map(Math.round).join(',')).join(' '); }
+function pathHtml(s) {
+  const {lap, st, k, d, L} = stagePos(s.steps), me = trailAt(d, L), b = STAGES[k + 1];
   const pc = (x, y) => `left:${x / 10.8}%;top:${y / 19.2}%`;
-  const pins = STAGES.map(([n, name, idx], j) => { const [x, y] = TRAIL[idx], done = st >= n, side = x < 540 ? 'r' : 'l'; return `<div class="mpin ${done ? 'done' : 'locked'} ${side}" style="${pc(x, y)}"><span class="mdot">${done ? '✓' : n}</span><span class="mlab">${esc(name)}</span></div>`; }).join('');
-  const nx = b ? `prossima tappa: ${b[1].toLowerCase()} tra ${b[0] - st}` : 'sei in vetta';
-  return `<div class="mhud glass">${ico('f_fuoco')}<b>${s.steps}</b><span>${lap ? `giro ${lap + 1} · ` : ''}${nx}</span></div><div class="map"><img src="em/mappa.jpg" alt="" draggable="false"><svg viewBox="0 0 1080 1920" preserveAspectRatio="none"><polyline class="tall" points="${all}"/><polyline class="tglow" points="${walked}"/><polyline class="tdone" points="${walked}"/></svg>${pins}<div class="mme" style="${pc(me.x, me.y)}">${ico('avatar')}</div></div>`;
+  const pins = STAGES.map(([n, name, idx], j) => { const [x, y] = TRAIL[idx], state = st >= n ? 'done' : j === k + 1 ? 'next' : 'locked'; return `<button class="mpin ${state}${mapOpen === j ? ' sel' : ''}" style="${pc(x, y)}" data-stage="${j}" aria-label="${esc(name)}"><span class="mflag">${state === 'done' ? '⛳' : state === 'next' ? n : ''}</span></button>`; }).join('');
+  const nx = b ? `prossima tappa <b>${esc(b[1].toLowerCase())}</b> tra ${b[0] - st} ${b[0] - st === 1 ? 'fuoco' : 'fuochi'}` : 'sei in vetta';
+  let pop = '';
+  if (mapOpen != null) {
+    const [n, name, idx] = STAGES[mapOpen], [x, y] = TRAIL[idx], done = st >= n;
+    pop = `<div class="mpop glass"><span class="mzoom" style="background-position:${x / 10.8}% ${y / 19.2}%"></span><span class="mptxt"><span class="lbl">${done ? 'Tappa raggiunta' : `Servono ${n} fuochi · te ne mancano ${n - st}`}</span><b>${esc(name)}</b><small>${esc(STAGE_TXT[mapOpen] || '')}</small></span><button class="mx" data-stage="x" aria-label="Chiudi">✕</button></div>`;
+  }
+  return `<div class="mhud glass">${ico('f_fuoco')}<b>${s.steps}</b><span>${lap ? `giro ${lap + 1} · ` : ''}${nx}</span></div>
+  <div class="mapwrap" id="mapwrap"><div class="map" id="mapin"><img src="em/mappa.jpg?v=${AV}" alt="" draggable="false"><svg viewBox="0 0 1080 1920" preserveAspectRatio="none"><polyline class="tfut" points="${TRAIL.map(p => p.join(',')).join(' ')}"/><polyline class="tglow" id="tglow" points="${walkedPts(d, L)}"/><polyline class="tdone" id="tdone" points="${walkedPts(d, L)}"/></svg>${pins}<div class="mme" id="mme" style="${pc(me.x, me.y)}">${ico('avatar')}<span class="mtag">Sei qui</span></div></div></div>${pop}`;
+}
+// dopo il render: centra la mappa sul tuo avatar e, se hai fatto passi nuovi, ti fa camminare fino al punto attuale
+function focusMap() {
+  const wrap = document.getElementById('mapwrap'); if (!wrap) return;
+  const s = gameState(), cur = stagePos(s.steps), me = document.getElementById('mme');
+  let last = s.steps; try { last = +(localStorage.getItem('scheda100k-steps') ?? s.steps); } catch (e) {}
+  const center = (x, y) => { const m = document.getElementById('mapin'); wrap.scrollTop = Math.max(0, y / 1920 * m.clientHeight - wrap.clientHeight * 0.55); wrap.scrollLeft = Math.max(0, x / 1080 * m.clientWidth - wrap.clientWidth / 2); };
+  const end = trailAt(cur.d, cur.L);
+  if (last < s.steps && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const from = stagePos(last).d, t0 = performance.now(), dur = 1800;
+    cancelAnimationFrame(mapAnim);
+    const step = now => { const f = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - f, 3), d = from + (cur.d - from) * e, p = trailAt(d, cur.L), pts = walkedPts(d, cur.L);
+      if (!document.getElementById('mme')) return;
+      me.style.left = p.x / 10.8 + '%'; me.style.top = p.y / 19.2 + '%'; document.getElementById('tdone').setAttribute('points', pts); document.getElementById('tglow').setAttribute('points', pts); center(p.x, p.y);
+      if (f < 1) mapAnim = requestAnimationFrame(step); };
+    const p0 = trailAt(from, cur.L); center(p0.x, p0.y); mapAnim = requestAnimationFrame(step);
+  } else center(end.x, end.y);
+  try { localStorage.setItem('scheda100k-steps', s.steps); } catch (e) {}
+}
+function leagueMini(s) {
+  const others = Object.entries(players).filter(([id]) => id !== myUid).map(([, p]) => (p.wk || {})[s.weekKey] || 0), rank = 1 + others.filter(x => x > s.weekPts).length, n = others.length + 1;
+  const st = stagePos(s.steps), nx = STAGES[st.k + 1];
+  return `<button class="lmini glass" data-act="slancio">${ico('trophy', 'lmi')}<span><span class="lbl">Lega della settimana</span><b>${rank}° posto · ${s.weekPts} punti</b><small>${n > 1 ? `${n} in gara, si chiude domenica` : 'Per ora sei solo: Margot e gli amici arrivano con i loro profili'}</small></span><span class="chev">›</span></button>
+  <button class="lmini glass" data-act="slancio">${ico('f_vetta', 'lmi')}<span><span class="lbl">Percorso dello slancio</span><b>${esc(STAGES[st.k][1])} · ${s.steps} ${s.steps === 1 ? 'passo' : 'passi'}</b><small>${nx ? `Prossima tappa: ${esc(nx[1].toLowerCase())} tra ${nx[0] - st.st}` : 'Sei in vetta'}</small></span><span class="chev">›</span></button>`;
 }
 function leagueHtml(s) {
   const me = {name: 'Luca', av: avatar, pts: s.weekPts, me: true};
@@ -1558,6 +1625,7 @@ function render() {
 
   viewEl.innerHTML = ({home: vHome, oggi: vOggi, cibo: vCibo, settimana: vSettimana, slancio: vSlancio, progressi: vProgressi, piano: vPiano}[view])();
   if (view === 'progressi') drawCharts();
+  if (view === 'slancio') requestAnimationFrame(focusMap);
   syncSuppCache(); syncPropoCache(); pushPlayer(); checkNews();
 }
 let deferred = false;
@@ -1586,6 +1654,7 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.medit) openMealEdit(b.dataset.medit, +b.dataset.i);
   else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
+  else if (b.dataset.stage) { const keep = document.getElementById('mapwrap'), sx = keep && keep.scrollLeft, sy = keep && keep.scrollTop; mapOpen = b.dataset.stage === 'x' || +b.dataset.stage === mapOpen ? null : +b.dataset.stage; render(); const w = document.getElementById('mapwrap'); if (w && keep) { w.scrollLeft = sx; w.scrollTop = sy; } }
   else if (b.dataset.badge) openBadge(b.dataset.badge);
   else if (b.dataset.musr) { musRange = b.dataset.musr; render(); }
   else if (b.dataset.act === 'suplib') openSuppLib();
@@ -1643,16 +1712,16 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').ca
     const onErr = e => { clearTimeout(timer); toast(e && e.code === 'permission-denied' ? 'Permessi mancanti: controlla le regole di Firestore' : 'Salvataggio non raggiungibile', true, true); };
     const fill = (target, snap) => { for (const k of Object.keys(target)) delete target[k]; for (const d of snap.docs) if (d.exists) target[d.id] = d.data(); };
     let seeded = false;
-    subs.push(db.collection('logs').onSnapshot(snap => {
+    subs.push(db.collection('logs').onSnapshot({includeMetadataChanges: true}, snap => {
       fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]); if (!snap.metadata.fromCache) logsReady = true;
       if (!snap.metadata.fromCache) {
-        clearTimeout(timer);
+        clearTimeout(timer); if (toastEl.textContent.startsWith('Sei offline')) toastEl.classList.remove('on');
         if (snap.empty && !seeded) { seeded = true; Object.entries(SEED).forEach(([k, v]) => db.collection('logs').doc(k).set(fsEnc(v)).catch(() => {})); }
       }
       safeRender(); applyPresi();
     }, onErr));
     subs.push(db.doc('prefs/app').onSnapshot(d => { const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
-    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; if (c.supp) custom.supp = c.supp; if (c.suppx) custom.suppx = c.suppx; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
+    subs.push(db.doc('prefs/custom').onSnapshot(d => { if (d.exists) { const c = d.data(); custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; if (c.diet) custom.diet = c.diet; if (c.foods) custom.foods = c.foods; if (c.supp) custom.supp = c.supp; if (c.meas) custom.meas = c.meas; if (c.suppx) custom.suppx = c.suppx; try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); } }, () => {}));
     subs.push(db.collection('players').onSnapshot(snap => { players = {}; snap.docs.forEach(d => { players[d.id] = d.data(); }); safeRender(); }, () => {}));
     subs.push(db.collection('body').onSnapshot(snap => { fill(body, snap); safeRender(); if (sheet.classList.contains('on') && sheet.querySelector('#bodyForm')) openSheet(); }, onErr));
   });
