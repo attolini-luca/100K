@@ -477,6 +477,7 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .bhero{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border-radius:20px;background:var(--field);margin:12px 0}.bhero img{width:72px;height:72px;object-fit:contain}.bhero small{display:block;color:var(--soft);font-size:13px;line-height:1.45;margin-top:4px}
 #upd{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;padding:10px 14px;border-radius:20px;text-align:left;box-shadow:var(--shadow);background:var(--cardSolid)}#upd img{width:40px;height:40px;object-fit:contain}#upd small{display:block;color:var(--soft);font-size:12px}
 .inst{min-height:0;margin:0 0 14px;padding-right:120px}.inst p{margin:6px 0 10px;font-size:14px;line-height:1.4;color:var(--soft)}.inst .btn{height:44px;padding:0 22px}
+.rtic{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.rtic button{aspect-ratio:1;border-radius:14px;background:var(--field);display:grid;place-items:center;padding:4px}.rtic button img{width:100%;height:100%;object-fit:contain}.rtic button[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:-3px}
 </style>
 </head>
 <body>
@@ -523,7 +524,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261125d';
+const AV = '20261125e';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -2841,6 +2842,10 @@ const RUNLIB = {
   mob: {n: 'Mobilità', ic: 'leaf', cat: 'mob', min: 20, nokm: true, kind: 'mobility', s: () => []},
 };
 const SLOTS = ['Mattina', 'Pomeriggio', 'Sera'];
+// tipi di allenamento creati da te (custom.runlib): stessi campi della libreria, i passaggi sono testo
+const runDef = k => RUNLIB[k] || (() => { const c = (custom.runlib || {})[k]; return c ? Object.assign({}, c, {s: () => (c.steps || []).slice(), own: true}) : null; })();
+const RUN_ICONS = ['shoe', 'f_runner', 'mountain', 'f_vetta', 'bolt', 'flame', 'watch', 'sparkles', 'g_rocket', 'heart', 'feet', 'moon', 'g_bike', 'g_swim', 'stairs', 'leaf', 'kettle', 'trophy'];
+const RUN_CATS = [['run', 'Facile', {}], ['q', 'Qualità', {}], ['long', 'Lungo', {long: true}], ['cardio', 'Cardio senza km', {nokm: true}]];
 const uplan = () => custom.plan || {start: null, days: [[], [], [], [], [], [], []], tpl: {}};
 function userDaySessions(d, w, iso) {
   const pl = uplan(), out = [];
@@ -2850,11 +2855,11 @@ function userDaySessions(d, w, iso) {
       out.push({id: it.id, slot: it.slot || 'Sera', kind: 'strength', cat: 'str', ic: 'dumbbell', title: t.t + (t.d ? ': ' + t.d : ''), planMin: num(t.min) || 60, sess: it.sess, target: it.note || t.note || 'RPE 8: 1-2 ripetizioni in riserva. Tutte le serie al massimo? La prossima volta aumenta il carico'});
       continue;
     }
-    const L = RUNLIB[it.run] || RUNLIB.z2, min = num(it.min) || L.min, km = L.nokm ? null : num(it.km);
+    const L = runDef(it.run) || RUNLIB.z2, min = num(it.min) || L.min, km = L.nokm ? null : num(it.km), steps = (it.steps && it.steps.length) ? it.steps : L.s();
     const base = {id: L.long ? 'long' : it.id, slot: it.slot || 'Mattina', cat: L.cat, ic: L.ic, title: L.n + (min ? ` ${min}'` : ''), planMin: min, rlib: it.run};
     if (L.kind === 'mobility') out.push(Object.assign(mob(it.id, base.slot, min), {title: `Mobilità ${min}'`}));
     else if (L.kind === 'stair') out.push(Object.assign(base, {kind: 'stair', target: L.s().join(' · ')}));
-    else out.push(Object.assign(base, {kind: L.test ? 'test' : 'run', planKm: km || undefined, target: it.note || (km ? `${min}' · circa ${fmt(km)} km` : `${min}'`), steps: L.s()}));
+    else out.push(Object.assign(base, {kind: L.test ? 'test' : 'run', planKm: km || undefined, target: it.note || (km ? `${min}' · circa ${fmt(km)} km` : `${min}'`), steps}));
   }
   return out;
 }
@@ -2875,12 +2880,12 @@ function openAdd(d) {
   const strs = Object.entries(pl.tpl);
   sheet.innerHTML = `${sheetTop('Aggiungi a ' + DLONG[d].toLowerCase())}
     <h3 class="bh3">Forza</h3><div class="bgrid">${strs.map(([k, t]) => `<button class="bopt" data-bpick="str:${k}">${ico('dumbbell')}<b>${esc(t.t)}</b><small>${exList(k).length} esercizi</small></button>`).join('')}<button class="bopt new" data-bpick="strnew">${ico('f_bodybuilder')}<b>Nuova seduta</b><small>dalla libreria</small></button></div>
-    <h3 class="bh3">Corsa e cardio</h3><div class="bgrid">${Object.entries(RUNLIB).map(([k, L]) => `<button class="bopt" data-bpick="run:${k}">${ico(L.ic)}<b>${esc(L.n)}</b><small>${L.min}'</small></button>`).join('')}</div>`;
+    <h3 class="bh3">Corsa e cardio</h3><div class="bgrid">${Object.keys(RUNLIB).concat(Object.keys(custom.runlib || {})).map(k => { const L = runDef(k); return `<button class="bopt" data-bpick="run:${k}">${ico(L.ic)}<b>${esc(L.n)}</b><small>${L.min}'${L.own ? ' · tuo' : ''}</small></button>`; }).join('')}<button class="bopt new" data-bpick="runnew">${ico('sparkles')}<b>Nuovo tipo</b><small>crealo tu</small></button></div>`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
 function openItem(d, i) {
   const pl = uplan(), it = pl.days[d][i]; bCtx = {d, i};
-  const L = it.type === 'run' ? RUNLIB[it.run] : null, t = it.type === 'str' ? pl.tpl[it.sess] : null;
+  const L = it.type === 'run' ? (runDef(it.run) || RUNLIB.z2) : null, t = it.type === 'str' ? pl.tpl[it.sess] : null;
   const slotChips = `<div class="chips" style="flex-wrap:wrap">${SLOTS.map(s => `<button type="button" data-bslot="${s}" aria-pressed="${(it.slot || (L ? 'Mattina' : 'Sera')) === s}">${s}</button>`).join('')}</div>`;
   const dayChips = `<div class="chips" style="flex-wrap:wrap">${DLONG.map((n, k) => `<button type="button" data-bmove="${k}" aria-pressed="${k === d}">${n.slice(0, 3)}</button>`).join('')}</div>`;
   let body;
@@ -2890,7 +2895,9 @@ function openItem(d, i) {
       <h3 class="bh3">Esercizi</h3><div class="list" style="background:var(--field)">${list.length ? list.map((x, k) => { const e = itemDef(x); return `<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto auto"><span><b>${esc(e.n)}</b><small>${e.s} × ${esc(e.r)}</small></span><button class="mini" data-bexed="${k}">Modifica</button><button class="del" data-bexdel="${k}">Togli</button></div>`; }).join('') : '<div class="lrow" style="grid-template-columns:1fr"><small>Nessun esercizio: aggiungili dalla libreria.</small></div>'}</div>
       <button class="pillbtn" data-bexadd="1" style="margin-top:10px">+ Aggiungi esercizio</button>`;
   } else {
-    body = `<div class="bhero">${ico(L.ic)}<div><b>${esc(L.n)}</b><small>${L.s().map(esc).join('<br>')}</small></div></div>
+    const stp = (it.steps && it.steps.length) ? it.steps : L.s();
+    body = `<div class="bhero">${ico(L.ic)}<div><b>${esc(L.n)}</b><small>${L.cat === 'q' ? 'Qualità' : L.long ? 'Lungo' : L.nokm ? 'Cardio' : 'Facile'}${L.own ? ' · creato da te' : ''}</small>${L.own ? `<button class="mini" data-rtedit="${esc(it.run)}" style="margin-top:6px">Modifica il tipo</button>` : ''}</div></div>
+      <label class="fl" style="display:block;margin-bottom:10px">Come si fa <small style="color:var(--soft)">(una riga per passaggio, modificala come vuoi)</small><span class="in" style="display:block"><textarea id="bSteps" rows="${Math.max(3, stp.length + 1)}" style="border:0;background:none;width:100%;font:inherit;resize:vertical;padding:10px 0">${esc(stp.join('\n'))}</textarea></span></label>
       <form id="bForm" class="form"><label class="fl">Durata<span class="in"><input id="bMin" inputmode="numeric" value="${esc(it.min || L.min)}"><span>min</span></span></label>${L.nokm ? '' : `<label class="fl">Distanza<span class="in"><input id="bKm" inputmode="decimal" value="${esc(it.km || '')}" placeholder="facoltativa"><span>km</span></span></label>`}<label class="fl" style="grid-column:1/-1">Nota<span class="in"><input id="bNote" value="${esc(it.note || '')}" placeholder="Es. con Margot al parco"></span></label></form>`;
   }
   sheet.innerHTML = `${sheetTop(t ? 'Seduta di forza' : L.n)}${body}<h3 class="bh3">Quando</h3>${slotChips}<h3 class="bh3">Giorno</h3>${dayChips}
@@ -2900,18 +2907,46 @@ function openItem(d, i) {
 function readItem() {
   const pl = JSON.parse(JSON.stringify(uplan())), {d, i} = bCtx, it = pl.days[d][i], v = id => { const e = document.getElementById(id); return e ? e.value.trim() : null; };
   if (it.type === 'str') { const t = pl.tpl[it.sess]; t.t = v('bT') || t.t; t.d = v('bD') || ''; t.min = num(v('bMin')) || 60; }
-  else { it.min = num(v('bMin')) || null; if (v('bKm') != null) it.km = num(v('bKm')) || null; it.note = v('bNote') || ''; }
+  else {
+    it.min = num(v('bMin')) || null; if (v('bKm') != null) it.km = num(v('bKm')) || null; it.note = v('bNote') || '';
+    const st = v('bSteps'); if (st != null) { const arr = st.split('\n').map(x => x.trim()).filter(Boolean), def = (runDef(it.run) || RUNLIB.z2).s(); if (arr.join('|') !== def.join('|')) it.steps = arr; else delete it.steps; }
+  }
   return pl;
+}
+function openRunType(d, key) {
+  const c = key ? custom.runlib[key] : {n: '', ic: 'shoe', cat: 'q', min: 45, steps: []};
+  bCtx = {d, newRun: key || true, ic: c.ic, cat: c.long ? 'long' : c.nokm ? 'cardio' : c.cat};
+  sheet.innerHTML = `${sheetTop(key ? 'Modifica tipo' : 'Nuovo tipo di allenamento')}
+    <form id="rtForm" class="form"><label class="fl" style="grid-column:1/-1">Nome<span class="in"><input id="rtN" value="${esc(c.n)}" placeholder="Es. Ripetute 10 × 400"></span></label>
+    <label class="fl">Durata<span class="in"><input id="rtMin" inputmode="numeric" value="${esc(c.min)}"><span>min</span></span></label></form>
+    <h3 class="bh3">Tipo</h3><div class="chips" style="flex-wrap:wrap">${RUN_CATS.map(([k, n]) => `<button type="button" data-rtcat="${k}" aria-pressed="${bCtx.cat === k}">${n}</button>`).join('')}</div>
+    <h3 class="bh3">Icona</h3><div class="rtic">${RUN_ICONS.map(i => `<button type="button" data-rtic="${i}" aria-pressed="${bCtx.ic === i}">${ico(i)}</button>`).join('')}</div>
+    <label class="fl" style="display:block;margin-top:12px">Come si fa <small style="color:var(--soft)">(una riga per passaggio)</small><span class="in" style="display:block"><textarea id="rtS" rows="5" style="border:0;background:none;width:100%;font:inherit;resize:vertical;padding:10px 0" placeholder="15' di riscaldamento&#10;10 × 400 m forte, 1' di recupero&#10;10' facili">${esc((c.steps || []).join('\n'))}</textarea></span></label>
+    <button class="btn" data-rtsave="1" style="width:100%;margin-top:14px">${key ? 'Salva' : 'Crea e aggiungi'}</button>`;
+  sheet.classList.add('on'); scrim.classList.add('on');
 }
 function openBuilder() { location.hash = '#piano'; setTimeout(() => { const el = document.querySelector('.bweek') || document.getElementById('bStart'); if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 300); }
 let afterPick = null;
 sheet.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !bCtx) return;
+  if (b.dataset.rtcat || b.dataset.rtic) { if (b.dataset.rtcat) bCtx.cat = b.dataset.rtcat; else bCtx.ic = b.dataset.rtic; const attr = b.dataset.rtcat ? 'rtcat' : 'rtic'; sheet.querySelectorAll(`[data-${attr}]`).forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+  if (b.dataset.rtsave) {
+    const n = document.getElementById('rtN').value.trim(); if (!n) { toast('Dai un nome all\'allenamento', true); return; }
+    const flags = (RUN_CATS.find(x => x[0] === bCtx.cat) || RUN_CATS[0])[2];
+    const def = Object.assign({n, ic: bCtx.ic, cat: bCtx.cat === 'long' || bCtx.cat === 'cardio' ? 'run' : bCtx.cat, min: num(document.getElementById('rtMin').value) || 40, steps: document.getElementById('rtS').value.split('\n').map(x => x.trim()).filter(Boolean)}, flags);
+    const k = typeof bCtx.newRun === 'string' ? bCtx.newRun : 'r' + pid();
+    custom.runlib = Object.assign({}, custom.runlib, {[k]: def});
+    if (typeof bCtx.newRun === 'string') { saveCustom(); renderTick++; render(); closeSheet(); bCtx = null; return; }
+    const pl = JSON.parse(JSON.stringify(uplan())), d = bCtx.d; pl.days[d] = (pl.days[d] || []).concat([{id: pid(), type: 'run', run: k, slot: 'Mattina', min: def.min}]);
+    custom.plan = pl; saveCustom(); renderTick++; render(); openItem(d, pl.days[d].length - 1); return;
+  }
+  if (b.dataset.rtedit) { openRunType(bCtx.d, b.dataset.rtedit); return; }
   if (b.dataset.bpick) {
     const pl = JSON.parse(JSON.stringify(uplan())), d = bCtx.d, v = b.dataset.bpick; let it;
     if (v === 'strnew') { const n = Object.keys(pl.tpl).length, k = 's' + pid(); pl.tpl[k] = {t: 'Scheda ' + String.fromCharCode(65 + n), min: profile.dur || 60}; it = {id: pid(), type: 'str', sess: k, slot: 'Sera'}; }
     else if (v.startsWith('str:')) it = {id: pid(), type: 'str', sess: v.slice(4), slot: 'Sera'};
-    else it = {id: pid(), type: 'run', run: v.slice(4), slot: 'Mattina', min: RUNLIB[v.slice(4)].min};
+    else if (v === 'runnew') { openRunType(d); return; }
+    else it = {id: pid(), type: 'run', run: v.slice(4), slot: 'Mattina', min: runDef(v.slice(4)).min};
     pl.days[d] = (pl.days[d] || []).concat([it]); custom.plan = pl; saveCustom(); renderTick++; render();
     openItem(d, pl.days[d].length - 1); return;
   }
@@ -3212,7 +3247,7 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
     }, onErr));
     subs.push(U().collection('prefs').doc('profile').onSnapshot(d => { profile = d.exists ? d.data() : (isOwner ? {name: 'Luca', sex: 'm', owner: true, done: true} : {name: '', done: false}); profileReady = true; try { localStorage.setItem('scheda100k-me', JSON.stringify({p: profile, o: isOwner})); } catch (e) {} renderTick++; safeRender(); maybeOnboard(); }, () => {}));
     subs.push(U().collection('prefs').doc('app').onSnapshot(d => { const im = d.exists ? (d.data().avatarImg || null) : null; if (im !== avatarImg) { avatarImg = im; try { if (im) localStorage.setItem('scheda100k-avimg', im); else localStorage.removeItem('scheda100k-avimg'); } catch (e) {} safeRender(); } const a = d.exists && d.data().avatar2; if (FACES.includes(a) && a !== avatar) { avatar = a; try { localStorage.setItem('scheda100k-avatar2', a); } catch (e) {} safeRender(); } }, () => {}));
-    subs.push(U().collection('prefs').doc('custom').onSnapshot(d => { const c = d.exists ? d.data() : {}; custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; for (const k of ['diet', 'foods', 'supp', 'suppx', 'meas', 'moves', 'plan']) if (c[k]) custom[k] = c[k]; if (custom.plan) planFromDb(custom.plan); try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); if (!coachChecked) { coachChecked = true; setTimeout(coachPlan, 2500); personalIcon(); } }, () => {}));
+    subs.push(U().collection('prefs').doc('custom').onSnapshot(d => { const c = d.exists ? d.data() : {}; custom = {sess: Object.assign({}, c.sess || {}), ex: Object.assign({}, c.ex || {})}; for (const k of ['diet', 'foods', 'supp', 'suppx', 'meas', 'moves', 'plan', 'runlib']) if (c[k]) custom[k] = c[k]; if (custom.plan) planFromDb(custom.plan); try { localStorage.setItem('scheda100k-custom', JSON.stringify(custom)); } catch (e) {} safeRender(); if (!coachChecked) { coachChecked = true; setTimeout(coachPlan, 2500); personalIcon(); } }, () => {}));
     subs.push(db.collection('players').onSnapshot(snap => { players = {}; snap.docs.forEach(d => { players[d.id] = d.data(); }); safeRender(); }, () => {}));
     subs.push(U().collection('body').onSnapshot(snap => { fill(body, snap); safeRender(); if (sheet.classList.contains('on') && sheet.querySelector('#bodyForm')) openSheet(); }, onErr));
     if (isOwner) subs.push(fs.collection('feedback').onSnapshot(s => { feedback = s.docs.map(d => Object.assign({id: d.id}, d.data())).sort((a, b) => b.at - a.at); safeRender(); }, () => {}));
