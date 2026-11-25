@@ -524,7 +524,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261125g';
+const AV = '20261125h';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -3218,8 +3218,10 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
   fb.initializeApp(FB_CFG);
   const auth = fb.auth(), fs = fb.firestore();
   try { await fs.enablePersistence({synchronizeTabs: true}); } catch (e) {}
+  try { await auth.setPersistence(fb.auth.Auth.Persistence.LOCAL); } catch (e) {}
   const provider = new fb.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt: 'select_account'});
+  let lastUser = null; try { lastUser = localStorage.getItem('scheda100k-lastuser'); } catch (e) {}
+  provider.setCustomParameters(lastUser ? {login_hint: lastUser} : {prompt: 'select_account'});
   document.getElementById('loginBtn').addEventListener('click', async () => {
     loginErr.textContent = '';
     try { await auth.signInWithPopup(provider); }
@@ -3232,13 +3234,21 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
   let subs = [];
   auth.onAuthStateChanged(async user => {
     subs.forEach(u => u()); subs = [];
-    if (!user) { db = null; mode = 'loading'; loginEl.classList.add('on'); return; }
+    if (!user) {
+      db = null; mode = 'loading'; loginEl.classList.add('on');
+      let why = null; try { why = localStorage.getItem('scheda100k-outwhy'); } catch (e) {}
+      if (!loginErr.textContent && lastUser && !why) loginErr.textContent = `Ciao! Rientra con ${lastUser}: un tocco e sei dentro.`;
+      return;
+    }
     const email = (user.email || '').toLowerCase();
     isOwner = email === OWNER; renderTick++;
     if (!isOwner) {
-      let ok = false; try { const inv = await fs.doc('config/invites').get(); ok = inv.exists && (inv.data().emails || []).map(x => String(x).toLowerCase()).includes(email); } catch (e) {}
-      if (!ok) { loginErr.textContent = `L'account ${email} non è ancora tra gli invitati. Chiedi a Luca di aggiungerti, poi riprova.`; auth.signOut(); return; }
+      // fuori solo se la lista invitati è stata letta davvero e la mail non c'è: con rete lenta o assente si resta dentro
+      let ok = null; try { const inv = await fs.doc('config/invites').get(); ok = inv.exists && (inv.data().emails || []).map(x => String(x).toLowerCase()).includes(email); } catch (e) {}
+      if (ok === null) { try { ok = localStorage.getItem('scheda100k-lastuser') === email ? true : null; } catch (e) {} }
+      if (ok === false || ok === null) { loginErr.textContent = ok === false ? `L'account ${email} non è ancora tra gli invitati. Chiedi a Luca di aggiungerti, poi riprova.` : 'Non riesco a controllare l\'invito: controlla la connessione e riprova.'; try { localStorage.setItem('scheda100k-outwhy', 'invito'); } catch (e) {} auth.signOut(); return; }
     }
+    try { localStorage.setItem('scheda100k-lastuser', email); localStorage.removeItem('scheda100k-outwhy'); } catch (e) {}
     loginEl.classList.remove('on'); db = fs; mode = 'db'; myUid = user.uid; userEmail = email; userName = (user.displayName || '').split(' ')[0];
     if (isOwner) await migrateOwner();
     const timer = setTimeout(() => toast('Sei offline: salvo e sincronizzo appena torna la rete', false, true), 10000);
@@ -3275,7 +3285,7 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
       await batch.commit();
     } catch (e) { console.warn('migrazione', e); }
   }
-  window.__esci = () => auth.signOut();
+  window.__esci = () => { try { localStorage.setItem('scheda100k-outwhy', 'esci'); localStorage.removeItem('scheda100k-lastuser'); } catch (e) {} return auth.signOut(); };
 })();
 
 }
