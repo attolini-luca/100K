@@ -478,6 +478,12 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 #upd{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;align-items:center;padding:10px 14px;border-radius:20px;text-align:left;box-shadow:var(--shadow);background:var(--cardSolid)}#upd img{width:40px;height:40px;object-fit:contain}#upd small{display:block;color:var(--soft);font-size:12px}
 .inst{min-height:0;margin:0 0 14px;padding-right:120px}.inst p{margin:6px 0 10px;font-size:14px;line-height:1.4;color:var(--soft)}.inst .btn{height:44px;padding:0 22px}
 .rtic{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.rtic button{aspect-ratio:1;border-radius:14px;background:var(--field);display:grid;place-items:center;padding:4px}.rtic button img{width:100%;height:100%;object-fit:contain}.rtic button[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:-3px}
+.gpxbtn{display:flex;align-items:center;gap:8px;margin:10px 16px 0;padding:10px 12px;border-radius:14px;background:var(--field);font-weight:600;font-size:14px;cursor:pointer}.gpxbtn img{width:26px;height:26px}
+.gpxp{margin:10px 16px 0;padding:12px;border-radius:18px;background:var(--field)}.gpxh{display:flex;align-items:center;gap:8px}.gpxh img{width:24px;height:24px}
+.gpxchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.gpxchips span{font-size:12px;padding:4px 8px;border-radius:99px;background:var(--cardSolid)}
+.gpxch{width:100%;height:110px;display:block;border-radius:10px;background:var(--cardSolid)}.gpxleg{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--soft);margin-top:4px}
+.gpxsp{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:6px;margin-top:10px}.gpxsp div{background:var(--cardSolid);border-radius:10px;padding:6px;text-align:center;font-size:12px}.gpxsp b{display:block;font-size:11px;color:var(--soft)}.gpxsp span{display:block;font-weight:700}.gpxsp small{color:#e0244a}
+.gpxnote{font-size:11px;color:var(--soft);margin:4px 0 0}.gpxlt{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;font-size:14px}
 </style>
 </head>
 <body>
@@ -524,7 +530,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261125h';
+const AV = '20261126a';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1139,8 +1145,10 @@ async function saveCustom() {
 }
 
 /* ================= piano ================= */
-const Z2 = 'Z2: 140-152 bpm. Se sfori, cammini finché torni a 145.';
-const run = (id, slot, min, km, title, extra, ic) => ({id, slot, kind: 'run', cat: 'run', ic: ic || 'shoe', title: title || `Corsa facile ${min}'`, planMin: min, planKm: km, target: `${min}' in zona 2 · circa ${fmt(km)} km`, steps: [Z2].concat(extra || [])});
+// zone di Luca: proporzioni fissate sulla soglia di 174, ricalcolate sulla soglia del test (profile.lthr)
+function ownerZ() { const base = [[113, 139], [140, 152], [153, 160], [161, 171], [172, 189]], lt = num(profile && profile.lthr); if (!lt || !isOwner) return base; const k = lt / 174, his = base.map(z => Math.round(z[1] * k)); return his.map((hi, i) => [i ? his[i - 1] + 1 : Math.round(base[0][0] * k), hi]); }
+const z2txt = () => { const z = isOwner ? ownerZ()[1] : (zonesOf().z || [[0, 0], [0, 0]])[1]; return z[1] ? `Z2: ${z[0]}-${z[1]} bpm. Se sfori, cammini finché torni a ${z[1] - 7}.` : zoneTxt(2); };
+const run = (id, slot, min, km, title, extra, ic) => ({id, slot, kind: 'run', cat: 'run', ic: ic || 'shoe', title: title || `Corsa facile ${min}'`, planMin: min, planKm: km, target: `${min}' in zona 2 · circa ${fmt(km)} km`, steps: [z2txt()].concat(extra || [])});
 const strength = (key, slot, w) => ({id: key, slot, kind: 'strength', cat: 'str', ic: 'dumbbell', title: `${SESS[key].t}: ${SESS[key].d}`, planMin: SESS[key].min, sess: key,
   target: w === 1 ? 'Carichi leggeri: 3 ripetizioni in riserva per trovare i pesi' : w === 4 ? 'Scarico: metà delle serie, stessi carichi' : 'RPE 8: 1-2 ripetizioni in riserva. Tutte le serie al massimo? Prossima volta +2,5 kg', half: w === 4});
 const mob = (id, slot, min, t) => ({id, slot, kind: 'mobility', cat: 'mob', ic: 'leaf', title: t || `Mobilità ${min}'`, planMin: min, target: '60-90" per posizione e per lato',
@@ -1174,7 +1182,7 @@ function planBase(iso) {
       [{id: 'test', slot: 'Pomeriggio', kind: 'test', cat: 'q', ic: 'watch', title: "Test di soglia 30'", planMin: 55, planKm: 8, target: 'Pasto con carboidrati 2-3 ore prima, gambe fresche',
         steps: ["15' di riscaldamento e 3-4 allunghi", "30' regolari: parti a 6:00-6:10/km, poi aumenta", 'Al minuto 10 premi "giro" sull\'orologio', "10' di defaticamento", 'Segna la FC media degli ultimi 20 minuti']}],
       [mob('mob', 'Giornata', 30, "Riposo e mobilità 30'")],
-      [run('long', 'Mattina', 70, 10, "Lungo facile 60-75'", ['Su sterrato: cammina le salite se sfori 152'], 'mountain')],
+      [run('long', 'Mattina', 70, 10, "Lungo facile 60-75'", [`Su sterrato: cammina le salite se sfori ${ownerZ()[1][1]}`], 'mountain')],
       []
     ][d];
     return {w, d, s, note: d === 6 ? 'Riposo o camminata.' : ''};
@@ -1406,8 +1414,76 @@ function fieldsRun(iso, ss, test) {
   let h = inp(ss.id, 'min', 'Durata', 'min', ss.planMin, l.min) + inp(ss.id, 'km', 'Distanza', 'km', ss.planKm, l.km) + inp(ss.id, 'hr', 'FC media', 'bpm', '', l.hr) + inp(ss.id, 'dp', 'Dislivello', 'm', '0', l.dp) + inp(ss.id, 'rpe', 'Fatica', '/10', '', l.rpe);
   if (test) h += inp(ss.id, 't20', 'FC ultimi 20\'', 'bpm', '', l.t20) + inp(ss.id, 'fcmax', 'FC max', 'bpm', '', l.fcmax);
   const pace = num(l.min) && num(l.km) ? num(l.min) / num(l.km) : null;
-  return `<div class="fields">${h}</div>` + (pace ? `<p class="pace">Passo medio <b>${paceFmt(pace)}/km</b></p>` : '');
+  return `<div class="fields">${h}</div>` + (pace ? `<p class="pace">Passo medio <b>${paceFmt(pace)}/km</b>${l.cad ? ` · cadenza <b>${l.cad}</b> passi/min` : ''}</p>` : '')
+    + (l.gpx ? gpxPanel(iso, ss, l, test) : '')
+    + `<label class="gpxbtn">${ico('watch')}<span>${l.gpx ? 'Reimporta' : 'Importa'} dall'orologio (file GPX)</span><input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" data-gpx="${ss.id}" data-iso="${iso}" hidden></label>`;
 }
+/* ---------- import GPX: durata, km, battiti, dislivello, cadenza, split per km e grafico ---------- */
+function parseGpx(txt) {
+  const x = new DOMParser().parseFromString(txt, 'application/xml'), out = [];
+  for (const p of x.getElementsByTagName('trkpt')) {
+    const tag = n => { const e = p.getElementsByTagNameNS('*', n)[0]; return e ? parseFloat(e.textContent) : null; };
+    const t = p.getElementsByTagName('time')[0]; if (!t) continue;
+    out.push({t: Date.parse(t.textContent), lat: +p.getAttribute('lat'), lon: +p.getAttribute('lon'), ele: tag('ele'), hr: tag('hr'), cad: tag('cad')});
+  }
+  if (out.length < 10) throw new Error('vuoto');
+  const R = 6371000, rad = Math.PI / 180; let d = 0;
+  out.forEach((p, i) => { if (i) { const a = out[i - 1], dl = (p.lon - a.lon) * rad, f1 = a.lat * rad, f2 = p.lat * rad, df = f2 - f1; d += 2 * R * Math.asin(Math.sqrt(Math.sin(df / 2) ** 2 + Math.cos(f1) * Math.cos(f2) * Math.sin(dl / 2) ** 2)); } p.d = d; p.m = (p.t - out[0].t) / 60000; });
+  return out;
+}
+function gpxSeg(pts, a, b) {
+  const s = pts.filter(p => p.m >= a && p.m <= b); if (s.length < 2) return null;
+  const km = (s[s.length - 1].d - s[0].d) / 1000, min = s[s.length - 1].m - s[0].m, hrs = s.map(p => p.hr).filter(Boolean), cads = s.map(p => p.cad).filter(Boolean);
+  let up = 0, down = 0, e0 = null; for (const p of s) { if (p.ele == null) continue; if (e0 == null) e0 = p.ele; const dd = p.ele - e0; if (Math.abs(dd) >= 1) { if (dd > 0) up += dd; else down -= dd; e0 = p.ele; } }
+  const cad = cads.length ? cads.reduce((x, y) => x + y, 0) / cads.length : null;
+  return {km, min, hr: hrs.length ? hrs.reduce((x, y) => x + y, 0) / hrs.length : null, max: hrs.length ? Math.max(...hrs) : null, up, down, cad: cad ? Math.round(cad < 120 ? cad * 2 : cad) : null};
+}
+function gpxSummary(pts, start, endAt) {
+  const end = Math.min(endAt || Infinity, pts[pts.length - 1].m), a = Math.max(0, start || 0), main = gpxSeg(pts, a, end), r1 = x => Math.round(x * 10) / 10;
+  const splits = []; const s = pts.filter(p => p.m >= a && p.m <= end); let k = 1, last = s[0];
+  for (const p of s) if (p.d - s[0].d >= k * 1000) { const seg = gpxSeg(pts, last.m, p.m); splits.push({km: k, p: r1(seg.min / seg.km), hr: seg.hr ? Math.round(seg.hr) : null}); last = p; k++; }
+  { const tail = gpxSeg(pts, last.m, end); if (tail && tail.km >= 0.3) splits.push({km: k - 1 + Math.round(tail.km * 10) / 10, p: r1(tail.min / tail.km), hr: tail.hr ? Math.round(tail.hr) : null}); }
+  const ser = {m: [], hr: [], p: [], e: []};
+  for (let t = 0; t < end; t += 0.5) { const seg = gpxSeg(pts, t, t + 0.5); if (!seg || !seg.km) continue; ser.m.push(r1(t)); ser.hr.push(seg.hr ? Math.round(seg.hr) : null); ser.p.push(Math.min(15, r1(seg.min / seg.km))); const e = pts.find(p => p.m >= t); ser.e.push(e && e.ele != null ? Math.round(e.ele) : null); }
+  const out = {start: r1(a), tot: r1(end), km: r1(main.km * 100) / 100, splits, ser, cad: main.cad, down: Math.round(main.down)};
+  if (a > 0) { const wu = gpxSeg(pts, 0, a); out.wu = {min: r1(wu.min), km: Math.round(wu.km * 100) / 100, hr: wu.hr ? Math.round(wu.hr) : null}; }
+  return {main, out};
+}
+document.addEventListener('change', async e => {
+  const inpEl = e.target; if (!inpEl.dataset || !inpEl.dataset.gpx || !inpEl.files[0]) return;
+  const sid = inpEl.dataset.gpx, iso = inpEl.dataset.iso, ss = plan(iso).s.find(x => x.id === sid) || {}, test = ss.kind === 'test';
+  try {
+    const pts = parseGpx(await inpEl.files[0].text()), tot = pts[pts.length - 1].m;
+    let start = 0;
+    if (test || tot > 45) { const g = test && tot > 32 ? Math.round(tot - 30) : 0, a = prompt(test ? 'Minuto in cui è iniziato il test (fine del riscaldamento):' : 'Minuto di fine riscaldamento (0 se lo conti tutto):', String(g)); if (a === null) return; start = Math.max(0, num(a) || 0); }
+    const endAt = test && tot >= start + 29 ? start + 30 : tot, {main, out} = gpxSummary(pts, start, endAt), l = editSess(iso, sid), r = x => String(Math.round(x));
+    l.min = r(main.min); l.km = String(Math.round(main.km * 100) / 100); if (main.hr) l.hr = r(main.hr); if (main.max) l.fcmax = r(main.max); l.dp = r(main.up); if (main.cad) l.cad = main.cad;
+    if (test) { const t20 = gpxSeg(pts, Math.max(start, start + (main.min - 20)), start + main.min); if (t20 && t20.hr) l.t20 = r(t20.hr); }
+    l.gpx = out; l.done = true; queueSave(iso); render(); toast('Dati dell\'orologio importati ✓');
+  } catch (err) { toast('File GPX non leggibile', true); }
+  inpEl.value = '';
+});
+function gpxChart(g) {
+  const W = 320, H = 120, s = g.ser; if (!s || s.m.length < 3) return '';
+  const maxM = s.m[s.m.length - 1] || 1, hrs = s.hr.filter(Boolean), lo = Math.min(...hrs) - 5, hi = Math.max(...hrs) + 5, ps = s.p.filter(Boolean), pl = Math.min(...ps), ph = Math.min(Math.max(...ps), pl + 4);
+  const X = m => (m / maxM * W).toFixed(1), Yh = v => (H - (v - lo) / (hi - lo) * H).toFixed(1), Yp = v => ((Math.min(v, ph) - pl) / (ph - pl || 1) * H).toFixed(1);
+  const line = (arr, Y) => arr.map((v, i) => v == null ? null : `${X(s.m[i])},${Y(v)}`).filter(Boolean).join(' ');
+  const band = g.start ? `<rect x="${X(g.start)}" y="0" width="${(W - X(g.start)).toFixed(1)}" height="${H}" fill="var(--t-q, rgba(255,160,0,.08))" opacity=".6"/>` : '';
+  return `<svg class="gpxch" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${band}<polyline points="${line(s.p, Yp)}" fill="none" stroke="#3b82f6" stroke-width="1.6" opacity=".75"/><polyline points="${line(s.hr, Yh)}" fill="none" stroke="#e0244a" stroke-width="2"/></svg><div class="gpxleg"><span style="color:#e0244a">● battiti ${Math.min(...hrs)}-${Math.max(...hrs)}</span><span style="color:#3b82f6">● passo (più in alto = più veloce)</span>${g.start ? '<span>▮ test</span>' : ''}</div>`;
+}
+function gpxPanel(iso, ss, l, test) {
+  const g = l.gpx, chips = [g.wu ? `Riscaldamento ${g.wu.min}' · ${fmt(g.wu.km)} km${g.wu.hr ? ' · ' + g.wu.hr + ' bpm' : ''}` : '', g.cad ? `Cadenza ${g.cad}/min` : '', `D+ ${l.dp || 0} m · D− ${g.down || 0} m`, l.fcmax ? `FC max ${l.fcmax}` : ''].filter(Boolean);
+  const lt = num(l.t20), cur = num(profile.lthr);
+  return `<div class="gpxp"><div class="gpxh">${ico('watch')}<b>Dall'orologio</b></div><div class="gpxchips">${chips.map(c => `<span>${esc(c)}</span>`).join('')}</div>${gpxChart(g)}
+    ${g.splits && g.splits.length ? `<div class="gpxsp">${g.splits.map(sp => `<div><b>${sp.km}</b><span>${paceFmt(sp.p)}</span><small>${sp.hr || '–'}</small></div>`).join('')}</div><p class="gpxnote">km · passo · battiti medi</p>` : ''}
+    ${test && lt ? `<div class="gpxlt"><span>Soglia stimata <b>${lt} bpm</b>${cur === lt ? ' · in uso ✓' : ''}</span>${cur === lt ? '' : `<button class="mini" data-uselt="${lt}" data-iso="${iso}">Usa come mia soglia</button>`}</div>` : ''}</div>`;
+}
+async function useLthr(v, iso) {
+  profile = Object.assign({}, profile, {lthr: v, lthrAt: iso}); if (!isOwner) { delete profile.zones; profile.watch = true; }
+  renderTick++; render(); toast(`Zone aggiornate sulla soglia di ${v} bpm ✓`);
+  if (mode === 'db') { try { await U().collection('prefs').doc('profile').set({lthr: v, lthrAt: iso, ...(isOwner ? {} : {watch: true})}, {merge: true}); } catch (e) { toast('Soglia non salvata: riprova', true); } }
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-uselt]'); if (b) useLthr(+b.dataset.uselt, b.dataset.iso); });
 function fieldsSimple(iso, ss) { const l = sessLog(iso, ss.id); return `<div class="fields">${inp(ss.id, 'min', 'Tempo', 'min', ss.planMin, l.min)}${inp(ss.id, 'hr', 'FC media', 'bpm', '', l.hr)}${ss.kind === 'circuit' ? inp(ss.id, 'rpe', 'Fatica', '/10', '7', l.rpe) : ''}</div>`; }
 const restSec = r => { const m = String(r || '').match(/(\d+)\s*'/), s = String(r || '').match(/(\d+)\s*"/); const v = (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); return v || 90; };
 const filled = x => x && ((x[0] !== '' && x[0] != null) || (x[1] !== '' && x[1] != null));
@@ -1530,7 +1606,7 @@ function vProgressi() {
   ${ch('mix', 'bolt', 'q', 'Come si divide il tempo', 'Minuti fatti per tipo di allenamento.', `<div class="legend">${Object.entries(CATS).map(([k, c]) => `<span><i style="background:${CHART_COL[k]}"></i>${esc(c.name)}</span>`).join('')}</div>`)}
   ${ch('ex', 'kettle', 'str', 'Progressione esercizio', 'Miglior serie di ogni seduta. Per i pesi è il massimale stimato.', `<select class="sel" id="exSel" aria-label="Esercizio">${opts}</select>`)}
   ${ch('ton', 'kettle', 'str', 'Tonnellaggio', 'Kg × ripetizioni per seduta, ogni settimana.', '<div class="legend"><span><i style="background:#5b6b94"></i>Push</span><span><i style="background:#f59e0b"></i>Pull</span><span><i style="background:#7cc520"></i>Lower</span><span><i style="background:#a78bfa"></i>Upper</span></div>')}
-  ${ch('pace', 'heart', 'heart', 'Passo in zona 2', 'Uscite facili con FC media 140-152. Più va in alto, più il motore cresce.')}
+  ${ch('pace', 'heart', 'heart', 'Passo in zona 2', `Uscite facili con FC media ${ownerZ()[1][0]}-${ownerZ()[1][1]}. Più va in alto, più il motore cresce.`)}
   ${ch('long', 'mountain', 'long', 'Lungo del sabato', 'Minuti fatti ogni settimana.')}
   ${ch('kg', 'scale', 'kg', 'Peso corporeo', 'Linea tratteggiata: 92 kg, obiettivo a metà marzo.')}
   ${ch('rhr', 'heart', 'heart', 'FC a riposo', 'Se sale di 5-7 battiti per 2-3 giorni, giornata facile.')}
@@ -1779,7 +1855,7 @@ function drawCharts() {
     mix: el => bars(el, labels, Object.keys(CATS).map(k => ({c: CHART_COL[k], v: ws.map(s => s.mins[k])})), {stack: true, min: 60, label: 'Minuti per tipo'}),
     ex: el => { const e = EXD(exSel); line(el, exSeries(exSel), {col: '#5b6b94', label: e.n, fmt: v => fmt(v, 0) + (e.m === 'e1rm' || e.m === 'load' ? ' kg' : e.m === 'sec' ? '"' : ''), empty: 'Ancora nessuna serie di ' + e.n + '.'}); },
     ton: el => bars(el, labels, [['push', '#5b6b94'], ['pull', '#f59e0b'], ['lower', '#7cc520'], ['upper', '#a78bfa']].map(([k, c]) => ({c, v: ws.map(s => s.ton[k])})), {label: 'Tonnellaggio'}),
-    pace: el => { const pts = []; for (const d of Object.keys(logs).sort()) for (const [sid, v] of Object.entries(logs[d].s || {})) { const hr = num(v.hr), m = num(v.min), k = num(v.km); if ((sid === 'z2' || sid === 'long') && hr && hr >= 140 && hr <= 152 && m && k) pts.push({x: d, y: m / k}); } line(el, pts, {col: '#e0244a', invert: true, fmt: v => paceFmt(v), label: 'Passo in Z2', empty: 'Compila durata, km e FC media delle uscite facili.'}); },
+    pace: el => { const pts = []; for (const d of Object.keys(logs).sort()) for (const [sid, v] of Object.entries(logs[d].s || {})) { const hr = num(v.hr), m = num(v.min), k = num(v.km); if ((sid === 'z2' || sid === 'long') && hr && hr >= ownerZ()[1][0] && hr <= ownerZ()[1][1] && m && k) pts.push({x: d, y: m / k}); } line(el, pts, {col: '#e0244a', invert: true, fmt: v => paceFmt(v), label: 'Passo in Z2', empty: 'Compila durata, km e FC media delle uscite facili.'}); },
     long: el => bars(el, labels, [{c: '#3b82f6', v: ws.map(s => s.long || 0)}], {outline: ws.map(s => s.longPlan), label: 'Lungo del sabato'}),
     kg: el => line(el, Object.keys(body).sort().filter(k => num(body[k].kg) != null).map(k => ({x: k, y: num(body[k].kg)})), {col: '#7c3aed', ref: 92, label: 'Peso', empty: 'Aggiungi il peso con "+ Misura".'}),
     rhr: el => line(el, Object.keys(body).sort().filter(k => num(body[k].hr) != null).map(k => ({x: k, y: num(body[k].hr)})), {col: '#e0244a', label: 'FC a riposo', empty: 'Aggiungi la FC a riposo con "+ Misura".'}),
@@ -2703,7 +2779,7 @@ const GOALS = {trail: ['mountain', 'Trail e ultra'], strada: ['shoe', 'Corsa su 
 const ZDESC = ['Riscaldamento e recupero', 'Corsa facile e lunghi, la base', 'Ritmo medio, da dosare', 'Soglia, una volta a settimana', 'Scatti e salite brevi'];
 const ZTALK = ['Parli senza fatica, quasi camminata', 'Riesci a parlare a frasi intere', 'Parli a frasi brevi', 'Solo poche parole', 'Non riesci a parlare'];
 const ZCOL = ['#60a5fa', '#7cc520', '#facc15', '#f59e0b', '#ef4444'];
-const OWNER_Z = [[113, 139], [140, 152], [153, 160], [161, 171], [172, 189]];
+
 const modOn = k => isOwner || !profile.mod || profile.mod[k] !== false;
 const ageOf = p => p.born ? new Date().getFullYear() - Number(p.born) : null;
 // zone dalla soglia (Friel), altrimenti FC max con riserva cardiaca se c'è la FC a riposo
@@ -2718,7 +2794,7 @@ function calcZones(p) {
   return {src, z: chain(at(0.5), [0.6, 0.7, 0.8, 0.9, 1].map(at))};
 }
 function zonesOf() {
-  if (isOwner) return {src: 'lthr', z: OWNER_Z, note: 'Soglia 174 bpm, stima Amazfit da confermare con il test.'};
+  if (isOwner) return {src: 'lthr', z: ownerZ(), note: num(profile.lthr) ? `Soglia ${profile.lthr} bpm dal test${profile.lthrAt ? ' del ' + nice(profile.lthrAt) : ''}.` : 'Soglia 174 bpm, stima Amazfit da confermare con il test.'};
   if (profile.watch === false) return {src: 'talk', z: null, note: 'Senza orologio si va a sensazione: il test del parlato funziona bene.'};
   const zz = (profile.zones && profile.zones.length === 5) ? {src: 'man', z: profile.zones} : calcZones(profile);
   if (!zz) return {src: 'talk', z: null, note: 'Inserisci FC max o soglia nel profilo per avere le zone in bpm.'};
@@ -3114,6 +3190,20 @@ function feedbackHtml() {
   return `<h2 class="sec">Segnalazioni</h2><div class="list glass">${feedback.map(f => `<div class="lrow" style="grid-template-columns:minmax(0,1fr) auto"><span><b>${esc(f.name || f.email || 'Anonimo')} · ${esc(new Date(f.at).toLocaleDateString('it-IT'))}</b><small style="white-space:pre-wrap">${esc(f.text)}</small><small>${esc(f.view || '')} · ${esc(f.ver || '')}</small></span><button class="del" data-fbdel="${esc(f.id)}">Fatto</button></div>`).join('')}</div>`;
 }
 
+// dati che Luca mi ha mandato (GPX dell'orologio): si salvano una volta sola nella sua cartella
+const OWNER_IMPORTS = [{"date": "2026-11-26", "kind": "test", "data": {"done": true, "min": "30", "km": "5", "hr": "177", "fcmax": "201", "t20": "183", "dp": "0", "cad": 161, "note": "Pista, sempre in senso antiorario: corsie interne nel riscaldamento e nei primi minuti, esterne negli ultimi 10'. Pioggia e freddo, pantaloncini e maglia. Caffè 1 h prima, pranzo 3 h prima (pollo, pane ai cereali, banana, insalata, yogurt greco), elettroliti. Partenza prudente, calo al 41°-46° per fastidio al tibiale sinistro, finale forte: avevo ancora margine. Scarpe nuove Nike Vomero Plus.", "gpx": {"start": 21, "tot": 51, "km": 4.998, "splits": [{"km": 1, "p": 6.6, "hr": 160}, {"km": 2, "p": 6.1, "hr": 174}, {"km": 3, "p": 5.8, "hr": 182}, {"km": 4, "p": 6.2, "hr": 182}, {"km": 5, "p": 5.3, "hr": 191}], "ser": {"m": [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17, 17.5, 18.5, 19, 19.5, 20, 20.5, 21, 21.5, 22, 22.5, 23, 23.5, 24, 24.5, 25, 25.5, 26, 26.5, 27, 27.5, 28, 28.5, 29, 29.5, 30, 30.5, 31, 31.5, 32, 32.5, 33, 33.5, 34, 34.5, 35, 35.5, 36, 36.5, 37, 37.5, 38, 38.5, 39, 39.5, 40, 40.5, 41, 41.5, 42, 42.5, 43, 43.5, 44, 44.5, 45, 45.5, 46, 46.5, 47, 47.5, 48, 48.5, 49, 49.5, 50, 50.5], "hr": [114, 113, 114, 116, 120, 125, 125, 126, 131, 136, 139, 139, 139, 142, 141, 141, 141, 144, 144, 150, 155, 157, 157, 138, 132, 137, 140, 144, 144, 147, 142, 134, 145, 160, 165, 160, 134, 143, 146, 151, 148, 146, 150, 152, 154, 157, 160, 159, 159, 165, 168, 168, 170, 171, 173, 176, 174, 171, 172, 177, 181, 177, 173, 170, 170, 175, 177, 178, 176, 179, 181, 180, 181, 181, 184, 187, 187, 186, 185, 185, 183, 181, 181, 181, 180, 181, 184, 184, 181, 179, 181, 182, 184, 185, 190, 192, 193, 194, 195, 197, 199], "p": [9.5, 8.5, 7.9, 8.1, 7.9, 8.1, 8.1, 8.1, 7.3, 7.3, 7.5, 7.7, 7.5, 7.6, 7.8, 7.7, 7.6, 6.8, 6.8, 7.7, 6.9, 6.7, 9.3, 9.7, 9, 8.3, 8, 8.2, 7, 7.8, 12, 6.7, 5.8, 6.9, 7.2, 9.5, 8.3, 7, 6.5, 8.3, 8.8, 7.4, 6.5, 7.2, 7.1, 6.9, 6.9, 7.1, 6.4, 5.9, 6.2, 6.6, 6.6, 6.2, 5.8, 6, 6.5, 6.2, 5.4, 5.4, 6.5, 7.1, 6, 7, 5.9, 5.9, 5.9, 6.5, 6, 5.6, 5.9, 6, 6, 5.6, 5.2, 5.8, 5.5, 5.8, 5.4, 6.8, 6.1, 6.2, 6.2, 6.3, 5.9, 5.9, 5.8, 7, 6.7, 6.7, 6.2, 5.8, 5.9, 5.9, 5, 5.1, 5.4, 5, 4.9, 4.7, 4.8], "e": [17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]}, "cad": 161, "down": 0, "wu": {"min": 21, "km": 2.64, "hr": 140}}}, "profile": {"lthr": 183, "lthrAt": "2026-11-26"}}];
+let importsDone = false;
+async function applyOwnerImports() {
+  if (importsDone || !isOwner || mode !== 'db') return; importsDone = true;
+  for (const im of OWNER_IMPORTS) {
+    let flag = null; try { flag = localStorage.getItem('scheda100k-imp-' + im.date); } catch (e) {}
+    const ss = plan(im.date).s.find(x => x.kind === im.kind) || plan(im.date).s[0]; if (!ss) continue;
+    const cur = sessLog(im.date, ss.id);
+    if (!cur.gpx && flag !== '1') { const l = editSess(im.date, ss.id); for (const [k, v] of Object.entries(im.data)) if (l[k] == null || l[k] === '' || k === 'gpx') l[k] = v; queueSave(im.date); }
+    if (im.profile) { try { const pr = await U().collection('prefs').doc('profile').get(); if (!(pr.exists && pr.data().lthr)) await U().collection('prefs').doc('profile').set(im.profile, {merge: true}); } catch (e) {} }
+    try { localStorage.setItem('scheda100k-imp-' + im.date, '1'); } catch (e) {}
+  }
+}
 /* ================= render e navigazione ================= */
 function render() {
   renderTick++;
@@ -3211,6 +3301,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').ca
 // solo per i test automatici in locale
 if (location.hostname === 'localhost') window.__plan = () => JSON.stringify(custom.plan);
 if (location.hostname === 'localhost') window.__icon = s => drawIcon(s);
+if (location.hostname === 'localhost') window.__gpx = (t, s) => { const pts = parseGpx(t), r = gpxSummary(pts, s, s + 30), t20 = gpxSeg(pts, s + r.main.min - 20, s + r.main.min); return JSON.stringify({main: r.main, out: r.out, t20: t20 && t20.hr, ids: plan('2026-11-26').s.map(x => x.id + ':' + x.kind)}); };
 if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOwner = own; profile = prof; if (cust) custom = Object.assign({sess: {}, ex: {}}, cust); renderTick++; render(); };
 (async () => {
   const fb = window.firebase;
@@ -3255,7 +3346,7 @@ if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOw
     const onErr = e => { clearTimeout(timer); toast(e && e.code === 'permission-denied' ? 'Permessi mancanti: controlla le regole di Firestore' : 'Salvataggio non raggiungibile', true, true); };
     const fill = (target, snap) => { for (const k of Object.keys(target)) delete target[k]; for (const d of snap.docs) if (d.exists) target[d.id] = d.data(); };
     subs.push(U().collection('logs').onSnapshot({includeMetadataChanges: true}, snap => {
-      fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]); if (!snap.metadata.fromCache) logsReady = true;
+      fill(logs, snap); for (const k of Object.keys(logs)) fsDec(logs[k]); if (!snap.metadata.fromCache) logsReady = true; if (logsReady && isOwner) setTimeout(applyOwnerImports, 1500);
       if (!snap.metadata.fromCache) { clearTimeout(timer); if (toastEl.textContent.startsWith('Sei offline')) toastEl.classList.remove('on'); }
       safeRender(); applyPresi();
     }, onErr));
