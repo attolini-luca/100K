@@ -484,6 +484,10 @@ select.sel{width:100%;height:46px;border-radius:14px;border:0;background:var(--f
 .gpxch{width:100%;height:110px;display:block;border-radius:10px;background:var(--cardSolid)}.gpxleg{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--soft);margin-top:4px}
 .gpxsp{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:6px;margin-top:10px}.gpxsp div{background:var(--cardSolid);border-radius:10px;padding:6px;text-align:center;font-size:12px}.gpxsp b{display:block;font-size:11px;color:var(--soft)}.gpxsp span{display:block;font-weight:700}.gpxsp small{color:#e0244a}
 .gpxnote{font-size:11px;color:var(--soft);margin:4px 0 0}.gpxlt{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;font-size:14px}
+.lgr{width:100%;text-align:left;grid-template-columns:24px 42px minmax(0,1fr) auto 12px}.lgr .chev{color:var(--soft);margin-left:4px}
+.pphead{text-align:center;margin:6px 0 10px}.pphead h2{margin:6px 0 2px;font-size:24px}.ppav{width:120px;height:120px;object-fit:contain;display:block;margin:0 auto;border-radius:50%}
+.ppgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ppst{background:var(--field);border-radius:18px;padding:10px 6px;text-align:center}.ppst img{width:34px;height:34px;object-fit:contain}.ppst b{display:block;font-size:20px}.ppst small{color:var(--soft);font-size:11px}
+.bdg small{display:block;font-size:11px;text-align:center;margin-top:4px;color:var(--soft)}
 </style>
 </head>
 <body>
@@ -530,7 +534,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261127a';
+const AV = '20261127b';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1485,7 +1489,7 @@ async function useLthr(v, iso) {
   renderTick++; render(); toast(`Zone aggiornate sulla soglia di ${v} bpm ✓`);
   if (mode === 'db') { try { await U().collection('prefs').doc('profile').set({lthr: v, lthrAt: iso, ...(isOwner ? {} : {watch: true})}, {merge: true}); } catch (e) { toast('Soglia non salvata: riprova', true); } }
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-uselt]'); if (b) useLthr(+b.dataset.uselt, b.dataset.iso); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-uselt]'); if (b) useLthr(+b.dataset.uselt, b.dataset.iso); const pl = e.target.closest('[data-player]'); if (pl) openPlayer(pl.dataset.player); });
 function fieldsSimple(iso, ss) { const l = sessLog(iso, ss.id); return `<div class="fields">${inp(ss.id, 'min', 'Tempo', 'min', ss.planMin, l.min)}${inp(ss.id, 'hr', 'FC media', 'bpm', '', l.hr)}${ss.kind === 'circuit' ? inp(ss.id, 'rpe', 'Fatica', '/10', '7', l.rpe) : ''}</div>`; }
 const restSec = r => { const m = String(r || '').match(/(\d+)\s*'/), s = String(r || '').match(/(\d+)\s*"/); const v = (m ? +m[1] * 60 : 0) + (s ? +s[1] : 0); return v || 90; };
 const filled = x => x && ((x[0] !== '' && x[0] != null) || (x[1] !== '' && x[1] != null));
@@ -2662,11 +2666,28 @@ function leagueMini(s) {
   return `<button class="lmini glass" data-act="slancio">${ico('trophy', 'lmi')}<span><span class="lbl">Lega della settimana</span><b>${rank}° posto · ${s.weekPts} punti</b><small>${n > 1 ? `${n} in gara, si chiude domenica` : 'Per ora sei solo: Margot e gli amici arrivano con i loro profili'}</small></span><span class="chev">›</span></button>
   <button class="lmini glass" data-act="slancio">${ico('f_vetta', 'lmi')}<span><span class="lbl">Percorso dello slancio</span><b>${esc(STAGES[st.k][1])} · ${s.steps} ${s.steps === 1 ? 'passo' : 'passi'}</b><small>${nx ? `Prossima tappa: ${esc(nx[1].toLowerCase())} tra ${nx[0] - st.st}` : 'Sei in vetta'}</small></span><span class="chev">›</span></button>`;
 }
+// solo dati di gioco, visibili agli altri della lega: niente pesi, misure, battiti o dieta
+function publicStats(s) {
+  return {streak: s.streak, best: s.best, days: s.steps, total: s.steps * 10 + Object.values(s.xp).reduce((a, b) => a + b, 0), prs: s.prs.length,
+    badges: s.badges.filter(b => b.tier >= 0).map(b => b.id + ':' + b.tier), since: gameStart(), goal: isOwner ? '100 km trail · 5000 D+' : (GOALS[profile.goal] || [0, ''])[1], race: isOwner ? '' : (profile.race || '')};
+}
+function openPlayer(uid) {
+  const me = uid === myUid || uid === 'me', s = gameState(), wk = s.weekKey;
+  const p = me ? Object.assign({name: profile.name || 'Tu', wk: {[wk]: s.weekPts}}, publicStats(s)) : players[uid]; if (!p) return;
+  const face = me ? ico('avatar', 'ppav') : p.img ? `<img class="ppav" src="${esc(p.img)}" alt="">` : FACES.includes(p.av) ? ico(p.av, 'ppav') : '<img class="ppav" src="em/anon.png" alt="">';
+  const rows = Object.entries(players).filter(([id]) => id !== myUid).map(([id, x]) => ({id, pts: (x.wk || {})[wk] || 0})).concat([{id: myUid, pts: s.weekPts}]).sort((a, b) => b.pts - a.pts), pos = rows.findIndex(r => r.id === (me ? myUid : uid)) + 1;
+  const earned = (p.badges || []).map(x => { const [id, t] = String(x).split(':'), b = BADGES.find(y => y.id === id); return b ? Object.assign({}, b, {tier: +t}) : null; }).filter(Boolean).sort((a, b) => b.tier - a.tier);
+  const stat = (ic, v, l) => `<div class="ppst">${ico(ic)}<b>${v ?? '–'}</b><small>${l}</small></div>`;
+  sheet.innerHTML = `${sheetTop(me ? 'Il tuo profilo' : 'Profilo')}<div class="pphead">${face}<h2>${esc(p.name || '?')}</h2>${p.goal ? `<p class="eyebrow">${esc(p.goal)}${p.race ? ' · ' + esc(p.race) : ''}</p>` : ''}${p.since ? `<p class="obhint" style="margin:2px 0 0">Nell'app dal ${esc(nice(p.since))}</p>` : ''}</div>
+    <div class="ppgrid">${stat('g_fire', p.streak, 'giorni di fila')}${stat('trophy', (p.wk || {})[wk] || 0, 'punti settimana')}${stat('sparkles', p.total, 'punti totali')}${stat('f_vetta', p.best, 'serie migliore')}${stat('dumbbell', p.prs, 'record personali')}${stat('g_rocket', pos ? pos + 'º' : '–', 'nella lega')}</div>
+    <h3 class="bh3">Medaglie · ${earned.length}</h3>${earned.length ? `<div class="badges">${earned.map(b => `<div class="bdg">${medal(b)}<small>${esc(b.n)}</small></div>`).join('')}</div>` : '<p class="obhint">Ancora nessuna: la prima arriva presto.</p>'}`;
+  sheet.classList.add('on'); scrim.classList.add('on');
+}
 function leagueHtml(s) {
   const me = {name: profile.name || 'Tu', pts: s.weekPts, me: true};
-  const rows = Object.entries(players).filter(([id]) => id !== myUid).map(([, p]) => ({name: p.name || '?', av: p.av, img: p.img, pts: (p.wk || {})[s.weekKey] || 0})).concat([me]).sort((a, b) => b.pts - a.pts);
+  const rows = Object.entries(players).filter(([id]) => id !== myUid).map(([id, p]) => ({id, name: p.name || '?', av: p.av, img: p.img, pts: (p.wk || {})[s.weekKey] || 0})).concat([me]).sort((a, b) => b.pts - a.pts);
   const face = r => r.me ? ico('avatar') : r.img ? `<img src="${esc(r.img)}" alt="">` : FACES.includes(r.av) ? ico(r.av) : `<img src="em/anon.png" alt="">`;
-  let h = rows.map((r, i) => `<div class="lgr${r.me ? ' me' : ''}"><span class="lpos">${i + 1}</span>${face(r)}<b>${esc(r.name)}</b><span class="lpts">${r.pts}</span></div>`).join('');
+  let h = rows.map((r, i) => `<button class="lgr${r.me ? ' me' : ''}" data-player="${r.me ? 'me' : esc(r.id)}"><span class="lpos">${i + 1}</span>${face(r)}<b>${esc(r.name)}</b><span class="lpts">${r.pts}</span><span class="chev">›</span></button>`).join('');
   if (rows.length < 2) h += `<div class="lgr ghost"><span class="lpos">2</span><span class="gav">?</span><b>Gli altri</b><span class="lpts">presto</span></div>`;
   return `<div class="league glass">${h}<p class="eyebrow" style="margin:8px 4px 0">Punti per aderenza al piano, non per volume: il riposo vale quanto l'allenamento. La lega riparte ogni lunedì.</p></div>`;
 }
@@ -2714,9 +2735,9 @@ function checkNews() {
 let coachChecked = false, players = {}, myUid = null, lastPush = '', userEmail = '', userName = '', invites = {emails: [], names: {}}, profileReady = false;
 function pushPlayer() {
   if (mode !== 'db' || !db || !myUid || !logsReady) return;
-  const s = gameState(), j = JSON.stringify([s.weekKey, s.weekPts, s.streak, avatar]);
+  const s = gameState(), pub = publicStats(s), j = JSON.stringify([s.weekKey, s.weekPts, avatar, avatarImg ? avatarImg.length : 0, pub]);
   if (j === lastPush) return; lastPush = j;
-  db.collection('players').doc(myUid).set({name: profile.name || 'Atleta', av: avatarImg ? 'img' : avatar, img: avatarImg || null, streak: s.streak, at: Date.now(), wk: {[s.weekKey]: s.weekPts}}, {merge: true}).catch(() => { lastPush = ''; });
+  db.collection('players').doc(myUid).set(Object.assign({name: profile.name || 'Atleta', av: avatarImg ? 'img' : avatar, img: avatarImg || null, at: Date.now(), wk: {[s.weekKey]: s.weekPts}}, pub), {merge: true}).catch(() => { lastPush = ''; });
 }
 /* ---- proposito anche nella notifica del mattino ---- */
 let propoLast = '';
@@ -3312,6 +3333,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').ca
 // solo per i test automatici in locale
 if (location.hostname === 'localhost') window.__plan = () => JSON.stringify(custom.plan);
 if (location.hostname === 'localhost') window.__icon = s => drawIcon(s);
+if (location.hostname === 'localhost') window.__players = o => { players = o; renderTick++; render(); };
 if (location.hostname === 'localhost') window.__gpx = (t, s) => { const pts = parseGpx(t), r = gpxSummary(pts, s, s + 30), t20 = gpxSeg(pts, s + r.main.min - 20, s + r.main.min); return JSON.stringify({main: r.main, out: r.out, t20: t20 && t20.hr, ids: plan('2026-11-26').s.map(x => x.id + ':' + x.kind)}); };
 if (location.hostname === 'localhost') window.__as = (own, prof, cust) => { isOwner = own; profile = prof; if (cust) custom = Object.assign({sess: {}, ex: {}}, cust); renderTick++; render(); };
 (async () => {
