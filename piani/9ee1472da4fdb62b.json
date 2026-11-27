@@ -1,0 +1,1141 @@
+{
+ "name": "Giulia",
+ "plan": {
+  "start": "2026-11-30",
+  "days": [
+   [
+    {
+     "id": "gl1",
+     "type": "str",
+     "sess": "gl1",
+     "slot": "Sera"
+    }
+   ],
+   [],
+   [
+    {
+     "id": "gl2",
+     "type": "str",
+     "sess": "gl2",
+     "slot": "Sera"
+    }
+   ],
+   [],
+   [
+    {
+     "id": "gl3",
+     "type": "str",
+     "sess": "gl3",
+     "slot": "Sera"
+    }
+   ],
+   [],
+   []
+  ],
+  "tpl": {
+   "gl1": {
+    "t": "Giorno 1",
+    "d": "lower body",
+    "min": 60,
+    "note": "Riscaldamento prima, 10 minuti di camminata in salita alla fine."
+   },
+   "gl2": {
+    "t": "Giorno 2",
+    "d": "upper body",
+    "min": 60,
+    "note": "Riscaldamento prima, 10 minuti di camminata in salita alla fine."
+   },
+   "gl3": {
+    "t": "Giorno 3",
+    "d": "glute day e bicipiti",
+    "min": 60,
+    "note": "Riscaldamento prima, 10 minuti di camminata in salita alla fine."
+   }
+  }
+ },
+ "sess": {
+  "gl1": [
+   {
+    "k": "goblet",
+    "rest": "1'20\"",
+    "tip": "Manubrio sui palmi, petto in fuori, ginocchia sulle punte dei piedi extraruotate",
+    "wk": {
+     "1": {
+      "s": 4,
+      "r": "10"
+     },
+     "2": {
+      "s": 4,
+      "r": "10"
+     },
+     "3": {
+      "s": 3,
+      "r": "8",
+      "tip": "prova ad aumentare il peso"
+     },
+     "4": {
+      "s": 3,
+      "r": "8",
+      "tip": "stesso peso della settimana 3"
+     },
+     "5": {
+      "s": 3,
+      "r": "10",
+      "tip": "prova ad aumentare il peso"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "xHipThrustMacchina",
+    "rest": "1'30\"",
+    "tip": "Discesa e salita controllate, bacino in leggera retroversione, addome attivo",
+    "wk": {
+     "1": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "2": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "3": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "4": {
+      "s": 3,
+      "r": "8",
+      "tip": "prova ad aumentare il peso"
+     },
+     "5": {
+      "s": 3,
+      "r": "8",
+      "tip": "prova ad aumentare il peso"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "bulgari",
+    "s": 3,
+    "r": "12",
+    "rest": "1'30\"",
+    "tip": "Lenta e controllata: piede dietro sulla panca, manubrio dal lato opposto alla gamba che lavora"
+   },
+   {
+    "k": "xLegCurlSedutoMacchina",
+    "rest": "1'20\"",
+    "tip": "Aumenta solo quando indicato",
+    "wk": {
+     "1": {
+      "s": 2,
+      "r": "10"
+     },
+     "2": {
+      "s": 2,
+      "r": "10"
+     },
+     "3": {
+      "s": 2,
+      "r": "8",
+      "tip": "prova ad aumentare il peso"
+     },
+     "4": {
+      "s": 2,
+      "r": "8-10",
+      "tip": "stesso peso della settimana 3"
+     },
+     "5": {
+      "s": 2,
+      "r": "10",
+      "tip": "stesso peso della settimana 4"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "xAbductorMachine",
+    "s": 3,
+    "r": "15",
+    "rest": "1'",
+    "tip": "Metabolico: conta fare tutte le ripetizioni, alza il peso solo se riesci"
+   },
+   {
+    "k": "xTapisRoulantInSalitaCamminat",
+    "s": 1,
+    "r": "10'",
+    "rest": "0'",
+    "tip": "Camminata in salita, pendenza a metà, ritmo lento/moderato"
+   }
+  ],
+  "gl2": [
+   {
+    "k": "latLarga",
+    "rest": "1'30\"",
+    "tip": "Presa larga classica, esecuzione lenta",
+    "wk": {
+     "1": {
+      "s": 4,
+      "r": "8-10"
+     },
+     "2": {
+      "s": 4,
+      "r": "8",
+      "tip": "prova ad aumentare il peso"
+     },
+     "3": {
+      "s": 4,
+      "r": "8",
+      "tip": "stesso peso della settimana 2"
+     },
+     "4": {
+      "s": 4,
+      "r": "8-10",
+      "tip": "stesso peso, 1-2 ripetizioni in più"
+     },
+     "5": {
+      "s": 4,
+      "r": "10",
+      "tip": "stesso peso, punta a 2 ripetizioni in più"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "inclMan",
+    "s": 3,
+    "r": "10-12",
+    "rest": "1'30\"",
+    "tip": "Panca a 32-38°. Focus sulla tecnica: scapole chiuse e basse, poco arco lombare, petto in fuori"
+   },
+   {
+    "k": "xRematoreUnilateraleALevaMacc",
+    "rest": "1'20\"",
+    "tip": "Un braccio alla volta",
+    "wk": {
+     "1": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "2": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "3": {
+      "s": 3,
+      "r": "8-10"
+     },
+     "4": {
+      "s": 3,
+      "r": "8"
+     },
+     "5": {
+      "s": 3,
+      "r": "8"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "alzate",
+    "s": 3,
+    "r": "10-8-8",
+    "rest": "1'15\"",
+    "tip": "Piramidale: parti leggera e aumenta"
+   },
+   {
+    "k": "xPushDownConCorda",
+    "s": 3,
+    "r": "10",
+    "rest": "1'15\"",
+    "tip": "Solo tricipiti, niente superset. Esecuzione lenta"
+   },
+   {
+    "k": "plank",
+    "s": 2,
+    "r": "40\" + 20 crunch",
+    "rest": "40\"",
+    "tip": "40 secondi di plank e subito, senza pausa, 20 crunch"
+   },
+   {
+    "k": "xTapisRoulantInSalitaCamminat",
+    "s": 1,
+    "r": "10'",
+    "rest": "0'",
+    "tip": "Camminata in salita, pendenza a metà, ritmo lento/moderato"
+   }
+  ],
+  "gl3": [
+   {
+    "k": "xStaccoRumenoConManubri",
+    "s": 3,
+    "r": "10",
+    "rest": "1'30\"",
+    "tip": "Due manubri leggeri"
+   },
+   {
+    "k": "xHipThrustMacchina",
+    "rest": "1'30\"",
+    "tip": "Più leggero del giorno 1, si gioca di volume: 2 secondi fermi in alto a ogni ripetizione",
+    "wk": {
+     "1": {
+      "s": 3,
+      "r": "8-8-8"
+     },
+     "2": {
+      "s": 3,
+      "r": "8-8-8"
+     },
+     "3": {
+      "s": 3,
+      "r": "10-8-8"
+     },
+     "4": {
+      "s": 3,
+      "r": "10-8-8"
+     },
+     "5": {
+      "s": 3,
+      "r": "8-8-6"
+     }
+    },
+    "after": "finite le 5 settimane: chiedi la nuova scheda"
+   },
+   {
+    "k": "xIperestensioniA45",
+    "s": 3,
+    "r": "12",
+    "rest": "1'15\"",
+    "tip": "Lento e controllato. Se alzi il peso fai 2-3 ripetizioni in meno"
+   },
+   {
+    "k": "gAbdSdraiata",
+    "s": 2,
+    "r": "15",
+    "rest": "0'",
+    "tip": "Superset con il monster walk, senza pausa tra i due"
+   },
+   {
+    "k": "xAbduzioniConElasticoCamminat",
+    "s": 2,
+    "r": "max",
+    "rest": "1'20\"",
+    "tip": "Monster walk con elastico, fino al massimo. Superset con le abduzioni da sdraiata"
+   },
+   {
+    "k": "xCurlAlternatoConManubri",
+    "s": 3,
+    "r": "10",
+    "rest": "1'30\"",
+    "tip": "Aumenta il peso nelle settimane"
+   },
+   {
+    "k": "xTapisRoulantInSalitaCamminat",
+    "s": 1,
+    "r": "10'",
+    "rest": "0'",
+    "tip": "Camminata in salita, pendenza a metà, ritmo lento/moderato"
+   }
+  ]
+ },
+ "ex": {
+  "gAbdSdraiata": {
+   "n": "Abduzioni con elastico da sdraiata",
+   "g": "posteriore",
+   "t": "bw",
+   "s": 2,
+   "r": "15",
+   "rest": "0'",
+   "tip": "Sul fianco, elastico sopra le ginocchia: apri la gamba di sopra senza ruotare il bacino."
+  }
+ },
+ "diet": {
+  "meals": [
+   {
+    "k": "colazione",
+    "n": "Colazione",
+    "t": "7:30",
+    "opts": [
+     {
+      "n": "Yogurt greco e muesli",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yogurt",
+        "g": 170
+       },
+       {
+        "f": "yMuesliSenzaZucchero",
+        "g": 25
+       },
+       {
+        "f": "mela",
+        "g": 150
+       },
+       {
+        "f": "miele",
+        "g": 5
+       }
+      ],
+      "steps": "Yogurt greco o skyr 0%. Al posto del muesli: riso, farro o orzo soffiato, oppure una brioche vuota, 4 fette biscottate o 50 g di pane. Da bere: tè, orzo, caffè o caffellatte."
+     },
+     {
+      "n": "Colazione salata",
+      "ic": "f_uova",
+      "items": [
+       {
+        "f": "uova",
+        "g": 60
+       },
+       {
+        "f": "albumi",
+        "g": 75
+       },
+       {
+        "f": "avocado",
+        "g": 70
+       },
+       {
+        "f": "yPaneComune",
+        "g": 35
+       }
+      ],
+      "steps": "Un uovo strapazzato con 70-80 g di albume, mezzo avocado e una fetta di pane tostato (30-40 g)."
+     },
+     {
+      "n": "Pancake proteici",
+      "ic": "f_banana",
+      "items": [
+       {
+        "f": "yFarinaDiAvena",
+        "g": 50
+       },
+       {
+        "f": "uova",
+        "g": 60
+       },
+       {
+        "f": "yLatteParzialmenteScremato",
+        "g": 80
+       }
+      ],
+      "steps": "50 g di farina d'avena, 3 g di lievito per dolci, un uovo e latte quanto basta per addensare. Con 100-120 ml di albume al posto del latte vengono più compatti e meno dolci."
+     },
+     {
+      "n": "Avena, latte e frutta",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "mAvena",
+        "g": 45
+       },
+       {
+        "f": "yLatteParzialmenteScremato",
+        "g": 100
+       },
+       {
+        "f": "frutti",
+        "g": 100
+       },
+       {
+        "f": "yMarmellata",
+        "g": 25
+       }
+      ],
+      "steps": "Al posto della marmellata 20 g di cioccolato fondente. Un filo di miele se vuoi."
+     },
+     {
+      "n": "Pane e salume",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 55
+       },
+       {
+        "f": "yFesaDiTacchinoAffettata",
+        "g": 70
+       },
+       {
+        "f": "yPomodori",
+        "g": 100
+       },
+       {
+        "f": "insalata",
+        "g": 50
+       }
+      ],
+      "steps": "Salume: tacchino, pollo al forno, bresaola. Al posto del pane: 4 fette biscottate integrali, 2 fette di pan bauletto tostate o una brioche vuota."
+     },
+     {
+      "n": "Cheesecake proteica",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yBiscottiSecchi",
+        "g": 30
+       },
+       {
+        "f": "yogurt",
+        "g": 160
+       },
+       {
+        "f": "frutti",
+        "g": 80
+       },
+       {
+        "f": "yMarmellata",
+        "g": 25
+       }
+      ],
+      "steps": "Meglio la sera prima: biscotti Magretti appena sbriciolati sul fondo, sopra lo yogurt greco 0% con qualche goccia di dolcificante, poi frutti di bosco e marmellata."
+     }
+    ]
+   },
+   {
+    "k": "spuntino",
+    "n": "Spuntino",
+    "t": "10:30",
+    "opts": [
+     {
+      "n": "Toast con affettato",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPaneInCassettaBianco",
+        "g": 25
+       },
+       {
+        "f": "yFesaDiTacchinoAffettata",
+        "g": 75
+       },
+       {
+        "f": "insalata",
+        "g": 40
+       }
+      ],
+      "steps": "Al posto dell'affettato: 1 uovo con 80-100 ml di albume, 150 g di fiocchi di latte o 100 g di ricotta light."
+     },
+     {
+      "n": "Spuntino dolce",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yogurt",
+        "g": 175
+       },
+       {
+        "f": "yMuesliSenzaZucchero",
+        "g": 25
+       }
+      ],
+      "steps": "Skyr, kefir o yogurt greco 0% alla frutta (150-200 g). Al posto del muesli 40 g di farro, riso o orzo soffiato."
+     }
+    ]
+   },
+   {
+    "k": "pranzo",
+    "n": "Pranzo",
+    "t": "13:00",
+    "opts": [
+     {
+      "n": "Pasta e pollo",
+      "ic": "f_pollo",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 80
+       },
+       {
+        "f": "passata",
+        "g": 100
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "yPettoDiPolloCrudo",
+        "g": 130
+       },
+       {
+        "f": "zucchine",
+        "g": 200
+       }
+      ],
+      "steps": "Primo: pasta, riso, orzo o farro 80 g con sugo, olio un cucchiaio. Secondo: pollo, tacchino, burger, macinato, merluzzo, salmone, sgombro, tonno, albume, seitan o tofu (100-150 g). Verdure in abbondanza a pranzo e a cena. Circa 2 litri d'acqua al giorno e 2 frutti di stagione."
+     },
+     {
+      "n": "Pasta al pesto e pesce",
+      "ic": "f_pasta",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 80
+       },
+       {
+        "f": "yPestoAllaGenovese",
+        "g": 15
+       },
+       {
+        "f": "merluzzo",
+        "g": 150
+       },
+       {
+        "f": "spinaci",
+        "g": 200
+       }
+      ],
+      "steps": "Con il pesto (tre cucchiaini o un cucchiaio) niente olio."
+     },
+     {
+      "n": "Patate e proteina",
+      "ic": "f_patata",
+      "items": [
+       {
+        "f": "yPatateCrude",
+        "g": 225
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "yPettoDiPolloCrudo",
+        "g": 130
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Patate 200-250 g al posto della pasta, poi verdure, un cucchiaio d'olio e la proteina."
+     },
+     {
+      "n": "Pane e proteina",
+      "ic": "f_steak",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 95
+       },
+       {
+        "f": "yManzoMagroCrudo",
+        "g": 130
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Pane 90-100 g al posto della pasta."
+     },
+     {
+      "n": "Pasta e legumi",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 50
+       },
+       {
+        "f": "ceci",
+        "g": 150
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "broccoli",
+        "g": 200
+       }
+      ],
+      "steps": "50 g di pasta con 150 g di ceci, lenticchie o fagioli."
+     },
+     {
+      "n": "Pizza proteica",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 100
+       },
+       {
+        "f": "passata",
+        "g": 80
+       },
+       {
+        "f": "mozzLight",
+        "g": 125
+       },
+       {
+        "f": "olio",
+        "g": 10
+       }
+      ],
+      "steps": "Una bruschetta grande tostata in forno o in padella, sugo di passata con basilico, olio e aglio, sopra la mozzarella proteica."
+     },
+     {
+      "n": "Paninazzo pazzo",
+      "ic": "f_steak",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 100
+       },
+       {
+        "f": "yManzoMagroCrudo",
+        "g": 120
+       },
+       {
+        "f": "passata",
+        "g": 80
+       },
+       {
+        "f": "olio",
+        "g": 5
+       }
+      ],
+      "steps": "Filone di pane bianco svuotato dalla mollica, dentro macinato cotto con soffritto di cipolla e aglio e sughetto di pomodoro con basilico."
+     },
+     {
+      "n": "Pasta verde",
+      "ic": "f_pasta",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 90
+       },
+       {
+        "f": "yRicottaLight",
+        "g": 100
+       },
+       {
+        "f": "spinaci",
+        "g": 100
+       },
+       {
+        "f": "olio",
+        "g": 10
+       }
+      ],
+      "steps": "Frulla la ricotta light con spinaci già bolliti (o rucola, zucchine, broccoli), olio, sale e spezie: una crema proteica verde per la pasta."
+     },
+     {
+      "n": "Cotolette di ceci",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "ceci",
+        "g": 180
+       },
+       {
+        "f": "uova",
+        "g": 60
+       },
+       {
+        "f": "parmigiano",
+        "g": 10
+       },
+       {
+        "f": "yPaneComune",
+        "g": 65
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Frulla i ceci con spezie, aglio e cipolla, aggiungi parmigiano e un uovo (acqua se serve). Cuoci in padella con un filo d'olio. Con verdure e 60-70 g di pane."
+     }
+    ]
+   },
+   {
+    "k": "merenda",
+    "n": "Merenda",
+    "t": "17:00",
+    "opts": [
+     {
+      "n": "Latticino e pane",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yCottageCheese",
+        "g": 150
+       },
+       {
+        "f": "yPaneComune",
+        "g": 30
+       },
+       {
+        "f": "mandorle",
+        "g": 5
+       }
+      ],
+      "steps": "Fiocchi di latte, ricotta light (100 g), yogurt greco 0%, kefir o skyr. Con una fetta di pane o 20-30 g di muesli, e 3-4 mandorle se vuoi."
+     },
+     {
+      "n": "French toast",
+      "ic": "f_banana",
+      "items": [
+       {
+        "f": "yPaneInCassettaBianco",
+        "g": 60
+       },
+       {
+        "f": "yLatteParzialmenteScremato",
+        "g": 100
+       },
+       {
+        "f": "uova",
+        "g": 60
+       },
+       {
+        "f": "olio",
+        "g": 5
+       },
+       {
+        "f": "frutti",
+        "g": 80
+       },
+       {
+        "f": "miele",
+        "g": 10
+       }
+      ],
+      "steps": "2-3 fette di pan bauletto inzuppate in latte e uovo sbattuto (cannella se vuoi), cotte in padella unta d'olio. Sopra frutta fresca e miele o sciroppo d'agave."
+     },
+     {
+      "n": "Toast con affettato",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPaneInCassettaBianco",
+        "g": 25
+       },
+       {
+        "f": "yFesaDiTacchinoAffettata",
+        "g": 75
+       },
+       {
+        "f": "insalata",
+        "g": 40
+       }
+      ],
+      "steps": "Al posto dell'affettato: 1 uovo con 80-100 ml di albume, 150 g di fiocchi di latte o 100 g di ricotta light."
+     },
+     {
+      "n": "Spuntino dolce",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yogurt",
+        "g": 175
+       },
+       {
+        "f": "yMuesliSenzaZucchero",
+        "g": 25
+       }
+      ],
+      "steps": "Skyr, kefir o yogurt greco 0% alla frutta (150-200 g). Al posto del muesli 40 g di farro, riso o orzo soffiato."
+     }
+    ]
+   },
+   {
+    "k": "cena",
+    "n": "Cena",
+    "t": "20:30",
+    "opts": [
+     {
+      "n": "Patate e proteina",
+      "ic": "f_patata",
+      "items": [
+       {
+        "f": "yPatateCrude",
+        "g": 225
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "yPettoDiPolloCrudo",
+        "g": 130
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Patate 200-250 g al posto della pasta, poi verdure, un cucchiaio d'olio e la proteina."
+     },
+     {
+      "n": "Pasta e pollo",
+      "ic": "f_pollo",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 80
+       },
+       {
+        "f": "passata",
+        "g": 100
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "yPettoDiPolloCrudo",
+        "g": 130
+       },
+       {
+        "f": "zucchine",
+        "g": 200
+       }
+      ],
+      "steps": "Primo: pasta, riso, orzo o farro 80 g con sugo, olio un cucchiaio. Secondo: pollo, tacchino, burger, macinato, merluzzo, salmone, sgombro, tonno, albume, seitan o tofu (100-150 g). Verdure in abbondanza a pranzo e a cena. Circa 2 litri d'acqua al giorno e 2 frutti di stagione."
+     },
+     {
+      "n": "Pasta al pesto e pesce",
+      "ic": "f_pasta",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 80
+       },
+       {
+        "f": "yPestoAllaGenovese",
+        "g": 15
+       },
+       {
+        "f": "merluzzo",
+        "g": 150
+       },
+       {
+        "f": "spinaci",
+        "g": 200
+       }
+      ],
+      "steps": "Con il pesto (tre cucchiaini o un cucchiaio) niente olio."
+     },
+     {
+      "n": "Pane e proteina",
+      "ic": "f_steak",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 95
+       },
+       {
+        "f": "yManzoMagroCrudo",
+        "g": 130
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Pane 90-100 g al posto della pasta."
+     },
+     {
+      "n": "Pasta e legumi",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 50
+       },
+       {
+        "f": "ceci",
+        "g": 150
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "broccoli",
+        "g": 200
+       }
+      ],
+      "steps": "50 g di pasta con 150 g di ceci, lenticchie o fagioli."
+     },
+     {
+      "n": "Pizza proteica",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 100
+       },
+       {
+        "f": "passata",
+        "g": 80
+       },
+       {
+        "f": "mozzLight",
+        "g": 125
+       },
+       {
+        "f": "olio",
+        "g": 10
+       }
+      ],
+      "steps": "Una bruschetta grande tostata in forno o in padella, sugo di passata con basilico, olio e aglio, sopra la mozzarella proteica."
+     },
+     {
+      "n": "Paninazzo pazzo",
+      "ic": "f_steak",
+      "items": [
+       {
+        "f": "yPaneComune",
+        "g": 100
+       },
+       {
+        "f": "yManzoMagroCrudo",
+        "g": 120
+       },
+       {
+        "f": "passata",
+        "g": 80
+       },
+       {
+        "f": "olio",
+        "g": 5
+       }
+      ],
+      "steps": "Filone di pane bianco svuotato dalla mollica, dentro macinato cotto con soffritto di cipolla e aglio e sughetto di pomodoro con basilico."
+     },
+     {
+      "n": "Pasta verde",
+      "ic": "f_pasta",
+      "items": [
+       {
+        "f": "yPastaDiSemolaCruda",
+        "g": 90
+       },
+       {
+        "f": "yRicottaLight",
+        "g": 100
+       },
+       {
+        "f": "spinaci",
+        "g": 100
+       },
+       {
+        "f": "olio",
+        "g": 10
+       }
+      ],
+      "steps": "Frulla la ricotta light con spinaci già bolliti (o rucola, zucchine, broccoli), olio, sale e spezie: una crema proteica verde per la pasta."
+     },
+     {
+      "n": "Cotolette di ceci",
+      "ic": "f_bowl",
+      "items": [
+       {
+        "f": "ceci",
+        "g": 180
+       },
+       {
+        "f": "uova",
+        "g": 60
+       },
+       {
+        "f": "parmigiano",
+        "g": 10
+       },
+       {
+        "f": "yPaneComune",
+        "g": 65
+       },
+       {
+        "f": "olio",
+        "g": 10
+       },
+       {
+        "f": "insalata",
+        "g": 150
+       }
+      ],
+      "steps": "Frulla i ceci con spezie, aglio e cipolla, aggiungi parmigiano e un uovo (acqua se serve). Cuoci in padella con un filo d'olio. Con verdure e 60-70 g di pane."
+     }
+    ]
+   },
+   {
+    "k": "dopocena",
+    "n": "Dopo cena",
+    "t": "21:30",
+    "opts": [
+     {
+      "n": "Dolcetto",
+      "ic": "f_yogurt",
+      "items": [
+       {
+        "f": "yCioccolatoFondente",
+        "g": 20
+       }
+      ],
+      "steps": "Due biscotti o una merendina piccola, oppure 20 g di cioccolato fondente almeno al 60%. Due pasti liberi a settimana: sushi, pizza, burger, senza sensi di colpa."
+     }
+    ]
+   }
+  ],
+  "targets": {
+   "facile": {
+    "n": "Giorno facile",
+    "kcal": 1800,
+    "p": 135,
+    "c": 200,
+    "f": 50
+   },
+   "normale": {
+    "n": "Giorno normale",
+    "kcal": 1800,
+    "p": 135,
+    "c": 200,
+    "f": 50
+   },
+   "duro": {
+    "n": "Giorno di allenamento",
+    "kcal": 1800,
+    "p": 135,
+    "c": 200,
+    "f": 50
+   }
+  }
+ },
+ "foods": {
+  "mAvena": [
+   "Fiocchi d'avena",
+   "carbo",
+   13,
+   60,
+   7
+  ]
+ },
+ "avatar": "9ee1472da4fdb62b-avatar.png",
+ "profile": {
+  "name": "Giulia",
+  "sex": "f",
+  "kg": "59",
+  "height": "166",
+  "goal": "forza",
+  "race": "Ricomposizione corporea"
+ }
+}
