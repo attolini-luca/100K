@@ -537,7 +537,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261127d';
+const AV = '20261127e';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -2875,7 +2875,7 @@ const OB_STEPS = [
   {id: 'avatar', ic: 'avatar', t: 'Il tuo avatar', sub: 'Un selfie trasformato in memoji 3D con ChatGPT. Lo vedi in home e nella lega.',
     body: () => `<div class="avbox">${ico('avatar', 'cur')}</div><button type="button" class="btn" id="obAv" style="width:100%">Crea il mio avatar</button>`},
   {id: 'scheda', ic: 'dumbbell', t: 'La tua scheda', sub: 'Hai già un programma di allenamento?',
-    body: () => obChips('planSrc', [['io', 'Sì, la inserisco io', 'f_bodybuilder'], ['coach', 'Me la prepara Luca', 'trophy'], ['dopo', 'Ci penso dopo', 'bed']])},
+    body: () => custom.plan && custom.plan.start ? `<div class="obcheck"><span>✅ Luca ti ha già preparato la scheda${custom.diet ? ' e la dieta' : ''}: la trovi pronta in Allenamento. Puoi cambiarla quando vuoi da Piano.</span></div>` : obChips('planSrc', [['io', 'Sì, la inserisco io', 'f_bodybuilder'], ['coach', 'Me la prepara Luca', 'trophy'], ['dopo', 'Ci penso dopo', 'bed']])},
   {id: 'notif', ic: 'bolt', t: 'Promemoria', sub: 'Allenamento del giorno, integratori e proposito della sera. Si spengono quando vuoi.',
     body: () => `<button type="button" class="btn" id="obPush" style="width:100%">${ob.push ? 'Notifiche attive ✓' : 'Attiva le notifiche'}</button><p class="obhint">Su iPhone funzionano solo se l'app è aggiunta alla schermata Home.</p>`},
   {id: 'fine', ic: 'f_fuoco', t: 'Tutto pronto!', sub: 'Puoi cambiare tutto da Piano > Il mio profilo.', must: true,
