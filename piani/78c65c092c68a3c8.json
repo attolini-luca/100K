@@ -82,7 +82,8 @@
       "s": 4,
       "r": "4 @72%"
      }
-    }
+    },
+    "after": "dopo la 4ª: scarico attivo"
    },
    {
     "k": "xStaccoRumenoConManubri",
@@ -178,7 +179,8 @@
       "s": 4,
       "r": "2 @70%"
      }
-    }
+    },
+    "after": "dopo la 4ª: scarico attivo"
    },
    {
     "k": "mHipThrust",
