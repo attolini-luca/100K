@@ -530,7 +530,7 @@ const IMG = {shoe: 'g_shoe', kettle: 'g_kettle', dumbbell: 'g_dumbbell', heart: 
 const FACES = ['me','f1','f2','f3','f4','f5','f6','f7','f8','f9','f10','f11','f12'];
 let avatar = 'me';
 try { const a = localStorage.getItem('scheda100k-avatar2'); if (FACES.includes(a)) avatar = a; } catch (e) {}
-const AV = '20261126a';
+const AV = '20261127a';
 let avatarImg = null; try { avatarImg = localStorage.getItem('scheda100k-avimg'); } catch (e) {}
 const ico = (name, cls = '') => name === 'avatar' && !avatarImg && !isOwner ? `<img class="${cls}" src="em/anon.png?v=${AV}" alt="" draggable="false">` : name === 'avatar' && avatarImg ? `<img class="${cls}" src="${avatarImg}" alt="" draggable="false">` : `<img class="${cls}" src="em/${name === 'avatar' ? avatar : (/^(g_|m_|f_)/.test(name) ? name : (IMG[name] || 'sparkles'))}.png?v=${AV}" alt="" draggable="false">`;
 
@@ -1250,12 +1250,14 @@ function planUser(iso) {
   return {w, d, s: typeof userDaySessions === 'function' ? userDaySessions(d, w, iso) : []};
 }
 function maybeOnboard() { if (typeof startOnboarding === 'function' && !isOwner && profileReady && !profile.done && mode === 'db') startOnboarding(); }
+// giorno = piano + sedute aggiunte solo a quel giorno
+function planDay(iso) { const b = planBase(iso), ex = extraSessions(iso); if (!ex.length) return b; const ids = new Set(b.s.map(x => x.id)); return Object.assign({}, b, {s: b.s.concat(ex.map(x => Object.assign({}, x, {oid: x.id, extra: true}, ids.has(x.id) ? {id: x.id + '_x'} : {})))}); }
 function plan(iso) {
-  const base = planBase(iso), mv = movesOf();
+  const base = planDay(iso), mv = movesOf();
   const keep = base.s.filter(ss => { const t = mv[iso + '|' + ss.id]; return !t || t === iso; }).map(ss => Object.assign({}, ss, {okey: iso + '|' + ss.id}));
   for (const [k, t] of Object.entries(mv)) {
     if (t !== iso) continue; const [o, sid] = k.split('|'); if (o === iso) continue;
-    const ss = planBase(o).s.find(x => x.id === sid); if (!ss) continue;
+    const ss = planDay(o).s.find(x => x.id === sid); if (!ss) continue;
     const id = keep.some(x => x.id === sid) ? sid + '_' + o.slice(5) : sid;
     keep.push(Object.assign({}, ss, {id, okey: k, movedFrom: o}));
   }
@@ -1547,6 +1549,7 @@ function card(iso, ss, num) {
   if (ss.kind === 'run' || ss.kind === 'test') inner += fieldsRun(iso, ss, ss.kind === 'test');
   if (ss.kind === 'circuit' || ss.kind === 'stair') inner += fieldsSimple(iso, ss);
   if (ss.kind === 'strength') inner += strengthBlock(iso, ss);
+  if (ss.extra) inner += `<div class="exadd" style="margin-top:8px"><button class="ghost2" data-xedit="${ss.movedFrom || iso}|${ss.oid || ss.id}">Modifica o togli (solo questo giorno)</button></div>`;
   if (ss.kind === 'plyo' || ss.kind === 'mobility') inner += '<div style="margin-top:6px">' + ss.items.map((it, i) => { const id = Array.isArray(it) ? it[0] : 'm' + i, lab = Array.isArray(it) ? it[1] : it; return `<label class="chk"><input type="checkbox" data-s="${ss.id}" data-c="${id}" ${(l.chk || {})[id] ? 'checked' : ''}>${esc(lab)}</label>`; }).join('') + '</div>';
   inner += `<div class="note"><textarea data-s="${ss.id}" data-k="note" rows="1" aria-label="Note" placeholder="Note: sensazioni, dolori, meteo…">${esc(l.note || '')}</textarea></div>`;
   if (ss.okey) inner += `<div class="cfoot"><span class="anum sm">${esc(num || '')}</span><span>${ss.movedFrom ? `Spostato da ${DAYS[dayIdx(ss.movedFrom)].toLowerCase()} ${dnum(ss.movedFrom)}` : `Allenamento ${esc(num || '')}`}</span><button class="mini" data-move="${ss.okey}">↔ Sposta</button></div>`;
@@ -1569,6 +1572,7 @@ function vOggi() {
   const nums = weekNumbers(Math.max(weekOf(cur), 0));
   if (!p.s.length) h += `<div class="rest glass">${ico('rest')}<h2>Riposo</h2><p>${esc(p.note || 'Niente in programma.')}</p></div>`;
   else { h += p.s.map(ss => card(cur, ss, nums[ss.okey])).join(''); if (p.note) h += `<p class="eyebrow" style="text-align:center">${esc(p.note)}</p>`; }
+  h += `<div class="exadd" style="justify-content:center;margin:6px 0 14px"><button class="pillbtn" data-dayadd="${cur}">+ Aggiungi allenamento</button></div>`;
   return h;
 }
 function donut(mins) {
@@ -2203,10 +2207,10 @@ function vCibo() {
     const oi = mealOptIndex(iso, m), o = m.opts[oi], mm = macros(o.items, kind), done = !!(fl[m.k] || {}).d;
     const items = o.items.filter(it => grams(it, kind) > 0 || FOOD(it.f)[2] + FOOD(it.f)[3] + FOOD(it.f)[4] === 0);
     h += `<article class="sc meal" style="${tv(m.k === 'cena' ? 'circ' : m.k === 'post' ? 'str' : m.k === 'merenda' ? 'kg' : m.k === 'pranzo' ? 'run' : m.k === 'pre' ? 'q' : 'long')}"><header><div class="ic">${ico(o.ic || 'f_patata')}</div><div><div class="lbl">${esc(m.n)} · ${esc(m.t)}</div><h2>${esc(o.n)}</h2><p class="tg">${Math.round(mm.kcal)} kcal · P ${Math.round(mm.p)} · C ${Math.round(mm.c)} · G ${Math.round(mm.f)}</p></div><button class="ck" data-eat="${m.k}" aria-pressed="${done}" aria-label="Segna come mangiato">✓</button></header>`;
-    if (m.opts.length > 1) h += `<div class="chips optc">${m.opts.map((x, i) => `<button data-opt="${m.k}" data-i="${i}" aria-pressed="${i === oi}">${m.rotate ? esc(x.n) : 'Opzione ' + 'ABCDEFG'[i]}</button>`).join('')}</div>`;
+    if (m.opts.length > 1) h += `<div class="chips optc">${m.opts.map((x, i) => `<button data-opt="${m.k}" data-i="${i}" aria-pressed="${i === oi}">${x.n && m.opts.filter(y => y.n === x.n).length === 1 ? esc(x.n) : 'Opzione ' + 'ABCDEFGHIJ'[i]}</button>`).join('')}</div>`;
     h += `<ul class="ing">${items.map(it => `<li><span>${esc(FOOD(it.f)[0])}</span><b>${esc(qty(it, kind))}</b></li>`).join('')}</ul>`;
     if (o.steps) h += `<details class="steps2"><summary>Come si prepara</summary><p>${esc(o.steps)}</p></details>`;
-    h += `<div class="exadd"><button class="pillbtn" data-medit="${m.k}" data-i="${oi}">Modifica</button>${m.rotate ? `<button class="ghost2" data-maddopt="${m.k}">+ Nuova cena</button>` : ''}</div></article>`;
+    h += `<div class="exadd"><button class="pillbtn" data-medit="${m.k}" data-i="${oi}">Modifica</button><button class="ghost2" data-maddopt="${m.k}">+ Nuova ${m.k === 'cena' ? 'cena' : 'opzione'}</button></div></article>`;
   }
   h += suppBlock(iso);
   h += `<div class="exadd" style="justify-content:center;padding-bottom:10px"><button class="pillbtn" data-act="spesa">🛒 Lista della spesa della settimana</button>${custom.diet ? '<button class="ghost2" data-act="dietreset">Ripristina dieta originale</button>' : ''}</div>`;
@@ -2923,11 +2927,16 @@ const runDef = k => RUNLIB[k] || (() => { const c = (custom.runlib || {})[k]; re
 const RUN_ICONS = ['shoe', 'f_runner', 'mountain', 'f_vetta', 'bolt', 'flame', 'watch', 'sparkles', 'g_rocket', 'heart', 'feet', 'moon', 'g_bike', 'g_swim', 'stairs', 'leaf', 'kettle', 'trophy'];
 const RUN_CATS = [['run', 'Facile', {}], ['q', 'Qualità', {}], ['long', 'Lungo', {long: true}], ['cardio', 'Cardio senza km', {nokm: true}]];
 const uplan = () => custom.plan || {start: null, days: [[], [], [], [], [], [], []], tpl: {}};
-function userDaySessions(d, w, iso) {
+// d numero = giorno della settimana tipo; d data (2026-11-27) = sedute aggiunte solo a quel giorno (plan.extra)
+const PD = (pl, d) => typeof d === 'number' ? (pl.days[d] = pl.days[d] || []) : ((pl.extra = pl.extra || {})[d] = pl.extra[d] || []);
+const dayName = d => typeof d === 'number' ? DLONG[d].toLowerCase() : (d === localToday() ? 'oggi' : DAYS[dayIdx(d)].toLowerCase() + ' ' + dnum(d));
+const extraSessions = iso => { const pl = custom.plan; return pl && pl.extra && pl.extra[iso] && pl.extra[iso].length ? itemsToSess(pl.extra[iso]) : []; };
+function userDaySessions(d, w, iso) { return itemsToSess(uplan().days[d] || []); }
+function itemsToSess(items) {
   const pl = uplan(), out = [];
-  for (const it of (pl.days[d] || [])) {
+  for (const it of items) {
     if (it.type === 'str') {
-      const t = pl.tpl[it.sess] || {t: 'Forza'};
+      const t = pl.tpl[it.sess] || (typeof SESS !== 'undefined' && SESS[it.sess] ? {t: SESS[it.sess].t, d: SESS[it.sess].d, min: SESS[it.sess].min} : {t: 'Forza'});
       out.push({id: it.id, slot: it.slot || 'Sera', kind: 'strength', cat: 'str', ic: 'dumbbell', title: t.t + (t.d ? ': ' + t.d : ''), planMin: num(t.min) || 60, sess: it.sess, target: it.note || t.note || 'RPE 8: 1-2 ripetizioni in riserva. Tutte le serie al massimo? La prossima volta aumenta il carico'});
       continue;
     }
@@ -2953,14 +2962,14 @@ function sheetTop(t) { return `<div class="grab"></div><div style="display:flex;
 let bCtx = null;
 function openAdd(d) {
   bCtx = {d}; const pl = uplan();
-  const strs = Object.entries(pl.tpl);
-  sheet.innerHTML = `${sheetTop('Aggiungi a ' + DLONG[d].toLowerCase())}
+  const strs = Object.entries(pl.tpl).concat(isOwner && typeof SESS !== 'undefined' ? Object.entries(SESS).map(([k, s]) => [k, {t: s.t + (s.d ? ': ' + s.d : '')}]) : []);
+  sheet.innerHTML = `${sheetTop('Aggiungi a ' + dayName(d))}${typeof d === 'number' ? '' : '<p class="obhint" style="margin:4px 0 0">Vale solo per questo giorno: la settimana tipo non cambia.</p>'}
     <h3 class="bh3">Forza</h3><div class="bgrid">${strs.map(([k, t]) => `<button class="bopt" data-bpick="str:${k}">${ico('dumbbell')}<b>${esc(t.t)}</b><small>${exList(k).length} esercizi</small></button>`).join('')}<button class="bopt new" data-bpick="strnew">${ico('f_bodybuilder')}<b>Nuova seduta</b><small>dalla libreria</small></button></div>
     <h3 class="bh3">Corsa e cardio</h3><div class="bgrid">${Object.keys(RUNLIB).concat(Object.keys(custom.runlib || {})).map(k => { const L = runDef(k); return `<button class="bopt" data-bpick="run:${k}">${ico(L.ic)}<b>${esc(L.n)}</b><small>${L.min}'${L.own ? ' · tuo' : ''}</small></button>`; }).join('')}<button class="bopt new" data-bpick="runnew">${ico('sparkles')}<b>Nuovo tipo</b><small>crealo tu</small></button></div>`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
 function openItem(d, i) {
-  const pl = uplan(), it = pl.days[d][i]; bCtx = {d, i};
+  const pl = uplan(), it = PD(JSON.parse(JSON.stringify(pl)), d)[i]; bCtx = {d, i};
   const L = it.type === 'run' ? (runDef(it.run) || RUNLIB.z2) : null, t = it.type === 'str' ? pl.tpl[it.sess] : null;
   const slotChips = `<div class="chips" style="flex-wrap:wrap">${SLOTS.map(s => `<button type="button" data-bslot="${s}" aria-pressed="${(it.slot || (L ? 'Mattina' : 'Sera')) === s}">${s}</button>`).join('')}</div>`;
   const dayChips = `<div class="chips" style="flex-wrap:wrap">${DLONG.map((n, k) => `<button type="button" data-bmove="${k}" aria-pressed="${k === d}">${n.slice(0, 3)}</button>`).join('')}</div>`;
@@ -2976,12 +2985,12 @@ function openItem(d, i) {
       <label class="fl" style="display:block;margin-bottom:10px">Come si fa <small style="color:var(--soft)">(una riga per passaggio, modificala come vuoi)</small><span class="in" style="display:block"><textarea id="bSteps" rows="${Math.max(3, stp.length + 1)}" style="border:0;background:none;width:100%;font:inherit;resize:vertical;padding:10px 0">${esc(stp.join('\n'))}</textarea></span></label>
       <form id="bForm" class="form"><label class="fl">Durata<span class="in"><input id="bMin" inputmode="numeric" value="${esc(it.min || L.min)}"><span>min</span></span></label>${L.nokm ? '' : `<label class="fl">Distanza<span class="in"><input id="bKm" inputmode="decimal" value="${esc(it.km || '')}" placeholder="facoltativa"><span>km</span></span></label>`}<label class="fl" style="grid-column:1/-1">Nota<span class="in"><input id="bNote" value="${esc(it.note || '')}" placeholder="Es. con Margot al parco"></span></label></form>`;
   }
-  sheet.innerHTML = `${sheetTop(t ? 'Seduta di forza' : L.n)}${body}<h3 class="bh3">Quando</h3>${slotChips}<h3 class="bh3">Giorno</h3>${dayChips}
+  sheet.innerHTML = `${sheetTop(t ? 'Seduta di forza' : L.n)}${body}<h3 class="bh3">Quando</h3>${slotChips}${typeof d === 'number' ? `<h3 class="bh3">Giorno</h3>${dayChips}` : ''}
     <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:16px"><button class="btn" data-bsave="1">Salva</button><button class="btn light" data-bdel="1">Togli</button></div>`;
   sheet.classList.add('on'); scrim.classList.add('on');
 }
 function readItem() {
-  const pl = JSON.parse(JSON.stringify(uplan())), {d, i} = bCtx, it = pl.days[d][i], v = id => { const e = document.getElementById(id); return e ? e.value.trim() : null; };
+  const pl = JSON.parse(JSON.stringify(uplan())), {d, i} = bCtx, it = PD(pl, d)[i], v = id => { const e = document.getElementById(id); return e ? e.value.trim() : null; };
   if (it.type === 'str') { const t = pl.tpl[it.sess]; t.t = v('bT') || t.t; t.d = v('bD') || ''; t.min = num(v('bMin')) || 60; }
   else {
     it.min = num(v('bMin')) || null; if (v('bKm') != null) it.km = num(v('bKm')) || null; it.note = v('bNote') || '';
@@ -3013,8 +3022,8 @@ sheet.addEventListener('click', e => {
     const k = typeof bCtx.newRun === 'string' ? bCtx.newRun : 'r' + pid();
     custom.runlib = Object.assign({}, custom.runlib, {[k]: def});
     if (typeof bCtx.newRun === 'string') { saveCustom(); renderTick++; render(); closeSheet(); bCtx = null; return; }
-    const pl = JSON.parse(JSON.stringify(uplan())), d = bCtx.d; pl.days[d] = (pl.days[d] || []).concat([{id: pid(), type: 'run', run: k, slot: 'Mattina', min: def.min}]);
-    custom.plan = pl; saveCustom(); renderTick++; render(); openItem(d, pl.days[d].length - 1); return;
+    const pl = JSON.parse(JSON.stringify(uplan())), d = bCtx.d; PD(pl, d).push({id: pid(), type: 'run', run: k, slot: 'Mattina', min: def.min});
+    custom.plan = pl; saveCustom(); renderTick++; render(); openItem(d, PD(pl, d).length - 1); return;
   }
   if (b.dataset.rtedit) { openRunType(bCtx.d, b.dataset.rtedit); return; }
   if (b.dataset.bpick) {
@@ -3023,18 +3032,20 @@ sheet.addEventListener('click', e => {
     else if (v.startsWith('str:')) it = {id: pid(), type: 'str', sess: v.slice(4), slot: 'Sera'};
     else if (v === 'runnew') { openRunType(d); return; }
     else it = {id: pid(), type: 'run', run: v.slice(4), slot: 'Mattina', min: runDef(v.slice(4)).min};
-    pl.days[d] = (pl.days[d] || []).concat([it]); custom.plan = pl; saveCustom(); renderTick++; render();
-    openItem(d, pl.days[d].length - 1); return;
+    PD(pl, d).push(it); custom.plan = pl; saveCustom(); renderTick++; render();
+    openItem(d, PD(pl, d).length - 1); return;
   }
-  if (b.dataset.bslot) { const pl = readItem(); pl.days[bCtx.d][bCtx.i].slot = b.dataset.bslot; custom.plan = pl; openItem(bCtx.d, bCtx.i); return; }
-  if (b.dataset.bmove) { const pl = readItem(), to = +b.dataset.bmove; if (to === bCtx.d) return; const [it] = pl.days[bCtx.d].splice(bCtx.i, 1); pl.days[to].push(it); custom.plan = pl; bCtx = {d: to, i: pl.days[to].length - 1}; openItem(bCtx.d, bCtx.i); return; }
+  if (b.dataset.bslot) { const pl = readItem(); PD(pl, bCtx.d)[bCtx.i].slot = b.dataset.bslot; custom.plan = pl; openItem(bCtx.d, bCtx.i); return; }
+  if (b.dataset.bmove) { const pl = readItem(), to = +b.dataset.bmove; if (to === bCtx.d) return; const [it] = PD(pl, bCtx.d).splice(bCtx.i, 1); PD(pl, to).push(it); custom.plan = pl; bCtx = {d: to, i: PD(pl, to).length - 1}; openItem(bCtx.d, bCtx.i); return; }
   if (b.dataset.bsave) { savePlan(readItem()); closeSheet(); bCtx = null; return; }
-  if (b.dataset.bdel) { const pl = readItem(); pl.days[bCtx.d].splice(bCtx.i, 1); const used = new Set(pl.days.flat().filter(x => x.type === 'str').map(x => x.sess)); for (const k of Object.keys(pl.tpl)) if (!used.has(k)) delete pl.tpl[k]; savePlan(pl); closeSheet(); bCtx = null; return; }
-  if (b.dataset.bexadd || b.dataset.bexed) { const pl = readItem(); custom.plan = pl; const ctx = Object.assign({}, bCtx), sess = pl.days[ctx.d][ctx.i].sess; afterPick = () => { bCtx = ctx; openItem(ctx.d, ctx.i); }; if (b.dataset.bexed) openEdit(sess, +b.dataset.bexed); else openLib(sess); return; }
-  if (b.dataset.bexdel) { const pl = readItem(); custom.plan = pl; const sess = pl.days[bCtx.d][bCtx.i].sess, list = exList(sess).slice(); list.splice(+b.dataset.bexdel, 1); custom.sess = Object.assign({}, custom.sess, {[sess]: list}); saveCustom(); openItem(bCtx.d, bCtx.i); }
+  if (b.dataset.bdel) { const pl = readItem(); PD(pl, bCtx.d).splice(bCtx.i, 1); const used = new Set(pl.days.flat().concat(Object.values(pl.extra || {}).flat()).filter(x => x.type === 'str').map(x => x.sess)); for (const k of Object.keys(pl.tpl)) if (!used.has(k)) delete pl.tpl[k]; savePlan(pl); closeSheet(); bCtx = null; return; }
+  if (b.dataset.bexadd || b.dataset.bexed) { const pl = readItem(); custom.plan = pl; const ctx = Object.assign({}, bCtx), sess = PD(pl, ctx.d)[ctx.i].sess; afterPick = () => { bCtx = ctx; openItem(ctx.d, ctx.i); }; if (b.dataset.bexed) openEdit(sess, +b.dataset.bexed); else openLib(sess); return; }
+  if (b.dataset.bexdel) { const pl = readItem(); custom.plan = pl; const sess = PD(pl, bCtx.d)[bCtx.i].sess, list = exList(sess).slice(); list.splice(+b.dataset.bexdel, 1); custom.sess = Object.assign({}, custom.sess, {[sess]: list}); saveCustom(); openItem(bCtx.d, bCtx.i); }
 });
 viewEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.dayadd) { openAdd(b.dataset.dayadd); return; }
+  if (b.dataset.xedit) { const [iso, id] = b.dataset.xedit.split('|'), i = ((uplan().extra || {})[iso] || []).findIndex(x => x.id === id); if (i >= 0) openItem(iso, i); return; }
   if (b.dataset.bstart) { const s = document.getElementById('bStart').value || localToday(); const pl = uplan(); savePlan(Object.assign({}, pl, {start: weekStart(Math.max(0, weekOf(s)))})); }
   else if (b.dataset.badd != null) openAdd(+b.dataset.badd);
   else if (b.dataset.bedit) { const [d, i] = b.dataset.bedit.split(':').map(Number); openItem(d, i); }
@@ -3240,7 +3251,7 @@ viewEl.addEventListener('click', e => {
   else if (b.dataset.eat) { const f = editFood(cur, b.dataset.eat); f.d = !f.d; queueSave(cur); render(); }
   else if (b.dataset.opt) { editFood(cur, b.dataset.opt).o = +b.dataset.i; queueSave(cur); render(); }
   else if (b.dataset.medit) openMealEdit(b.dataset.medit, +b.dataset.i);
-  else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); m.opts.push({n: 'Nuova cena', ic: 'f_patata', items: [{f: 'pollo', g: 200}, {f: 'patDolce', g: 300, d: {duro: 400, facile: 200}}, {f: 'insalata', g: 60}, {f: 'olio', g: 10}], steps: ''}); saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
+  else if (b.dataset.maddopt) { const dd = cloneDiet(), m = dd.meals.find(x => x.k === b.dataset.maddopt); { const base = m.opts[mealOptIndex(cur, m)] || m.opts[0], cp = JSON.parse(JSON.stringify(base)); cp.n = m.k === 'cena' ? 'Nuova cena' : 'Nuova opzione'; cp.steps = ''; m.opts.push(cp); } saveDiet(dd); editFood(cur, m.k).o = m.opts.length - 1; queueSave(cur); render(); openMealEdit(m.k, m.opts.length - 1); }
   else if (b.dataset.act === 'spesa') openSpesa();
   else if (b.dataset.act === 'profilo') startOnboarding(true);
   else if (b.dataset.act === 'report') openReport();
